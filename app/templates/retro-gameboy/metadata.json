@@ -1,0 +1,4 @@
+{
+  "name": "Retro Gameboy",
+  "fields": ["title", "message", "sender"]
+}
