@@ -10,7 +10,8 @@ import {
   ArrowRight, Sparkles, Gift, Heart, Phone, Star, PenTool, Play, 
   Instagram, MessageCircle, LogIn, Quote, UserPlus, 
   Flower2, Bird, Cloud, Music,
-  User, LogOut, Settings, ChevronDown, Layout, CheckCircle2
+  User, LogOut, Settings, ChevronDown, Layout, CheckCircle2,
+  Newspaper, Stamp 
 } from "lucide-react";
 
 // --- KONFIGURASI FONT ---
@@ -386,15 +387,14 @@ function HomeContent() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                  
-                 {/* CARD 1: RETRO */}
+                 {/* CARD 1: RETRO (Portrait 2:3) */}
                  <Link href="/templates/retro-gameboy" className="group cursor-pointer block">
-                    <div className="relative aspect-[4/5] bg-[#F5F5F4] rounded-[2rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border border-stone-100 group-hover:-translate-y-2">
+                    <div className="relative aspect-[2/3] bg-[#F5F5F4] rounded-[2rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border border-stone-100 group-hover:-translate-y-2">
                        <Image src="/retro-gameboy-2.png" alt="Retro Gameboy" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                        <div className="absolute top-5 right-5 bg-white/95 backdrop-blur px-4 py-1.5 rounded-full text-xs font-bold text-stone-900 uppercase tracking-widest flex items-center gap-1.5 shadow-sm">
                           <Star size={12} fill="orange" className="text-amber-400"/> Best Seller
                        </div>
                        
-                       {/* Hover Overlay with Accent Button */}
                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                           <span className="bg-white text-stone-900 px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl border border-amber-100">
                              Edit Template
@@ -407,40 +407,86 @@ function HomeContent() {
                     </div>
                  </Link>
 
-                 {/* CARD 2: MINIMALIST */}
-                 <Link href="/templates/minimalist" className="group cursor-pointer block">
-                    <div className="relative aspect-[4/5] bg-[#F5F5F4] rounded-[2rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border border-stone-100 group-hover:-translate-y-2 flex items-center justify-center bg-white">
-                       <div className="text-center p-8 transition-transform duration-500 group-hover:scale-105">
-                          <div className="w-20 h-20 bg-stone-50 rounded-2xl flex items-center justify-center shadow-inner mx-auto mb-6">
-                             <Layout size={40} className="text-stone-300" />
-                          </div>
-                          <p className="text-sm font-bold text-stone-400 uppercase tracking-widest">Minimalist Preview</p>
-                       </div>
+                 {/* KOLOM TENGAH: GABUNGAN CARD LANDSCAPE (Minimalist + Postcard) */}
+                 <div className="flex flex-col gap-10">
+                     
+                     {/* CARD 2: MINIMALIST (Landscape 3:2) */}
+                     <Link href="/templates/minimalist" className="group cursor-pointer block">
+                        <div className="relative aspect-[3/2] bg-[#F5F5F4] rounded-[2rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border border-stone-100 group-hover:-translate-y-2 flex items-center justify-center bg-white">
+                           <Image 
+                             src="/minimalist.png" 
+                             alt="Minimalist" 
+                             fill 
+                             className="object-cover group-hover:scale-105 transition-transform duration-700" 
+                           />
+                           <div className="absolute top-5 right-5 bg-white/95 backdrop-blur px-4 py-1.5 rounded-full text-xs font-bold text-stone-900 uppercase tracking-widest shadow-sm">
+                              Popular
+                           </div>
+                           <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                              <span className="bg-white text-stone-900 px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl border border-amber-100">
+                                 Edit Template
+                              </span>
+                           </div>
+                        </div>
+                        <div className="px-2">
+                           <h3 className={`text-2xl font-medium mb-2 group-hover:text-amber-700 transition-colors ${playfair.className}`}>Modern Minimalist</h3>
+                           <p className="text-stone-500 text-sm leading-relaxed">Elegan, bersih, dan fokus pada tipografi.</p>
+                        </div>
+                     </Link>
+
+                     {/* CARD 4: CLASSIC POSTCARD (Landscape 3:2) - Tepat di bawah Minimalist */}
+                     <Link href="/templates/postcard" className="group cursor-pointer block">
+                        <div className="relative aspect-[3/2] bg-[#F5F5F4] rounded-[2rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border border-stone-100 group-hover:-translate-y-2 flex items-center justify-center bg-white">
+                           
+                           {/* Menggunakan Image Component */}
+                           <Image 
+                             src="/postcard.png" 
+                             alt="Classic Postcard" 
+                             fill 
+                             className="object-cover group-hover:scale-105 transition-transform duration-700" 
+                           />
+
+                           <div className="absolute top-5 right-5 bg-white/95 backdrop-blur px-4 py-1.5 rounded-full text-xs font-bold text-stone-900 uppercase tracking-widest shadow-sm z-10">
+                              Classic
+                           </div>
+
+                           <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20">
+                              <span className="bg-white text-stone-900 px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl border border-amber-100">
+                                 Edit Template
+                              </span>
+                           </div>
+                        </div>
+                        <div className="px-2">
+                           <h3 className={`text-2xl font-medium mb-2 group-hover:text-amber-700 transition-colors ${playfair.className}`}>Classic Postcard</h3>
+                           <p className="text-stone-500 text-sm leading-relaxed">Kirim salam hangat dengan gaya kartu pos klasik.</p>
+                        </div>
+                     </Link>
+
+                 </div>
+
+                 {/* CARD 3: NEWSPAPER (Portrait 2:3) */}
+                 <Link href="/templates/newspaper" className="group cursor-pointer block">
+                    <div className="relative aspect-[2/3] bg-[#F5F5F4] rounded-[2rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border border-stone-100 group-hover:-translate-y-2 flex items-center justify-center bg-white">
+                       <Image 
+                         src="/newspaper.png" 
+                         alt="Vintage Newspaper" 
+                         fill 
+                         className="object-cover group-hover:scale-105 transition-transform duration-700" 
+                       />
                        <div className="absolute top-5 right-5 bg-white/95 backdrop-blur px-4 py-1.5 rounded-full text-xs font-bold text-stone-900 uppercase tracking-widest shadow-sm">
-                          Popular
+                          New
+                       </div>
+                       <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                          <span className="bg-white text-stone-900 px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl border border-amber-100">
+                             Edit Template
+                          </span>
                        </div>
                     </div>
                     <div className="px-2">
-                       <h3 className={`text-2xl font-medium mb-2 group-hover:text-amber-700 transition-colors ${playfair.className}`}>Modern Minimalist</h3>
-                       <p className="text-stone-500 text-sm leading-relaxed">Elegan, bersih, dan fokus pada tipografi.</p>
+                       <h3 className={`text-2xl font-medium mb-2 group-hover:text-amber-700 transition-colors ${playfair.className}`}>Vintage Press</h3>
+                       <p className="text-stone-500 text-sm leading-relaxed">Gaya koran klasik untuk berita heboh.</p>
                     </div>
                  </Link>
-
-                 {/* CARD 3: COMING SOON */}
-                 <div className="group cursor-not-allowed block opacity-60">
-                    <div className="relative aspect-[4/5] bg-stone-50 rounded-[2rem] overflow-hidden mb-6 border-2 border-dashed border-stone-200 flex items-center justify-center">
-                       <div className="text-center p-6">
-                          <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                             <Gift size={24} className="text-stone-400" />
-                          </div>
-                          <span className="text-xs font-bold text-stone-400 uppercase tracking-widest">Coming Soon</span>
-                       </div>
-                    </div>
-                    <div className="px-2">
-                       <h3 className={`text-2xl font-medium mb-2 text-stone-400 ${playfair.className}`}>Floral Wedding</h3>
-                       <p className="text-stone-400 text-sm leading-relaxed">Tema bunga aesthetic segera hadir.</p>
-                    </div>
-                 </div>
 
               </div>
            </div>
@@ -449,40 +495,29 @@ function HomeContent() {
         {/* --- FEATURE HIGHLIGHTS --- */}
         <section id="features" className="bg-[#1C1917] text-white py-32 relative overflow-hidden">
            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10 pointer-events-none" />
-           
            <div className="max-w-7xl mx-auto px-6 relative z-10">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
-                 
                  <div className="text-center group">
                     <div className="w-16 h-16 mx-auto mb-8 bg-white/10 rounded-2xl flex items-center justify-center group-hover:bg-white/20 transition-colors backdrop-blur-md">
                        <PenTool size={32} className="text-amber-300" />
                     </div>
                     <h3 className={`text-2xl font-medium mb-4 ${playfair.className}`}>Editor Intuitif</h3>
-                    <p className="text-stone-400 leading-relaxed font-light">
-                       Ubah teks, ganti foto, dan atur warna semudah drag-and-drop. Tidak butuh skill coding.
-                    </p>
+                    <p className="text-stone-400 leading-relaxed font-light">Ubah teks, ganti foto, dan atur warna semudah drag-and-drop. Tidak butuh skill coding.</p>
                  </div>
-
                  <div className="text-center group">
                     <div className="w-16 h-16 mx-auto mb-8 bg-white/10 rounded-2xl flex items-center justify-center group-hover:bg-white/20 transition-colors backdrop-blur-md">
                        <Phone size={32} className="text-orange-300" />
                     </div>
                     <h3 className={`text-2xl font-medium mb-4 ${playfair.className}`}>Responsif Total</h3>
-                    <p className="text-stone-400 leading-relaxed font-light">
-                       Kartu digital Anda akan terlihat sempurna di iPhone, Android, Tablet, maupun Desktop.
-                    </p>
+                    <p className="text-stone-400 leading-relaxed font-light">Kartu digital Anda akan terlihat sempurna di iPhone, Android, Tablet, maupun Desktop.</p>
                  </div>
-
                  <div className="text-center group">
                     <div className="w-16 h-16 mx-auto mb-8 bg-white/10 rounded-2xl flex items-center justify-center group-hover:bg-white/20 transition-colors backdrop-blur-md">
                        <Cloud size={32} className="text-yellow-200" />
                     </div>
                     <h3 className={`text-2xl font-medium mb-4 ${playfair.className}`}>Berbagi Instan</h3>
-                    <p className="text-stone-400 leading-relaxed font-light">
-                       Dapatkan tautan unik atau unduh sebagai gambar berkualitas tinggi siap kirim via WhatsApp.
-                    </p>
+                    <p className="text-stone-400 leading-relaxed font-light">Dapatkan tautan unik atau unduh sebagai gambar berkualitas tinggi siap kirim via WhatsApp.</p>
                  </div>
-
               </div>
            </div>
         </section>
@@ -497,7 +532,6 @@ function HomeContent() {
               <p className="text-xl text-stone-500 mb-12 max-w-xl mx-auto font-light">
                  Bergabunglah dengan ribuan orang yang telah membuat momen mereka lebih berkesan dengan Cardify.
               </p>
-              
               <Link href={userData ? "#templates" : "/register"} className="inline-flex px-12 py-5 rounded-full bg-[#1C1917] text-white font-bold tracking-wide hover:bg-black hover:scale-105 hover:shadow-2xl transition-all items-center gap-3">
                    {userData ? <Sparkles size={20} className="text-amber-400" /> : <Gift size={20} className="text-amber-400" />}
                    {userData ? "Pilih Template Favorit" : "Buat Akun Gratis"}
@@ -518,11 +552,8 @@ function HomeContent() {
                      </div>
                      <span className={`text-2xl font-bold ${playfair.className} italic`}>Cardify.</span>
                   </div>
-                  <p className="text-sm text-stone-500 leading-relaxed font-medium">
-                     The modern way to celebrate. Creating digital moments that last forever.
-                  </p>
+                  <p className="text-sm text-stone-500 leading-relaxed font-medium">The modern way to celebrate. Creating digital moments that last forever.</p>
                </div>
-               
                <div>
                   <h4 className="font-bold text-stone-900 mb-6 uppercase text-xs tracking-widest">Product</h4>
                   <ul className="space-y-4 text-sm text-stone-500 font-medium">
@@ -531,7 +562,6 @@ function HomeContent() {
                      <li className="hover:text-black cursor-pointer transition-colors">Showcase</li>
                   </ul>
                </div>
-
                <div>
                   <h4 className="font-bold text-stone-900 mb-6 uppercase text-xs tracking-widest">Company</h4>
                   <ul className="space-y-4 text-sm text-stone-500 font-medium">
@@ -540,7 +570,6 @@ function HomeContent() {
                      <li className="hover:text-black cursor-pointer transition-colors">Blog</li>
                   </ul>
                </div>
-
                <div>
                   <h4 className="font-bold text-stone-900 mb-6 uppercase text-xs tracking-widest">Connect</h4>
                   <div className="flex flex-col gap-4">
@@ -555,7 +584,6 @@ function HomeContent() {
                   </div>
                </div>
             </div>
-
             <div className="border-t border-stone-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                <p className="text-xs text-stone-400 font-medium">© 2025 Cardify Inc. All rights reserved.</p>
                <div className="flex gap-8 text-xs text-stone-500 font-bold">
@@ -566,7 +594,7 @@ function HomeContent() {
          </div>
       </footer>
 
-      {/* --- POPUP KONFIRMASI LOGOUT (PREMIUM STYLE) --- */}
+      {/* --- POPUP KONFIRMASI LOGOUT --- */}
       {showLogoutConfirm && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#1C1917]/40 backdrop-blur-sm p-4 animate-in fade-in duration-300" onClick={() => setShowLogoutConfirm(false)}>
           <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm p-8 text-center transform scale-100 animate-in zoom-in-95 duration-300 ring-1 ring-black/5" onClick={(e) => e.stopPropagation()}>
@@ -578,16 +606,10 @@ function HomeContent() {
               Apakah Anda yakin ingin keluar? Anda harus masuk kembali untuk mengakses template yang tersimpan.
             </p>
             <div className="flex flex-col gap-3">
-              <button 
-                onClick={handleLogout}
-                className="w-full py-3.5 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 transition-colors shadow-lg shadow-red-100 active:scale-[0.98]"
-              >
+              <button onClick={handleLogout} className="w-full py-3.5 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 transition-colors shadow-lg shadow-red-100 active:scale-[0.98]">
                 Ya, Keluar
               </button>
-              <button 
-                onClick={() => setShowLogoutConfirm(false)}
-                className="w-full py-3.5 rounded-xl border border-stone-200 text-stone-600 font-bold hover:bg-stone-50 transition-colors active:scale-[0.98]"
-              >
+              <button onClick={() => setShowLogoutConfirm(false)} className="w-full py-3.5 rounded-xl border border-stone-200 text-stone-600 font-bold hover:bg-stone-50 transition-colors active:scale-[0.98]">
                 Batal
               </button>
             </div>
