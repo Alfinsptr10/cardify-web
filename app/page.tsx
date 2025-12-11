@@ -197,6 +197,13 @@ function HomeContent() {
               Collections
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 transition-all group-hover:w-full"></span>
             </Link>
+            
+            {/* LINK KE HALAMAN ABOUT */}
+            <Link href="/about" className="hover:text-[#1C1917] transition-colors relative group">
+              About
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 transition-all group-hover:w-full"></span>
+            </Link>
+            
             <Link href="#features" className="hover:text-[#1C1917] transition-colors relative group">
               Features
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 transition-all group-hover:w-full"></span>
@@ -390,7 +397,7 @@ function HomeContent() {
                  {/* CARD 1: RETRO (Portrait 2:3) */}
                  <Link href="/templates/retro-gameboy" className="group cursor-pointer block">
                     <div className="relative aspect-[2/3] bg-[#F5F5F4] rounded-[2rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border border-stone-100 group-hover:-translate-y-2">
-                       <Image src="/retro-gameboy-2.png" alt="Retro Gameboy" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                       <Image src="/retro-gameboy.png" alt="Retro Gameboy" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                        <div className="absolute top-5 right-5 bg-white/95 backdrop-blur px-4 py-1.5 rounded-full text-xs font-bold text-stone-900 uppercase tracking-widest flex items-center gap-1.5 shadow-sm">
                           <Star size={12} fill="orange" className="text-amber-400"/> Best Seller
                        </div>
@@ -495,29 +502,40 @@ function HomeContent() {
         {/* --- FEATURE HIGHLIGHTS --- */}
         <section id="features" className="bg-[#1C1917] text-white py-32 relative overflow-hidden">
            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10 pointer-events-none" />
+           
            <div className="max-w-7xl mx-auto px-6 relative z-10">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
+                 
                  <div className="text-center group">
                     <div className="w-16 h-16 mx-auto mb-8 bg-white/10 rounded-2xl flex items-center justify-center group-hover:bg-white/20 transition-colors backdrop-blur-md">
                        <PenTool size={32} className="text-amber-300" />
                     </div>
                     <h3 className={`text-2xl font-medium mb-4 ${playfair.className}`}>Editor Intuitif</h3>
-                    <p className="text-stone-400 leading-relaxed font-light">Ubah teks, ganti foto, dan atur warna semudah drag-and-drop. Tidak butuh skill coding.</p>
+                    <p className="text-stone-400 leading-relaxed font-light">
+                       Ubah teks, ganti foto, dan atur warna semudah drag-and-drop. Tidak butuh skill coding.
+                    </p>
                  </div>
+
                  <div className="text-center group">
                     <div className="w-16 h-16 mx-auto mb-8 bg-white/10 rounded-2xl flex items-center justify-center group-hover:bg-white/20 transition-colors backdrop-blur-md">
                        <Phone size={32} className="text-orange-300" />
                     </div>
                     <h3 className={`text-2xl font-medium mb-4 ${playfair.className}`}>Responsif Total</h3>
-                    <p className="text-stone-400 leading-relaxed font-light">Kartu digital Anda akan terlihat sempurna di iPhone, Android, Tablet, maupun Desktop.</p>
+                    <p className="text-stone-400 leading-relaxed font-light">
+                       Kartu digital Anda akan terlihat sempurna di iPhone, Android, Tablet, maupun Desktop.
+                    </p>
                  </div>
+
                  <div className="text-center group">
                     <div className="w-16 h-16 mx-auto mb-8 bg-white/10 rounded-2xl flex items-center justify-center group-hover:bg-white/20 transition-colors backdrop-blur-md">
                        <Cloud size={32} className="text-yellow-200" />
                     </div>
                     <h3 className={`text-2xl font-medium mb-4 ${playfair.className}`}>Berbagi Instan</h3>
-                    <p className="text-stone-400 leading-relaxed font-light">Dapatkan tautan unik atau unduh sebagai gambar berkualitas tinggi siap kirim via WhatsApp.</p>
+                    <p className="text-stone-400 leading-relaxed font-light">
+                       Dapatkan tautan unik atau unduh sebagai gambar berkualitas tinggi siap kirim via WhatsApp.
+                    </p>
                  </div>
+
               </div>
            </div>
         </section>
@@ -532,6 +550,7 @@ function HomeContent() {
               <p className="text-xl text-stone-500 mb-12 max-w-xl mx-auto font-light">
                  Bergabunglah dengan ribuan orang yang telah membuat momen mereka lebih berkesan dengan Cardify.
               </p>
+              
               <Link href={userData ? "#templates" : "/register"} className="inline-flex px-12 py-5 rounded-full bg-[#1C1917] text-white font-bold tracking-wide hover:bg-black hover:scale-105 hover:shadow-2xl transition-all items-center gap-3">
                    {userData ? <Sparkles size={20} className="text-amber-400" /> : <Gift size={20} className="text-amber-400" />}
                    {userData ? "Pilih Template Favorit" : "Buat Akun Gratis"}
@@ -552,8 +571,11 @@ function HomeContent() {
                      </div>
                      <span className={`text-2xl font-bold ${playfair.className} italic`}>Cardify.</span>
                   </div>
-                  <p className="text-sm text-stone-500 leading-relaxed font-medium">The modern way to celebrate. Creating digital moments that last forever.</p>
+                  <p className="text-sm text-stone-500 leading-relaxed font-medium">
+                     The modern way to celebrate. Creating digital moments that last forever.
+                  </p>
                </div>
+               
                <div>
                   <h4 className="font-bold text-stone-900 mb-6 uppercase text-xs tracking-widest">Product</h4>
                   <ul className="space-y-4 text-sm text-stone-500 font-medium">
@@ -562,14 +584,24 @@ function HomeContent() {
                      <li className="hover:text-black cursor-pointer transition-colors">Showcase</li>
                   </ul>
                </div>
+
                <div>
                   <h4 className="font-bold text-stone-900 mb-6 uppercase text-xs tracking-widest">Company</h4>
                   <ul className="space-y-4 text-sm text-stone-500 font-medium">
-                     <li className="hover:text-black cursor-pointer transition-colors">About</li>
+                     <li>
+  <Link 
+    href="/about" 
+    className="hover:text-black cursor-pointer transition-colors"
+  >
+    About
+  </Link>
+</li>
+
                      <li className="hover:text-black cursor-pointer transition-colors">Careers</li>
                      <li className="hover:text-black cursor-pointer transition-colors">Blog</li>
                   </ul>
                </div>
+
                <div>
                   <h4 className="font-bold text-stone-900 mb-6 uppercase text-xs tracking-widest">Connect</h4>
                   <div className="flex flex-col gap-4">
