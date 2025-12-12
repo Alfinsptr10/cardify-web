@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { SessionProvider, useSession, signOut } from "next-auth/react"; 
 import { useRouter } from "next/navigation";
-import { Playfair_Display, DM_Sans } from "next/font/google"; 
+import { Playfair_Display, DM_Sans, Press_Start_2P } from "next/font/google"; 
 import { 
   ArrowRight, Sparkles, Gift, Heart, Phone, Star, PenTool, Play, 
   Instagram, MessageCircle, LogIn, Quote, UserPlus, 
@@ -17,6 +17,7 @@ import {
 // --- KONFIGURASI FONT ---
 const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
 const dmSans = DM_Sans({ subsets: ["latin"], weight: ["400", "500", "700"] });
+const pixelFont = Press_Start_2P({ subsets: ["latin"], weight: ["400"] }); 
 
 // --- WRAPPER SESSION ---
 export default function Home() {
@@ -193,23 +194,28 @@ function HomeContent() {
           
           {/* Navigation Links - Positioned ABSOLUTELY to Center */}
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-stone-600 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            
+            {/* 1. Templates (Updated from Collections) */}
             <Link href="#templates" className="hover:text-[#1C1917] transition-colors relative group">
-              Collections
+              Templates
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 transition-all group-hover:w-full"></span>
             </Link>
             
-            {/* LINK KE HALAMAN ABOUT */}
+            {/* 2. Features */}
+            <Link href="#features" className="hover:text-[#1C1917] transition-colors relative group">
+              Features
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 transition-all group-hover:w-full"></span>
+            </Link>
+
+            {/* 3. About */}
             <Link href="/about" className="hover:text-[#1C1917] transition-colors relative group">
               About
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 transition-all group-hover:w-full"></span>
             </Link>
             
-            <Link href="#features" className="hover:text-[#1C1917] transition-colors relative group">
-              Features
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 transition-all group-hover:w-full"></span>
-            </Link>
-            <Link href="#pricing" className="hover:text-[#1C1917] transition-colors relative group">
-              Pricing
+            {/* 4. Contact (Updated from Pricing) */}
+            <Link href="mailto:cardify.official.id@gmail.com" className="hover:text-[#1C1917] transition-colors relative group">
+              Contact
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 transition-all group-hover:w-full"></span>
             </Link>
           </div>
@@ -580,7 +586,7 @@ function HomeContent() {
                   <h4 className="font-bold text-stone-900 mb-6 uppercase text-xs tracking-widest">Product</h4>
                   <ul className="space-y-4 text-sm text-stone-500 font-medium">
                      <li className="hover:text-black cursor-pointer transition-colors">Templates</li>
-                     <li className="hover:text-black cursor-pointer transition-colors">Pricing</li>
+                     {/* Removed Pricing */}
                      <li className="hover:text-black cursor-pointer transition-colors">Showcase</li>
                   </ul>
                </div>
@@ -589,14 +595,8 @@ function HomeContent() {
                   <h4 className="font-bold text-stone-900 mb-6 uppercase text-xs tracking-widest">Company</h4>
                   <ul className="space-y-4 text-sm text-stone-500 font-medium">
                      <li>
-  <Link 
-    href="/about" 
-    className="hover:text-black cursor-pointer transition-colors"
-  >
-    About
-  </Link>
-</li>
-
+                       <Link href="/about" className="hover:text-black cursor-pointer transition-colors">About</Link>
+                     </li>
                      <li className="hover:text-black cursor-pointer transition-colors">Careers</li>
                      <li className="hover:text-black cursor-pointer transition-colors">Blog</li>
                   </ul>
@@ -619,8 +619,9 @@ function HomeContent() {
             <div className="border-t border-stone-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                <p className="text-xs text-stone-400 font-medium">© 2025 Cardify Inc. All rights reserved.</p>
                <div className="flex gap-8 text-xs text-stone-500 font-bold">
-                  <span className="cursor-pointer hover:text-black transition-colors">Privacy Policy</span>
-                  <span className="cursor-pointer hover:text-black transition-colors">Terms of Service</span>
+                  {/* UPDATE LINK PRIVACY POLICY DI SINI */}
+                  <Link href="/privacy-policy" className="cursor-pointer hover:text-black transition-colors">Privacy Policy</Link>
+                  <Link href="/terms" className="cursor-pointer hover:text-black transition-colors">Terms of Service</Link>
                </div>
             </div>
          </div>

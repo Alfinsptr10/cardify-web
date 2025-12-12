@@ -194,6 +194,8 @@ export default function RetroGameboyOverhaul() {
   
   const [stickers, setStickers] = useState<StickerData[]>([]);
   const [draggingId, setDraggingId] = useState<number | null>(null);
+   // Chassis color state
+   const [chassisColor, setChassisColor] = useState<string>("#c0c0c0");
   
   const [isDownloading, setIsDownloading] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -281,8 +283,32 @@ export default function RetroGameboyOverhaul() {
            <p className="text-[10px] text-gray-400">VER 2.0 // BUILD YOUR HERO</p>
         </div>
 
-        {/* Scrollable Controls */}
-        <div className="flex-grow overflow-y-auto p-6 space-y-8 custom-scrollbar bg-[#2d2d2d]">
+         {/* Chassis Color Selector (always visible above controls) */}
+         <div className="px-6 py-4 border-b-2 border-black bg-[#2b2b2b] flex items-center gap-4">
+             <div className="text-[10px] text-[#9bbc0f] font-bold">CHASSIS</div>
+             <div className="flex items-center gap-2">
+                {[
+                   { name: 'Gray', color: '#c0c0c0' },
+                   { name: 'Black', color: '#1f1f1f' },
+                   { name: 'Olive', color: '#9bbc0f' },
+                   { name: 'Beige', color: '#e0d7b0' },
+                   { name: 'Purple', color: '#8b5cf6' }
+                ].map((c) => (
+                   <button
+                      key={c.color}
+                      onClick={() => setChassisColor(c.color)}
+                      aria-label={c.name}
+                      className={`w-6 h-6 border-2 ${chassisColor === c.color ? 'ring-2 ring-[#9bbc0f]' : 'border-black'} rounded-sm`}
+                      style={{ background: c.color }}
+                   />
+                ))}
+
+                <button onClick={() => setChassisColor('#c0c0c0')} className="ml-3 text-[10px] text-[#9bbc0f] border-2 border-black px-2 py-1">Reset</button>
+             </div>
+         </div>
+
+      {/* Scrollable Controls */}
+      <div className="flex-grow overflow-y-auto p-6 space-y-8 retro-scrollbar bg-[#2d2d2d]">
           
           {/* 1. CHARACTER STATS */}
           <section>
@@ -378,6 +404,37 @@ export default function RetroGameboyOverhaul() {
         </div>
       </div>
 
+         {/* Page-scoped retro scrollbar styles (only for this template's left panel) */}
+         <style jsx>{`
+            :global(.retro-scrollbar) {
+               scrollbar-width: thin;
+               scrollbar-color: #9bbc0f #2d2d2d;
+            }
+            :global(.retro-scrollbar::-webkit-scrollbar) {
+               width: 14px;
+               height: 14px;
+            }
+            :global(.retro-scrollbar::-webkit-scrollbar-track) {
+               background: #2d2d2d;
+               border-left: 4px solid #111;
+               box-shadow: inset -4px 0 0 #141414;
+            }
+            :global(.retro-scrollbar::-webkit-scrollbar-thumb) {
+               background: repeating-linear-gradient(
+                  0deg,
+                  #9bbc0f 0 6px,
+                  #8bac0f 6px 12px
+               );
+               border: 3px solid #000;
+               border-radius: 0;
+               box-shadow: 2px 2px 0 rgba(0,0,0,0.8) inset;
+               image-rendering: pixelated;
+            }
+            :global(.retro-scrollbar::-webkit-scrollbar-thumb:hover) {
+               filter: brightness(1.05);
+            }
+         `}</style>
+
 
       {/* === RIGHT PANEL: GAME SCREEN PREVIEW === */}
       <div className="flex-grow bg-[#111] relative flex items-center justify-center p-8 overflow-hidden">
@@ -393,7 +450,8 @@ export default function RetroGameboyOverhaul() {
             {/* THE ACTUAL CHASSIS (REFFED HERE FOR DOWNLOAD) */}
             <div 
                ref={cardRef} // <--- SEKARANG DOWNLOAD MENCAKUP SEMUA INI
-               className="bg-[#c0c0c0] p-6 pb-12 rounded-t-[20px] rounded-b-[40px] shadow-[0_0_50px_rgba(0,0,0,0.8),inset_-5px_-5px_10px_rgba(0,0,0,0.2),inset_2px_2px_5px_rgba(255,255,255,0.5)] w-[380px] flex flex-col items-center select-none"
+               style={{ background: chassisColor }}
+               className="p-6 pb-12 rounded-t-[20px] rounded-b-[40px] shadow-[0_0_50px_rgba(0,0,0,0.8),inset_-5px_-5px_10px_rgba(0,0,0,0.2),inset_2px_2px_5px_rgba(255,255,255,0.5)] w-[380px] flex flex-col items-center select-none"
             >
                {/* Screen Bezel */}
                <div className="bg-[#555] w-full p-8 rounded-t-[10px] rounded-b-[30px] shadow-[inset_2px_2px_5px_rgba(0,0,0,0.8)] relative">
