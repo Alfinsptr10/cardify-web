@@ -1,23 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
+import { useState, useEffect, useRef } from "react";
+// REMOVED: import Link from "next/link"; -> Replaced with <a> tag
 import { 
   ArrowLeft, Image as ImageIcon, 
-  Share2, X, Eye, Loader2, Copy, Check, Music, Play, Type, Plus, Trash2, Upload, Heart, Camera, Headphones, Cloud, Sun, Home
+  Share2, X, Eye, Loader2, Copy, Check, Music, Play, Type, Plus, Trash2, Upload, Heart, Camera, Headphones, Cloud, Sun, Pause, Disc, Link as LinkIcon, FileAudio, Home
 } from "lucide-react";
-import { DM_Sans, Playfair_Display, Caveat, Great_Vibes } from "next/font/google";
+
+// REMOVED: import { ... } from "next/font/google"; -> Replaced with standard CSS import below
 
 // Import Firebase modules
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "firebase/auth";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 
-// --- FONTS ---
-const dmSans = DM_Sans({ subsets: ["latin"] });
-const playfair = Playfair_Display({ subsets: ["latin"] });
-const caveat = Caveat({ subsets: ["latin"], weight: ["400", "700"] });
-const greatVibes = Great_Vibes({ subsets: ["latin"], weight: ["400"] });
+// --- MOCK FONTS (Standard CSS Classes replacement) ---
+const dmSans = { className: "font-dm-sans" };
+const playfair = { className: "font-playfair" };
+const caveat = { className: "font-caveat" };
+const greatVibes = { className: "font-great-vibes" };
+const pressStart = { className: "font-press-start" };
 
 // --- KONFIGURASI DATABASE (FIREBASE) ---
 const manualConfig = {
@@ -34,9 +36,17 @@ declare const __firebase_config: string | undefined;
 declare const __app_id: string | undefined;
 declare const __initial_auth_token: string | undefined;
 
-const envConfigStr = typeof __firebase_config !== 'undefined' ? __firebase_config : '{}';
-const envConfig = JSON.parse(envConfigStr);
-const firebaseConfig = (envConfig && envConfig.apiKey) ? envConfig : manualConfig;
+let firebaseConfig = manualConfig;
+try {
+    const envConfigStr = typeof __firebase_config !== 'undefined' ? __firebase_config : '{}';
+    const envConfig = JSON.parse(envConfigStr);
+    if (envConfig && envConfig.apiKey) {
+        firebaseConfig = envConfig;
+    }
+} catch (e) {
+    console.log("Using manual config due to parse error");
+}
+
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'cardify-app';
 
 let app: any = null;
@@ -57,18 +67,12 @@ if (firebaseConfig && firebaseConfig.apiKey) {
 
 // --- COMPONENTS VISUAL ---
 
-// Background Effect: Sky & Clouds Theme
 const BackgroundEffects = () => (
   <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 bg-[#e0f7fa]">
-     {/* Sky Gradient */}
      <div className="absolute inset-0 bg-gradient-to-b from-[#87CEEB] via-[#B2EBF2] to-[#FAFAF9]" />
-     
-     {/* Sun Element */}
      <div className="absolute -top-20 -right-20 opacity-50 animate-spin-slow" style={{ animationDuration: '60s' }}>
         <Sun size={400} className="text-yellow-200 fill-yellow-100" />
      </div>
-
-     {/* Floating Clouds */}
      <div className="absolute top-20 left-[10%] text-white/90 animate-float-slow drop-shadow-sm">
         <Cloud size={80} fill="white" className="text-white" />
      </div>
@@ -78,76 +82,39 @@ const BackgroundEffects = () => (
      <div className="absolute bottom-1/3 left-[20%] text-white/50 animate-float-slow" style={{ animationDelay: '5s', '--rot': '0deg' } as React.CSSProperties}>
         <Cloud size={120} fill="white" className="text-white" />
      </div>
-     
-     {/* Subtle Texture Overlay */}
      <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
   </div>
 );
 
-// Tali Tambang 3D
-const HangingString = ({ length = 8 }: { length?: number }) => (
-  <div className="relative w-full mb-[-8px] pointer-events-none z-0 flex justify-center" style={{ height: `${length * 5}px` }}>
-    <div className="h-full w-[5px] relative"
-        style={{
-            background: `repeating-linear-gradient(45deg, #E3D5C3, #E3D5C3 3px, #C0A886 3px, #C0A886 5px)`,
-            boxShadow: '1px 0 3px rgba(0,0,0,0.3), inset 1px 0 2px rgba(255,255,255,0.4)',
-            borderRadius: '2px',
-            zIndex: 0
-        }}
-    ></div>
-  </div>
-);
-
-const HeartClip = () => (
-  <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 z-20 flex items-center justify-center pointer-events-none">
-     <div className="w-6 h-6 bg-white border border-sky-200 rounded-full shadow-md flex items-center justify-center relative z-10">
-        <Heart size={12} className="text-sky-400 fill-sky-400" />
-     </div>
-     <div className="absolute top-1 w-6 h-6 bg-black/10 rounded-full blur-[1px] -z-10"></div>
-  </div>
-);
-
-// Menu Item Component
-const HangingMenu = ({ icon: Icon, label, onClick, delay = 0, rotation = 0, stringLength = 10, img }: any) => (
+const HangingMenu = ({ icon: Icon, label, onClick, delay = 0, rotation = 0, img }: any) => (
   <div onClick={onClick} className="flex flex-col items-center group cursor-pointer animate-in fade-in slide-in-from-top-10 duration-1000 animate-float" style={{ animationDelay: `${delay}ms`, '--rot': `${rotation}deg` } as React.CSSProperties}>
-    <HangingString length={stringLength} />
-    
     <div className="relative transform transition-all hover:scale-110 hover:z-20 hover:drop-shadow-2xl">
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-            <HeartClip />
-        </div>
-
-        {/* Floating Object without Polaroid Border */}
-        <div className="w-48 h-48 relative filter drop-shadow-xl">
+        <div className="w-64 h-64 md:w-56 md:h-56 relative filter drop-shadow-2xl transition-all duration-300">
             {img ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={img} alt={label} className="w-full h-full object-contain" onError={(e) => {e.currentTarget.style.display='none'}} />
             ) : (
                 <div className="w-full h-full flex items-center justify-center bg-white rounded-full border-4 border-stone-100 shadow-inner">
-                    <Icon size={56} className="text-stone-300"/>
+                    <Icon size={64} className="text-stone-300"/>
                 </div>
             )}
         </div>
-        
-        {/* Floating Label */}
-        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm border border-white/50 whitespace-nowrap">
-             <span className={`text-[10px] font-bold uppercase tracking-widest text-stone-600 ${dmSans.className}`}>{label}</span>
+        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-white/50 whitespace-nowrap transform group-hover:-translate-y-2 transition-transform">
+             <span className={`text-xs font-bold uppercase tracking-widest text-stone-600 ${dmSans.className}`}>{label}</span>
         </div>
     </div>
   </div>
 );
 
-const Polaroid = ({ img, caption, rotation = 0, onClick, stringLength = 8, delay = 0 }: any) => (
+const Polaroid = ({ img, caption, rotation = 0, onClick, delay = 0 }: any) => (
   <div 
     className="flex flex-col items-center group relative animate-float" 
     style={{ animationDelay: `${delay}ms`, '--rot': `${rotation}deg` } as React.CSSProperties}
   >
-    <HangingString length={stringLength} />
     <div 
       onClick={onClick}
       className="relative bg-white p-3 pb-10 shadow-xl transform transition-all hover:scale-105 hover:z-30 hover:shadow-2xl duration-300 w-64 cursor-pointer rounded-sm"
     >
-      <HeartClip />
       <div className="aspect-square bg-stone-100 overflow-hidden mb-3 border border-stone-100 relative group">
          {img ? (
            // eslint-disable-next-line @next/next/no-img-element
@@ -166,12 +133,17 @@ const Polaroid = ({ img, caption, rotation = 0, onClick, stringLength = 8, delay
   </div>
 );
 
-const StickyNote = ({ text, color = "#fef3c7", rotation = 0, onClick, stringLength = 8, delay = 0 }: any) => (
+const HangingString = ({ length = 8 }: { length?: number }) => (
+  <div className="relative w-12 h-24 flex justify-center mb-2">
+    <div className="w-0.5 bg-gradient-to-b from-stone-400 to-stone-300" style={{ height: `${length * 4}px` }}></div>
+  </div>
+);
+
+const StickyNote = ({ text, color = "#fef3c7", rotation = 0, onClick, delay = 0 }: any) => (
   <div 
     className="flex flex-col items-center group relative animate-float" 
     style={{ animationDelay: `${delay}ms`, '--rot': `${rotation}deg` } as React.CSSProperties}
   >
-    <HangingString length={stringLength} />
     <div 
       onClick={onClick}
       className="relative p-6 shadow-lg transform transition-all hover:scale-105 hover:z-20 hover:shadow-xl duration-300 w-64 mx-auto flex items-center justify-center text-center cursor-pointer group"
@@ -180,23 +152,17 @@ const StickyNote = ({ text, color = "#fef3c7", rotation = 0, onClick, stringLeng
       <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 bg-black/5 rounded-full blur-sm"></div> 
       <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-24 h-6 bg-white/40 rotate-2 backdrop-blur-sm shadow-sm"></div> 
       
-      <HeartClip />
-
       <div className="w-full mt-4">
-          <p className={`text-xl leading-relaxed text-stone-800 ${caveat.className} w-full break-words`}>
-          {text || <span className="opacity-50">Write your message...</span>}
-          </p>
+          <p className={`text-xl leading-relaxed text-stone-800 ${caveat.className} w-full break-words`}>{text}</p>
       </div>
     </div>
   </div>
 );
 
-const TitleCard = ({ title, subtitle, onClick, stringLength = 8, onEdit }: { title: string, subtitle: string, onClick?: () => void, stringLength?: number, onEdit?: (field: string, value: string) => void }) => (
+const TitleCard = ({ title, subtitle, onClick, onEdit }: { title: string, subtitle: string, onClick?: () => void, onEdit?: (field: string, value: string) => void }) => (
   <div className="flex flex-col items-center group relative animate-float-slow">
-    <HangingString length={stringLength} />
     <div onClick={onClick} className="text-center p-6 relative cursor-pointer hover:scale-105 transition-transform duration-300 w-80">
-      <div className="absolute -top-2 left-1/2 -translate-x-1/2 z-10"><HeartClip /></div>
-      <div className="inline-block border-[6px] border-double border-sky-200 p-8 bg-white shadow-[0_10px_30px_-5px_rgba(135,206,235,0.4)] relative rounded-xl rotate-1 group-hover:rotate-0 transition-transform w-full">
+      <div className="inline-block border-[6px] border-double border-sky-200 p-8 bg-white shadow-[0_10px_30px_-5px_rgba(135,206,235,0.4)] relative rounded-xl rotate-1 w-full">
           {onEdit ? (
             <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
                 <input 
@@ -227,15 +193,15 @@ const TitleCard = ({ title, subtitle, onClick, stringLength = 8, onEdit }: { tit
 
 // --- MENU ILLUSTRATIONS ---
 const CameraMenu = ({ onClick }: { onClick: () => void }) => (
-  <HangingMenu img="/template/camera.png" label="Gallery" onClick={onClick} icon={Camera} stringLength={6} rotation={2} delay={0} />
+  <HangingMenu img="/template/camera.png" label="Gallery" onClick={onClick} icon={Camera} rotation={2} delay={0} />
 );
 
 const LetterMenu = ({ onClick }: { onClick: () => void }) => (
-  <HangingMenu img="/template/letter.png" label="Read Note" onClick={onClick} icon={Heart} stringLength={9} rotation={-2} delay={200} />
+  <HangingMenu img="/template/letter.png" label="Read Note" onClick={onClick} icon={Heart} rotation={-2} delay={200} />
 );
 
 const MusicMenu = ({ onClick, currentSong }: { onClick: () => void, currentSong: string }) => (
-  <HangingMenu img="/template/music.png" label={currentSong || "Music"} onClick={onClick} icon={Headphones} stringLength={4} rotation={1} delay={400} />
+  <HangingMenu img="/template/music.png" label="Music" onClick={onClick} icon={Headphones} rotation={1} delay={400} />
 );
 
 // --- MODAL EDITOR COMPONENT ---
@@ -255,18 +221,6 @@ const EditModal = ({ slide, onClose, onUpdate, onDelete, onImageUpload }: any) =
                     </div>
                 </div>
                 <div className="p-8 space-y-6 overflow-y-auto max-h-[60vh]">
-                    {slide.type === 'intro' && (
-                        <>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-bold text-stone-400 uppercase tracking-wide">Title</label>
-                                <input value={slide.title} onChange={(e) => onUpdate(slide.id, 'title', e.target.value)} className={`w-full bg-white border border-sky-100 rounded-xl px-4 py-3 text-3xl text-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-200 text-center ${greatVibes.className}`} />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-bold text-stone-400 uppercase tracking-wide">Subtitle</label>
-                                <input value={slide.subtitle} onChange={(e) => onUpdate(slide.id, 'subtitle', e.target.value)} className="w-full bg-white border border-stone-200 rounded-xl px-4 py-3 text-sm text-center" />
-                            </div>
-                        </>
-                    )}
                     {slide.type === 'photo' && (
                         <>
                             <div className="space-y-2">
@@ -293,6 +247,213 @@ const EditModal = ({ slide, onClose, onUpdate, onDelete, onImageUpload }: any) =
     );
 };
 
+// --- ADD MUSIC MODAL (RETRO DARK DESIGN - COMPACT) ---
+const MusicModal = ({ playlist, onClose, onAddSong, onDeleteSong, onSelectSong, currentSongId, togglePlay, isPlaying, playingId }: any) => {
+    const [newTitle, setNewTitle] = useState("");
+    const [newArtist, setNewArtist] = useState("");
+    const [newCover, setNewCover] = useState<string | null>(null);
+    const [newAudio, setNewAudio] = useState<string | null>(null);
+    
+    // NEW STATE: Input Method
+    const [inputType, setInputType] = useState<'upload' | 'link'>('upload');
+
+    const activeSong = playlist.find((s: any) => s.id === currentSongId);
+    const isFull = playlist.length >= 5;
+
+    const handleCoverUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+             const reader = new FileReader();
+             reader.onloadend = () => setNewCover(reader.result as string);
+             reader.readAsDataURL(file);
+        }
+    };
+
+    const handleAudioUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+             // SIZE CHECK: 750KB limit to fit in 1MB Firestore doc (Base64 adds 33% overhead)
+             if (file.size > 750 * 1024) { 
+                 alert("Batas Firestore adalah 1MB/dokumen. Mohon gunakan audio di bawah 750KB atau gunakan fitur 'Link URL' untuk file besar.");
+                 return;
+             }
+             const reader = new FileReader();
+             reader.onloadend = () => setNewAudio(reader.result as string);
+             reader.readAsDataURL(file);
+        }
+    };
+
+    const handleAdd = () => {
+        if(newTitle && newArtist && newAudio) {
+            onAddSong(newTitle, newArtist, newCover, newAudio);
+            setNewTitle("");
+            setNewArtist("");
+            setNewCover(null);
+            setNewAudio(null);
+        } else {
+            alert("Please fill Title, Artist, and ensure Audio is uploaded or linked.");
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+            {/* CONTAINER UTAMA: Gaya Gelap & Retro */}
+            <div className="bg-[#1a1f1a] border-2 border-yellow-400 rounded-3xl w-full max-w-[340px] p-5 text-white text-center shadow-[0_0_40px_rgba(251,191,36,0.2)] relative overflow-hidden flex flex-col max-h-[85vh]">
+                
+                {/* Decorative Screws */}
+                <div className="absolute top-3 left-3 w-3 h-3 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center"><div className="w-1.5 h-0.5 bg-zinc-600 rotate-45"></div></div>
+                <div className="absolute top-3 right-3 w-3 h-3 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center"><div className="w-1.5 h-0.5 bg-zinc-600 rotate-45"></div></div>
+                <div className="absolute bottom-3 left-3 w-3 h-3 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center"><div className="w-1.5 h-0.5 bg-zinc-600 rotate-45"></div></div>
+                <div className="absolute bottom-3 right-3 w-3 h-3 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center"><div className="w-1.5 h-0.5 bg-zinc-600 rotate-45"></div></div>
+
+                <button onClick={onClose} className="absolute top-2 right-2 p-2 text-zinc-500 hover:text-white transition-colors z-20"><X size={18} /></button>
+
+                {/* Header Title */}
+                <div className="text-center mb-4 mt-2">
+                    <h2 className={`text-amber-400 text-sm tracking-widest font-bold uppercase ${pressStart.className}`}>MIXTAPE VOL.1</h2>
+                    <div className="w-16 h-1 bg-amber-500/50 mx-auto mt-2 rounded-full"></div>
+                </div>
+                
+                {/* NOW PLAYING SECTION (COMPACT) */}
+                <div className="bg-zinc-900/80 rounded-xl p-3 border border-zinc-800 mb-4 shrink-0 shadow-inner">
+                    <div className="flex gap-3">
+                        {/* Song Cover Image - Compact but visible */}
+                        <div className="w-20 h-20 rounded-lg bg-black flex-shrink-0 overflow-hidden relative border border-zinc-700 group shadow-lg">
+                            {activeSong?.cover ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={activeSong.cover} alt="Song Cover" className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="flex flex-col items-center justify-center opacity-50 w-full h-full">
+                                    <Disc size={24} className="animate-spin-slow mb-1" />
+                                    <span className="text-[10px] uppercase">No Cover</span>
+                                </div>
+                            )}
+                            {/* Play Overlay if playing */}
+                            {isPlaying && (
+                                <div className="absolute inset-0 bg-black/20 flex items-end justify-center pb-1 gap-0.5">
+                                    <div className="w-1 bg-amber-400 animate-[bounce_0.6s_infinite] h-1/2"></div>
+                                    <div className="w-1 bg-amber-400 animate-[bounce_0.8s_infinite] h-3/4"></div>
+                                    <div className="w-1 bg-amber-400 animate-[bounce_0.5s_infinite] h-1/3"></div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Info & Controls */}
+                        <div className="flex-1 flex flex-col justify-center min-w-0 text-left pl-1">
+                            <div className="mb-2">
+                                <p className="text-xs font-bold text-white truncate max-w-[150px]">{activeSong ? activeSong.title : "No Track Selected"}</p>
+                                <p className="text-[9px] text-zinc-400 uppercase tracking-wider truncate max-w-[150px]">{activeSong ? activeSong.artist : "Select a song below"}</p>
+                            </div>
+
+                            {/* HTML Audio Player Control (Native) */}
+                            <audio 
+                                className="w-full h-6 opacity-60 hover:opacity-100 transition-opacity" 
+                                controls 
+                                src={activeSong?.audio}
+                                key={activeSong?.id || 'no-song'} // Force re-render on song change
+                                autoPlay={isPlaying}
+                                onPlay={() => activeSong && !isPlaying && togglePlay(activeSong.id)}
+                                onPause={() => isPlaying && togglePlay(activeSong?.id)}
+                            >
+                                Your browser does not support the audio element.
+                            </audio>
+                        </div>
+                    </div>
+                </div>
+
+                {/* PLAYLIST (LIST DECIMAL - COMPACT) */}
+                <div className="text-sm text-left mb-3 mt-2 border-t border-zinc-800 pt-2 flex-grow overflow-y-auto custom-scrollbar" style={{ maxHeight: '150px' }}>
+                    {playlist.length === 0 ? (
+                        <p className="text-zinc-600 italic text-[10px] text-center py-4">Playlist is empty.</p>
+                    ) : (
+                        <div className="space-y-1">
+                            {playlist.map((song: any, i: number) => (
+                                <div 
+                                    key={song.id} 
+                                    onClick={() => onSelectSong(song.id)}
+                                    className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all border ${currentSongId === song.id ? 'bg-amber-500/10 border-amber-500/50' : 'bg-zinc-800/30 border-transparent hover:bg-zinc-800'}`}
+                                >
+                                    <div className="flex items-center gap-2 min-w-0">
+                                        <span className={`text-[10px] font-mono w-4 text-center ${currentSongId === song.id ? 'text-amber-400' : 'text-zinc-600'}`}>{i + 1}</span>
+                                        <div className="min-w-0">
+                                            <p className={`text-[11px] font-bold truncate max-w-[120px] ${currentSongId === song.id ? 'text-amber-300' : 'text-zinc-300'}`}>{song.title}</p>
+                                            <p className="text-[9px] text-zinc-500 truncate max-w-[120px]">{song.artist}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <button 
+                                            onClick={(e) => { e.stopPropagation(); togglePlay(song.id); }} 
+                                            className={`p-1.5 rounded-full ${currentSongId === song.id && isPlaying ? 'text-amber-400 bg-amber-900/30' : 'text-zinc-500 hover:text-zinc-300'}`}
+                                        >
+                                            {currentSongId === song.id && isPlaying ? <Pause size={10} fill="currentColor"/> : <Play size={10} fill="currentColor"/>}
+                                        </button>
+                                        <button 
+                                            onClick={(e) => { e.stopPropagation(); onDeleteSong(song.id); }} 
+                                            className="p-1.5 text-zinc-600 hover:text-red-400 transition-colors"
+                                        >
+                                            <Trash2 size={12} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* ADD NEW SONG FORM (COMPACT) */}
+                {!isFull ? (
+                    <div className="bg-zinc-900 p-2 rounded border border-zinc-800 mb-1 shrink-0">
+                        <div className="flex justify-between items-center mb-2">
+                             <p className="text-[9px] text-zinc-500 uppercase font-bold text-left pl-1">Add Track ({playlist.length}/5)</p>
+                             <div className="flex bg-black rounded p-0.5 gap-0.5">
+                                 <button onClick={() => setInputType('upload')} className={`px-2 py-0.5 text-[8px] uppercase font-bold rounded ${inputType === 'upload' ? 'bg-amber-500 text-black' : 'text-zinc-500'}`}>Upload</button>
+                                 <button onClick={() => setInputType('link')} className={`px-2 py-0.5 text-[8px] uppercase font-bold rounded ${inputType === 'link' ? 'bg-amber-500 text-black' : 'text-zinc-500'}`}>Link</button>
+                             </div>
+                        </div>
+
+                        <div className="flex gap-1 mb-1">
+                            <input value={newTitle} onChange={e => setNewTitle(e.target.value)} className="w-1/2 bg-black border border-zinc-700 rounded px-2 py-1 text-[10px] text-white focus:border-amber-500 outline-none placeholder:text-zinc-600" placeholder="Title" />
+                            <input value={newArtist} onChange={e => setNewArtist(e.target.value)} className="w-1/2 bg-black border border-zinc-700 rounded px-2 py-1 text-[10px] text-white focus:border-amber-500 outline-none placeholder:text-zinc-600" placeholder="Artist" />
+                        </div>
+                        
+                        <div className="flex gap-1">
+                            <label className={`flex-1 bg-zinc-800 hover:bg-zinc-700 text-[9px] py-1 rounded cursor-pointer text-center border border-zinc-700 truncate px-1 transition-colors ${newCover ? 'text-amber-400 border-amber-900' : 'text-zinc-400'}`}>
+                                {newCover ? "Cover OK" : "+ Cover"}
+                                <input type="file" hidden accept="image/*" onChange={handleCoverUpload} />
+                            </label>
+                            
+                            {inputType === 'upload' ? (
+                                <label className={`flex-1 bg-zinc-800 hover:bg-zinc-700 text-[9px] py-1.5 rounded cursor-pointer text-center border border-zinc-700 truncate px-1 transition-colors ${newAudio ? 'text-green-400 border-green-900' : 'text-zinc-400'}`}>
+                                    {newAudio ? "MP3 OK" : "+ Audio File"}
+                                    <input type="file" hidden accept="audio/*" onChange={handleAudioUpload} />
+                                </label>
+                            ) : (
+                                <input 
+                                    value={newAudio || ''} 
+                                    onChange={(e) => setNewAudio(e.target.value)} 
+                                    className="flex-[2] bg-black border border-zinc-700 rounded px-2 py-1 text-[10px] text-white focus:border-green-500 outline-none placeholder:text-zinc-600" 
+                                    placeholder="Paste Direct MP3 Link here..." 
+                                />
+                            )}
+                            
+                            <button onClick={handleAdd} disabled={!newTitle || !newArtist || !newAudio} className="w-8 bg-amber-500 hover:bg-amber-400 text-black rounded flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg">
+                                <Plus size={14} />
+                            </button>
+                        </div>
+                        {inputType === 'link' && (
+                            <p className="text-[8px] text-amber-500/70 mt-1 italic">*Spotify/YouTube links will NOT work. Use direct MP3 links.</p>
+                        )}
+                    </div>
+                ) : (
+                    <div className="bg-red-500/10 border border-red-500/20 p-2 rounded-lg text-center shrink-0 mb-1">
+                        <p className="text-[10px] text-red-400 font-bold uppercase tracking-wider">Mixtape Full (5/5)</p>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
 // --- MAIN PAGE ---
 
 export default function WebStoryEditor() {
@@ -302,18 +463,24 @@ export default function WebStoryEditor() {
   // Data
   const [storyInfo, setStoryInfo] = useState({ title: "Our Story", subtitle: "A collection of moments" });
   const [galleryItems, setGalleryItems] = useState([
-    { id: 1, type: "photo", caption: "First date", img: null as string | null },
-    { id: 2, type: "photo", caption: "Sweet memory", img: null as string | null },
+    { id: 1, type: "photo", caption: "First date", img: null as string | null, text: "", bg: "#fef3c7" },
+    { id: 2, type: "photo", caption: "Sweet memory", img: null as string | null, text: "", bg: "#fef3c7" },
   ]);
   const [letterData, setLetterData] = useState({
       title: "My Dearest,",
       body: "Every moment with you is a treasure I hold close to my heart...",
       sender: "Yours, Alex"
   });
-  const [bgMusic, setBgMusic] = useState("Romantic Piano"); 
   
+  // Music State
+  const [playlist, setPlaylist] = useState<any[]>([]);
+  const [currentSongId, setCurrentSongId] = useState<number | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
   // Editor State
   const [editingItemId, setEditingItemId] = useState<number | null>(null);
+  const [isMusicModalOpen, setIsMusicModalOpen] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
@@ -341,8 +508,8 @@ export default function WebStoryEditor() {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, id: number) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 800000) { 
-          alert("Image too large. Max 800KB.");
+      if (file.size > 500 * 1024) { 
+          alert("Image too large. Max 500KB per photo to save space.");
           return;
       }
       const reader = new FileReader();
@@ -355,13 +522,17 @@ export default function WebStoryEditor() {
 
   const addPhoto = () => {
       const newId = Math.max(0, ...galleryItems.map(s => s.id)) + 1;
-      setGalleryItems([...galleryItems, { id: newId, type: "photo", caption: "", img: null }]);
+      setGalleryItems([...galleryItems, {
+        id: newId, type: "photo", caption: "", img: null,
+        text: "",
+        bg: ""
+      }]);
       setEditingItemId(newId);
   };
 
   const addNote = () => {
       const newId = Math.max(0, ...galleryItems.map(s => s.id)) + 1;
-      setGalleryItems([...galleryItems, { id: newId, type: "message", caption: "", img: null }]);
+      setGalleryItems([...galleryItems, { id: newId, type: "message", caption: "", img: null, text: "", bg: "#fef3c7" }]);
       setEditingItemId(newId);
   };
 
@@ -370,42 +541,95 @@ export default function WebStoryEditor() {
       setEditingItemId(null);
   };
 
-  const changeMusic = () => {
-      const songs = ["Romantic Piano", "Acoustic Love", "Lo-Fi Date", "Jazz Night"];
-      const nextSong = songs[(songs.indexOf(bgMusic) + 1) % songs.length];
-      setBgMusic(nextSong);
-      alert(`🎵 Music Changed to: ${nextSong}`);
+  // Music CRUD
+  const addSong = (title: string, artist: string, cover: string, audio: string) => {
+      const newId = Date.now();
+      const newSong = { id: newId, title, artist, cover, audio };
+      setPlaylist([...playlist, newSong]);
+      if (!currentSongId) setCurrentSongId(newId);
   };
 
+  const deleteSong = (id: number) => {
+      const newPl = playlist.filter(s => s.id !== id);
+      setPlaylist(newPl);
+      if (currentSongId === id) {
+          setCurrentSongId(null);
+          setIsPlaying(false);
+      }
+  };
+
+  const togglePlay = (id: number) => {
+      if (currentSongId === id && isPlaying) {
+          setIsPlaying(false);
+      } else {
+          setCurrentSongId(id);
+          setIsPlaying(true);
+      }
+  };
+
+  // --- LOGIC FIX: AGGRESSIVE AUTH & NO DEMO FALLBACK ---
   const handlePublish = async () => {
     setIsPublishing(true);
-    if (!isDbReady || !user) {
-        setTimeout(() => {
-            setIsPublishing(false);
-            const demoId = "demo-" + Math.random().toString(36).substr(2, 6);
-            const fakeUrl = `${window.location.origin}/s/${demoId}?demo=true`;
-            setPublishedUrl(fakeUrl);
-            alert("⚠️ MODE SIMULASI (DB Not Configured)\nLink Demo: " + fakeUrl);
-        }, 1500);
+
+    // 1. Cek Database Ready gak?
+    if (!isDbReady) {
+        alert("Database belum siap/error konfigurasi. Coba refresh halaman.");
+        setIsPublishing(false);
         return;
     }
+
+    // 2. Cek User. Kalau null, COBA LOGIN DULU JANGAN NYERAH.
+    let currentUser = user;
+    if (!currentUser && auth) {
+        try {
+            console.log("User null, attempting panic login...");
+            const result = await signInAnonymously(auth);
+            currentUser = result.user;
+            setUser(currentUser); // Update state lokal biar UI tau
+        } catch (e) {
+            console.error("Auto-login error:", e);
+        }
+    }
+
+    // 3. Kalau masih null juga, baru kasih error (BUKAN DEMO)
+    if (!currentUser) {
+        alert("Gagal memverifikasi user. Cek koneksi internet lalu coba lagi.");
+        setIsPublishing(false);
+        return;
+    }
+    
+    // 4. Proses Simpan
     try {
         const payload = {
             storyInfo,
             galleryItems,
             letterData,
-            bgMusic,
-            creatorId: user.uid,
+            playlist, // Full playlist with Base64 audio/images
+            currentSongId, // Default selected song
+            creatorId: currentUser.uid,
             createdAt: new Date().toISOString(),
             type: "web-story-v3"
         };
+
+        // SAFETY CHECK: Calculate Size BEFORE sending to prevent crash
+        const payloadStr = JSON.stringify(payload);
+        const sizeInBytes = new Blob([payloadStr]).size;
+        
+        if (sizeInBytes > 1000000) { // 1MB limit
+             const sizeInMB = (sizeInBytes / 1024 / 1024).toFixed(2);
+             alert(`GAGAL: Total ukuran data terlalu besar (${sizeInMB} MB).\n\nBatas maksimal Firestore adalah 1 MB.\nSolusi: Gunakan fitur 'Link URL' untuk lagu daripada upload file, atau hapus beberapa foto.`);
+             setIsPublishing(false);
+             return;
+        }
         
         const docRef = await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'stories'), payload);
+        
+        // PENTING: Generate Link Asli
         const url = `${window.location.origin}/s/${docRef.id}`;
         setPublishedUrl(url);
     } catch (error) {
         console.error("Error publishing:", error);
-        alert("Gagal menyimpan.");
+        alert("Gagal menyimpan. Terjadi kesalahan jaringan atau file masih terlalu besar.");
     } finally {
         setIsPublishing(false);
     }
@@ -420,37 +644,38 @@ export default function WebStoryEditor() {
   };
 
   const currentEditingItem = galleryItems.find(s => s.id === editingItemId);
+  const activeSong = playlist.find(s => s.id === currentSongId);
+  const bgMusicLabel = activeSong ? activeSong.title : "Music";
 
   // --- RENDER VIEWS ---
 
   // 1. HOME VIEW (MENU UTAMA)
   const renderHome = () => (
       <div className="flex flex-col items-center justify-center min-h-[85vh] w-full max-w-5xl mx-auto animate-in fade-in duration-700 relative z-10 py-10">
-          
-          {/* Header Title Editor */}
-          <TitleCard 
+         {/* ADDED: Back to App Home Button */}
+         <div className="absolute top-4 left-6 md:top-8 md:left-[-100px] z-50">
+            <a href="/" className="flex items-center gap-2 bg-white/40 hover:bg-white/80 backdrop-blur-md px-5 py-2.5 rounded-full text-stone-600 hover:text-sky-600 font-bold uppercase text-xs tracking-widest shadow-sm border border-white/50 transition-all duration-300 group">
+                <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+                <span>Exit Editor</span>
+            </a>
+         </div>
+
+         <TitleCard 
               title={storyInfo.title} 
               subtitle={storyInfo.subtitle} 
               onEdit={(f, v) => setStoryInfo(prev => ({ ...prev, [f]: v }))}
-              stringLength={10}
-          />
-          
-          {/* Tombol Back to App */}
-          <div className="absolute top-0 right-40 p-6 w-full flex justify-between items-start pointer-events-none">
-             <Link href="/" className="pointer-events-auto flex items-center gap-2 bg-white/60 backdrop-blur px-4 py-2 rounded-full text-stone-600 hover:text-black font-bold uppercase text-xs tracking-widest group shadow-sm border border-white/50 transition-all hover:scale-105">
-                 <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform"/> Back to Home
-             </Link>
-          </div>
+         />
 
-          {/* Menus Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-16 mt-12 w-full max-w-4xl px-6">
+         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-16 mt-12 w-full max-w-4xl px-6">
               <CameraMenu onClick={() => setView('gallery')} />
               <LetterMenu onClick={() => setView('letter')} />
-              <MusicMenu onClick={changeMusic} currentSong={bgMusic} />
-          </div>
+              <MusicMenu 
+                  onClick={() => setIsMusicModalOpen(true)} 
+                  currentSong={bgMusicLabel}
+              />
+         </div>
 
-          {/* Publish Bar */}
-          <div className="mt-20 w-full max-w-md px-6 text-center">
+         <div className="mt-20 w-full max-w-md px-6 text-center">
              {!publishedUrl ? (
                  <button onClick={handlePublish} disabled={isPublishing} className="w-full py-4 bg-sky-600 text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-sky-500 hover:scale-105 transition-all shadow-xl shadow-sky-200 disabled:opacity-70">
                     {isPublishing ? <Loader2 size={20} className="animate-spin" /> : <Share2 size={20} />}
@@ -463,13 +688,14 @@ export default function WebStoryEditor() {
                         <span className="text-xs font-bold text-green-700 truncate flex-1">{publishedUrl}</span>
                         <button onClick={copyToClipboard} className="p-1.5 hover:bg-white rounded text-green-700"><Copy size={14}/></button>
                     </div>
-                    <Link href={publishedUrl} target="_blank" className="block w-full py-3 bg-green-600 text-white rounded-xl font-bold text-sm hover:bg-green-700 transition-colors shadow-md">
+                    {/* CHANGED: Link to standard <a> tag */}
+                    <a href={publishedUrl} target="_blank" className="block w-full py-3 bg-green-600 text-white rounded-xl font-bold text-sm hover:bg-green-700 transition-colors shadow-md">
                         Visit Website
-                    </Link>
+                    </a>
                     <button onClick={() => setPublishedUrl(null)} className="text-xs text-stone-400 hover:text-stone-600 underline">Edit Again</button>
                  </div>
              )}
-          </div>
+         </div>
       </div>
   );
 
@@ -480,24 +706,30 @@ export default function WebStoryEditor() {
              <button onClick={() => setView('home')} className="flex items-center gap-2 bg-white/80 backdrop-blur px-5 py-2.5 rounded-full text-stone-600 hover:text-black font-bold uppercase text-xs tracking-widest group shadow-sm border border-white/50 hover:scale-105 transition-all">
                  <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform"/> Back to Menu
              </button>
-             <h2 className={`text-4xl text-sky-600 ${greatVibes.className} drop-shadow-sm`}>Photo Gallery</h2>
-             <button onClick={addPhoto} className="flex items-center gap-2 bg-sky-600 text-white px-5 py-2.5 rounded-full text-xs font-bold hover:bg-sky-500 transition-all shadow-lg hover:scale-105">
-                 <Plus size={16} /> Add Photo
-             </button>
+             <h2 className={`text-4xl text-sky-600 ${greatVibes.className} drop-shadow-sm hidden md:block`}>{storyInfo.title} Gallery</h2>
+             <div className="w-8"></div> 
           </div>
           
-          <div className="flex-grow overflow-x-auto overflow-y-hidden flex items-center px-10 gap-16 pb-20 custom-scrollbar scroll-smooth">
+          <div className="flex-grow overflow-x-auto overflow-y-hidden flex items-center px-10 gap-16 pb-20 custom-scrollbar scroll-smooth pt-20">
               {galleryItems.map((item, index) => {
                   const rotation = (item.id % 2 === 0 ? 2 : -2) * ((index % 3) + 1);
                   return (
                       <div key={item.id} className="flex-shrink-0 animate-in zoom-in duration-500" style={{ animationDelay: `${index * 100}ms` }}>
-                          <Polaroid 
-                             img={item.img} 
-                             caption={item.caption} 
-                             rotation={rotation} 
-                             stringLength={8 + (index%3)*3}
-                             onClick={() => setEditingItemId(item.id)}
-                          />
+                          {item.type === 'photo' ? (
+                             <Polaroid 
+                                img={item.img} 
+                                caption={item.caption} 
+                                rotation={rotation} 
+                                onClick={() => setEditingItemId(item.id)}
+                             />
+                          ) : (
+                             <StickyNote 
+                                text={item.text || ""} 
+                                rotation={rotation} 
+                                color={item.bg || "#fef3c7"} 
+                                onClick={() => setEditingItemId(item.id)}
+                             />
+                          )}
                       </div>
                   );
               })}
@@ -527,8 +759,8 @@ export default function WebStoryEditor() {
   const renderLetter = () => (
       <div className="flex flex-col min-h-screen items-center justify-center p-6 relative z-10 w-full">
           <div className="absolute top-6 left-6 z-40">
-             <button onClick={() => setView('home')} className="flex items-center gap-2 bg-white/60 backdrop-blur px-4 py-2 rounded-full text-stone-600 hover:text-black font-bold uppercase text-xs tracking-widest group shadow-sm hover:scale-105 transition-all">
-                 <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform"/> Back to Menu
+             <button onClick={() => setView('home')} className="flex items-center gap-2 bg-white/60 backdrop-blur px-4 py-2 rounded-full text-stone-600 hover:text-black font-bold uppercase text-xs tracking-widest group shadow-sm">
+                 <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform"/> Home
              </button>
           </div>
 
@@ -567,6 +799,17 @@ export default function WebStoryEditor() {
   return (
     <div className={`min-h-screen bg-[#FDFDFC] overflow-hidden ${dmSans.className} relative flex flex-col`}>
         
+        {/* ADDED: Google Fonts import via style tag */}
+        <style dangerouslySetInnerHTML={{__html: `
+          @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=DM+Sans:opsz,wght@9..40,400;700&family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;1,400&family=Press+Start+2P&display=swap');
+          
+          .font-dm-sans { font-family: 'DM Sans', sans-serif; }
+          .font-playfair { font-family: 'Playfair Display', serif; }
+          .font-caveat { font-family: 'Caveat', cursive; }
+          .font-great-vibes { font-family: 'Great Vibes', cursive; }
+          .font-press-start { font-family: 'Press Start 2P', cursive; }
+        `}} />
+
         <style jsx global>{`
           @keyframes float {
             0%, 100% { transform: translateY(0px) rotate(var(--rot)); }
@@ -575,6 +818,22 @@ export default function WebStoryEditor() {
           .animate-float { animation: float 6s ease-in-out infinite; }
           .animate-float-slow { animation: float 8s ease-in-out infinite; }
           .animate-spin-slow { animation: spin 60s linear infinite; }
+
+          /* Custom Scrollbar Styles */
+          .custom-scrollbar::-webkit-scrollbar {
+              width: 6px;
+              height: 8px; /* For horizontal scroll */
+          }
+          .custom-scrollbar::-webkit-scrollbar-track {
+              background: transparent;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+              background-color: #cbd5e1; /* Stone-300 equivalent */
+              border-radius: 10px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+              background-color: #94a3b8; /* Stone-400 equivalent */
+          }
         `}</style>
 
         {/* Background Effect */}
@@ -593,6 +852,21 @@ export default function WebStoryEditor() {
                 onUpdate={(id: number, field: string, val: string) => updateGalleryItem(id, field, val)}
                 onDelete={removePhoto}
                 onImageUpload={handleImageUpload}
+            />
+        )}
+
+        {/* MODAL EDITOR FOR MUSIC (RETRO STYLE) */}
+        {isMusicModalOpen && (
+            <MusicModal 
+                playlist={playlist}
+                onClose={() => setIsMusicModalOpen(false)}
+                onAddSong={addSong}
+                onDeleteSong={deleteSong}
+                onSelectSong={setCurrentSongId}
+                currentSongId={currentSongId}
+                togglePlay={togglePlay}
+                isPlaying={isPlaying}
+                playingId={currentSongId}
             />
         )}
     </div>
