@@ -11,7 +11,8 @@ import {
   Instagram, MessageCircle, LogIn, Quote, UserPlus, 
   Flower2, Bird, Cloud, Music,
   User, LogOut, Settings, ChevronDown, Layout, CheckCircle2,
-  Newspaper, Stamp 
+  Newspaper, Stamp, 
+  Smartphone
 } from "lucide-react";
 
 // --- KONFIGURASI FONT ---
@@ -386,181 +387,123 @@ function HomeContent() {
         </section>
 
         {/* --- TEMPLATE GALLERY --- */}
-        <section id="templates" className="bg-white py-32 border-t border-stone-100">
+        <section id="templates" className="bg-white py-32 border-t border-stone-100 scroll-mt-20">
            <div className="max-w-7xl mx-auto px-6">
-              <div className="text-center mb-20 max-w-2xl mx-auto">
-                <span className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-3 block">Premium Collections</span>
-                <h2 className={`text-4xl md:text-5xl font-medium mb-6 text-[#1C1917] ${playfair.className}`}>
-                   Temukan Gaya Anda
+              <div className="text-center mb-24 max-w-2xl mx-auto space-y-4">
+                <span className="text-xs font-bold text-stone-400 uppercase tracking-[0.2em] block">Our Collections</span>
+                <h2 className={`text-4xl md:text-5xl font-medium text-[#1C1917] font-serif`}>
+                   Find Your Style
                 </h2>
                 <p className="text-stone-500 text-lg font-light leading-relaxed">
-                   Setiap template dirancang dengan detail pixel-perfect untuk memberikan kesan mendalam bagi penerimanya.
+                   Thoughtfully designed templates to convey your message with elegance and soul.
                 </p>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                  
                  {/* CARD 1: RETRO (Portrait 2:3) */}
-                 <Link href="/templates/retro-gameboy" className="group cursor-pointer block">
-                    <div className="relative aspect-[2/3] bg-[#F5F5F4] rounded-[2rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border border-stone-100 group-hover:-translate-y-2">
+                 <Link href="/templates/retro-gameboy" className="group cursor-pointer block h-full">
+                    <div className="relative aspect-[2/3] bg-[#F5F5F4] rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border border-stone-100 group-hover:-translate-y-2">
                        <Image src="/retro-gameboy.png" alt="Retro Gameboy" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
-                       <div className="absolute top-5 right-5 bg-white/95 backdrop-blur px-4 py-1.5 rounded-full text-xs font-bold text-stone-900 uppercase tracking-widest flex items-center gap-1.5 shadow-sm">
-                          <Star size={12} fill="orange" className="text-amber-400"/> Best Seller
+                       <div className="absolute top-5 right-5 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-stone-800 uppercase tracking-widest shadow-sm">
+                          Best Seller
                        </div>
                        
-                       <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                          <span className="bg-white text-stone-900 px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl border border-amber-100">
-                             Edit Template
+                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                          <span className="bg-white text-stone-900 px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl border border-white/20 flex items-center gap-2">
+                             Edit Template <ArrowRight size={14} />
                           </span>
                        </div>
                     </div>
-                    <div className="px-2">
-                       <h3 className={`text-2xl font-medium mb-2 group-hover:text-amber-700 transition-colors ${playfair.className}`}>Retro 8-Bit</h3>
-                       <p className="text-stone-500 text-sm leading-relaxed">Nostalgia konsol klasik, interaktif & seru.</p>
+                    <div className="px-1">
+                       <h3 className="text-xl font-medium mb-1 group-hover:text-stone-600 transition-colors font-serif">Retro 8-Bit</h3>
+                       <p className="text-stone-400 text-sm leading-relaxed font-light">Nostalgic console aesthetic.</p>
                     </div>
                  </Link>
 
-                 {/* KOLOM TENGAH: GABUNGAN CARD LANDSCAPE (Minimalist + Postcard) */}
-                 <div className="flex flex-col gap-10">
-                     
-                     {/* CARD 2: MINIMALIST (Landscape 3:2) */}
-                     <Link href="/templates/minimalist" className="group cursor-pointer block">
-                        <div className="relative aspect-[3/2] bg-[#F5F5F4] rounded-[2rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border border-stone-100 group-hover:-translate-y-2 flex items-center justify-center bg-white">
-                           <Image 
-                             src="/minimalist.png" 
-                             alt="Minimalist" 
-                             fill 
-                             className="object-cover group-hover:scale-105 transition-transform duration-700" 
-                           />
-                           <div className="absolute top-5 right-5 bg-white/95 backdrop-blur px-4 py-1.5 rounded-full text-xs font-bold text-stone-900 uppercase tracking-widest shadow-sm">
-                              Popular
+                 {/* CARD 2: WEB STORY (NEW PLACEHOLDER) */}
+                 <Link href="/web-story" className="group cursor-pointer block h-full">
+                    <div className="relative aspect-[9/16] bg-stone-900 rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border border-stone-800 group-hover:-translate-y-2">
+                       {/* Backgrounds */}
+                       <div className="absolute inset-0 bg-gradient-to-b from-stone-800 to-black opacity-80" />
+                       <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
+                       
+                       {/* Icon & Label */}
+                       <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 z-10">
+                           <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mb-4 backdrop-blur-sm border border-white/20 group-hover:scale-110 transition-transform shadow-lg">
+                              <Smartphone size={32} className="text-sky-300" />
                            </div>
-                           <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                              <span className="bg-white text-stone-900 px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl border border-amber-100">
-                                 Edit Template
-                              </span>
-                           </div>
-                        </div>
-                        <div className="px-2">
-                           <h3 className={`text-2xl font-medium mb-2 group-hover:text-amber-700 transition-colors ${playfair.className}`}>Modern Minimalist</h3>
-                           <p className="text-stone-500 text-sm leading-relaxed">Elegan, bersih, dan fokus pada tipografi.</p>
-                        </div>
-                     </Link>
-
-                     {/* CARD 4: CLASSIC POSTCARD (Landscape 3:2) - Tepat di bawah Minimalist */}
-                     <Link href="/templates/postcard" className="group cursor-pointer block">
-                        <div className="relative aspect-[3/2] bg-[#F5F5F4] rounded-[2rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border border-stone-100 group-hover:-translate-y-2 flex items-center justify-center bg-white">
-                           
-                           {/* Menggunakan Image Component */}
-                           <Image 
-                             src="/postcard.png" 
-                             alt="Classic Postcard" 
-                             fill 
-                             className="object-cover group-hover:scale-105 transition-transform duration-700" 
-                           />
-
-                           <div className="absolute top-5 right-5 bg-white/95 backdrop-blur px-4 py-1.5 rounded-full text-xs font-bold text-stone-900 uppercase tracking-widest shadow-sm z-10">
-                              Classic
-                           </div>
-
-                           <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20">
-                              <span className="bg-white text-stone-900 px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl border border-amber-100">
-                                 Edit Template
-                              </span>
-                           </div>
-                        </div>
-                        <div className="px-2">
-                           <h3 className={`text-2xl font-medium mb-2 group-hover:text-amber-700 transition-colors ${playfair.className}`}>Classic Postcard</h3>
-                           <p className="text-stone-500 text-sm leading-relaxed">Kirim salam hangat dengan gaya kartu pos klasik.</p>
-                        </div>
-                     </Link>
-
-                 </div>
-
-                 {/* CARD 3: NEWSPAPER (Portrait 2:3) */}
-                 <Link href="/templates/newspaper" className="group cursor-pointer block">
-                    <div className="relative aspect-[2/3] bg-[#F5F5F4] rounded-[2rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border border-stone-100 group-hover:-translate-y-2 flex items-center justify-center bg-white">
-                       <Image 
-                         src="/newspaper.png" 
-                         alt="Vintage Newspaper" 
-                         fill 
-                         className="object-cover group-hover:scale-105 transition-transform duration-700" 
-                       />
-                       <div className="absolute top-5 right-5 bg-white/95 backdrop-blur px-4 py-1.5 rounded-full text-xs font-bold text-stone-900 uppercase tracking-widest shadow-sm">
+                           <span className="text-[10px] font-bold text-stone-400 uppercase tracking-[0.2em] mb-2">Interactive</span>
+                           <h4 className={`text-white text-2xl font-medium ${playfair.className}`}>Web Story</h4>
+                       </div>
+                       
+                       {/* Badge */}
+                       <div className="absolute top-5 right-5 bg-sky-500/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-white uppercase tracking-widest shadow-sm z-20">
                           New
                        </div>
-                       <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                          <span className="bg-white text-stone-900 px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl border border-amber-100">
-                             Edit Template
+                       
+                       {/* Hover Action */}
+                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px] z-30">
+                          <span className="bg-white text-stone-900 px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl border border-white/20 flex items-center gap-2">
+                             Create Story <ArrowRight size={14} />
                           </span>
                        </div>
                     </div>
-                    <div className="px-2">
-                       <h3 className={`text-2xl font-medium mb-2 group-hover:text-amber-700 transition-colors ${playfair.className}`}>Vintage Press</h3>
-                       <p className="text-stone-500 text-sm leading-relaxed">Gaya koran klasik untuk berita heboh.</p>
+                    <div className="px-1">
+                       <h3 className={`text-2xl font-medium mb-2 group-hover:text-amber-700 transition-colors ${playfair.className}`}>Web Story</h3>
+                       <p className="text-stone-500 text-sm leading-relaxed">Cerita interaktif layaknya media sosial.</p>
+                    </div>
+                 </Link>
+
+                 {/* CENTER COLUMN GROUP */}
+                 <div className="flex flex-col gap-8">
+                     {/* CARD 3: MINIMALIST (Landscape 3:2) */}
+                     <Link href="/templates/minimalist" className="group cursor-pointer block">
+                        <div className="relative aspect-[3/2] bg-[#F5F5F4] rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border border-stone-100 group-hover:-translate-y-2 flex items-center justify-center bg-white">
+                           <Image src="/minimalist.png" alt="Minimalist" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                           <div className="absolute top-5 right-5 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-stone-800 uppercase tracking-widest shadow-sm">Popular</div>
+                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                              <span className="bg-white text-stone-900 px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl border border-white/20 flex items-center gap-2">Edit Template <ArrowRight size={14} /></span>
+                           </div>
+                        </div>
+                        <div className="px-1">
+                           <h3 className="text-xl font-medium mb-1 group-hover:text-stone-600 transition-colors font-serif">Modern Minimalist</h3>
+                           <p className="text-stone-400 text-sm leading-relaxed font-light">Clean typography focus.</p>
+                        </div>
+                     </Link>
+
+                     {/* CARD 4: CLASSIC POSTCARD (Landscape 3:2) */}
+                     <Link href="/templates/postcard" className="group cursor-pointer block">
+                        <div className="relative aspect-[3/2] bg-[#F5F5F4] rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border border-stone-100 group-hover:-translate-y-2 flex items-center justify-center bg-white">
+                           <Image src="/postcard.png" alt="Classic Postcard" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                           <div className="absolute top-5 right-5 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-stone-800 uppercase tracking-widest shadow-sm z-10">Classic</div>
+                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20 backdrop-blur-[2px]">
+                              <span className="bg-white text-stone-900 px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl border border-white/20 flex items-center gap-2">Edit Template <ArrowRight size={14} /></span>
+                           </div>
+                        </div>
+                        <div className="px-1">
+                           <h3 className="text-xl font-medium mb-1 group-hover:text-stone-600 transition-colors font-serif">Classic Postcard</h3>
+                           <p className="text-stone-400 text-sm leading-relaxed font-light">Warm greetings, old style.</p>
+                        </div>
+                     </Link>
+                 </div>
+
+                 {/* CARD 5: NEWSPAPER (Portrait 2:3) */}
+                 <Link href="/templates/newspaper" className="group cursor-pointer block h-full">
+                    <div className="relative aspect-[2/3] bg-[#F5F5F4] rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border border-stone-100 group-hover:-translate-y-2 flex items-center justify-center bg-white">
+                       <Image src="/newspaper.png" alt="Vintage Newspaper" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                       <div className="absolute top-5 right-5 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-stone-800 uppercase tracking-widest shadow-sm">New</div>
+                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                          <span className="bg-white text-stone-900 px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl border border-white/20 flex items-center gap-2">Edit Template <ArrowRight size={14} /></span>
+                       </div>
+                    </div>
+                    <div className="px-1">
+                       <h3 className="text-xl font-medium mb-1 group-hover:text-stone-600 transition-colors font-serif">Vintage Press</h3>
+                       <p className="text-stone-400 text-sm leading-relaxed font-light">Headline news aesthetic.</p>
                     </div>
                  </Link>
 
               </div>
-           </div>
-        </section>
-
-        {/* --- FEATURE HIGHLIGHTS --- */}
-        <section id="features" className="bg-[#1C1917] text-white py-32 relative overflow-hidden">
-           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10 pointer-events-none" />
-           
-           <div className="max-w-7xl mx-auto px-6 relative z-10">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
-                 
-                 <div className="text-center group">
-                    <div className="w-16 h-16 mx-auto mb-8 bg-white/10 rounded-2xl flex items-center justify-center group-hover:bg-white/20 transition-colors backdrop-blur-md">
-                       <PenTool size={32} className="text-amber-300" />
-                    </div>
-                    <h3 className={`text-2xl font-medium mb-4 ${playfair.className}`}>Editor Intuitif</h3>
-                    <p className="text-stone-400 leading-relaxed font-light">
-                       Ubah teks, ganti foto, dan atur warna semudah drag-and-drop. Tidak butuh skill coding.
-                    </p>
-                 </div>
-
-                 <div className="text-center group">
-                    <div className="w-16 h-16 mx-auto mb-8 bg-white/10 rounded-2xl flex items-center justify-center group-hover:bg-white/20 transition-colors backdrop-blur-md">
-                       <Phone size={32} className="text-orange-300" />
-                    </div>
-                    <h3 className={`text-2xl font-medium mb-4 ${playfair.className}`}>Responsif Total</h3>
-                    <p className="text-stone-400 leading-relaxed font-light">
-                       Kartu digital Anda akan terlihat sempurna di iPhone, Android, Tablet, maupun Desktop.
-                    </p>
-                 </div>
-
-                 <div className="text-center group">
-                    <div className="w-16 h-16 mx-auto mb-8 bg-white/10 rounded-2xl flex items-center justify-center group-hover:bg-white/20 transition-colors backdrop-blur-md">
-                       <Cloud size={32} className="text-yellow-200" />
-                    </div>
-                    <h3 className={`text-2xl font-medium mb-4 ${playfair.className}`}>Berbagi Instan</h3>
-                    <p className="text-stone-400 leading-relaxed font-light">
-                       Dapatkan tautan unik atau unduh sebagai gambar berkualitas tinggi siap kirim via WhatsApp.
-                    </p>
-                 </div>
-
-              </div>
-           </div>
-        </section>
-
-        {/* --- BOTTOM CTA --- */}
-        <section className="bg-white py-32 text-[#1C1917] relative overflow-hidden">
-           <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-stone-50 to-white -z-10" />
-           <div className="max-w-4xl mx-auto px-6 text-center">
-              <h2 className={`text-5xl md:text-6xl font-medium mb-8 text-[#1C1917] ${playfair.className} leading-tight`}>
-                 Momen Spesial Butuh <br/> Kartu yang Spesial.
-              </h2>
-              <p className="text-xl text-stone-500 mb-12 max-w-xl mx-auto font-light">
-                 Bergabunglah dengan ribuan orang yang telah membuat momen mereka lebih berkesan dengan Cardify.
-              </p>
-              
-              <Link href={userData ? "#templates" : "/register"} className="inline-flex px-12 py-5 rounded-full bg-[#1C1917] text-white font-bold tracking-wide hover:bg-black hover:scale-105 hover:shadow-2xl transition-all items-center gap-3">
-                   {userData ? <Sparkles size={20} className="text-amber-400" /> : <Gift size={20} className="text-amber-400" />}
-                   {userData ? "Pilih Template Favorit" : "Buat Akun Gratis"}
-              </Link>
            </div>
         </section>
 
