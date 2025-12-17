@@ -177,7 +177,7 @@ function AboutContent() {
                We believe every moment <br/> <span className="italic text-stone-500">deserves to be celebrated.</span>
             </h1>
             <p className="text-lg text-stone-500 max-w-2xl mx-auto leading-relaxed">
-               Cardify lahir dari ide sederhana: membuat kartu ucapan digital yang personal, estetik, dan mudah dibuat oleh siapa saja. Kami menggabungkan teknologi modern dengan sentuhan desain klasik.
+               Cardify was born from a simple idea: to create digital greeting cards that are personal, aesthetic, and easy for anyone to make. We combine modern technology with a touch of classic design.
             </p>
          </div>
 
@@ -203,27 +203,27 @@ function AboutContent() {
                   <div className="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center mx-auto text-amber-600 mb-4">
                      <Zap size={28} />
                   </div>
-                  <h3 className={`text-2xl font-bold text-[#1C1917] ${playfair.className}`}>Cepat & Mudah</h3>
+                  <h3 className={`text-2xl font-bold text-[#1C1917] ${playfair.className}`}>Fast & Easy</h3>
                   <p className="text-stone-500 leading-relaxed text-sm">
-                     Tanpa perlu skill desain. Cukup pilih template, tulis pesan, dan kirim dalam hitungan detik.
+                     No design skills required. Just pick a template, write your message, and send it in seconds.
                   </p>
                </div>
                <div className="space-y-4 p-6 hover:bg-stone-50 rounded-2xl transition-colors">
                   <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto text-blue-600 mb-4">
                      <Globe size={28} />
                   </div>
-                  <h3 className={`text-2xl font-bold text-[#1C1917] ${playfair.className}`}>Tanpa Batas</h3>
+                  <h3 className={`text-2xl font-bold text-[#1C1917] ${playfair.className}`}>Without Limits</h3>
                   <p className="text-stone-500 leading-relaxed text-sm">
-                     Kirim kartu ucapan ke teman di seberang kota atau keluarga di seberang benua. Digital mendekatkan kita.
+                     Send greeting cards to friends across the city or family across the globe. Digital brings us closer.
                   </p>
                </div>
                <div className="space-y-4 p-6 hover:bg-stone-50 rounded-2xl transition-colors">
                   <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center mx-auto text-green-600 mb-4">
                      <ShieldCheck size={28} />
                   </div>
-                  <h3 className={`text-2xl font-bold text-[#1C1917] ${playfair.className}`}>Privasi Aman</h3>
+                  <h3 className={`text-2xl font-bold text-[#1C1917] ${playfair.className}`}>Secure Privacy</h3>
                   <p className="text-stone-500 leading-relaxed text-sm">
-                     Data dan pesan Anda adalah prioritas kami. Kami menjaga keamanan informasi setiap pengguna.
+                     Your data and messages are our priority. We ensure the security of every user's information.
                   </p>
                </div>
             </div>
@@ -262,7 +262,7 @@ function AboutContent() {
                      <p className="text-amber-600 font-bold text-sm tracking-wide uppercase mt-1">Founder & Developer</p>
                   </div>
                   <p className="text-stone-500 leading-relaxed">
-                     "Saya membangun Cardify dengan satu tujuan: membantu orang mengekspresikan perasaan mereka dengan cara yang unik dan berkesan di era digital ini. Terima kasih telah menjadi bagian dari perjalanan kami."
+                     "I built Cardify with one goal: to help people express their feelings in a unique and meaningful way in this digital era. Thank you for being part of our journey."
                   </p>
                   <div className="flex gap-4 pt-2">
                      <Link href="https://instagram.com/alfinnsptr" target="_blank" className="p-3 bg-stone-50 rounded-full text-stone-600 hover:bg-[#E1306C] hover:text-white transition-all"><Instagram size={20}/></Link>
@@ -285,7 +285,7 @@ function AboutContent() {
             <div className="flex gap-6 text-sm font-bold text-white">
                <Link href="/" className="hover:text-amber-400 transition-colors">Home</Link>
                <Link href="/about" className="text-amber-400">About</Link>
-               <Link href="/#templates" className="hover:text-amber-400 transition-colors">Templates</Link>
+               <Link href="/templates" className="hover:text-amber-400 transition-colors">Templates</Link>
             </div>
          </div>
       </footer>

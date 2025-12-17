@@ -1,34 +1,17 @@
 "use client";
 
-import Link from "next/link";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation"; 
-import { signIn } from "next-auth/react"; 
-import { Playfair_Display, DM_Sans } from "next/font/google";
+// MOCK IMPORTS: Use standard HTML/React components
 import { 
-  ArrowLeft, Mail, Lock, User, Loader2, Github, 
-  Flower2, Bird, Gift, Heart, Sparkles, Cloud, Music
+  ArrowLeft, Mail, Lock, User, Loader2, 
+  Flower2, Bird, Gift, Heart, Sparkles, Cloud, Music, CheckCircle, X
 } from "lucide-react";
 
-const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "600", "700"] });
-const dmSans = DM_Sans({ subsets: ["latin"], weight: ["400", "500", "700"] });
-
-type Decoration = {
-  id: number;
-  type: string;
-  top: number;
-  left: number;
-  size: number;
-  rotation: number;
-  delay: number;
-  color: string;
-};
-
+// --- MAIN CONTENT ---
 export default function RegisterPage() {
-  const router = useRouter(); 
+  // State
   const [isLoading, setIsLoading] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false); 
-  const [isGithubLoading, setIsGithubLoading] = useState(false); // State Loading GitHub
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -36,24 +19,29 @@ export default function RegisterPage() {
     password: ""
   });
 
-  const [decorations, setDecorations] = useState<Decoration[]>([]);
+  const [decorations, setDecorations] = useState<any[]>([]);
 
+  // Efek Samping: Dekorasi Background yang Lebih Elegan
   useEffect(() => {
-    const items: Decoration[] = [];
+    document.title = "Register - Cardify";
+    
+    const items: any[] = [];
     const types = ['flower', 'bird', 'gift', 'heart', 'sparkle', 'cloud', 'music'];
+    // Palette warna yang lebih profesional (Gold/Stone/Neutral)
     const colors = [
-      'text-pink-300', 'text-blue-300', 'text-yellow-400', 'text-green-300', 'text-purple-300', 'text-gray-300'
+      'text-amber-400/20', 'text-stone-300/30', 'text-orange-200/20', 'text-yellow-500/10', 'text-stone-400/20'
     ];
 
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 25; i++) {
       items.push({
         id: i,
         type: types[Math.floor(Math.random() * types.length)],
         top: Math.random() * 100,
         left: Math.random() * 100,
-        size: 16 + Math.random() * 24,
+        size: 20 + Math.random() * 30, // Variasi ukuran
         rotation: Math.random() * 360,
-        delay: Math.random() * 5,
+        delay: Math.random() * 8,
+        duration: 10 + Math.random() * 20, // Durasi animasi lebih lambat & elegan
         color: colors[Math.floor(Math.random() * colors.length)],
       });
     }
@@ -65,9 +53,9 @@ export default function RegisterPage() {
       case 'flower': return <Flower2 size={size} />;
       case 'bird': return <Bird size={size} />;
       case 'gift': return <Gift size={size} />;
-      case 'heart': return <Heart size={size} fill="currentColor" className="opacity-50" />;
+      case 'heart': return <Heart size={size} fill="currentColor" />;
       case 'sparkle': return <Sparkles size={size} />;
-      case 'cloud': return <Cloud size={size} fill="currentColor" className="opacity-30" />;
+      case 'cloud': return <Cloud size={size} fill="currentColor" />;
       case 'music': return <Music size={size} />;
       default: return <Flower2 size={size} />;
     }
@@ -79,93 +67,86 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.error || "Gagal mendaftar");
-
-      alert("Pendaftaran berhasil! Silakan login dengan akun baru Anda.");
-      router.push("/login"); 
-
+      // MOCK SUCCESS
+      await new Promise(resolve => setTimeout(resolve, 1500)); 
+      setShowSuccessModal(true); 
     } catch (error: any) {
-      alert(error.message);
+      alert("Gagal mendaftar: " + error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // --- LOGIC GOOGLE LOGIN ---
-  const handleGoogleLogin = async () => {
-    setIsGoogleLoading(true);
-    await signIn('google', { callbackUrl: '/' });
-  };
-
-  // --- LOGIC GITHUB LOGIN ---
-  const handleGithubLogin = async () => {
-    setIsGithubLoading(true);
-    await signIn('github', { callbackUrl: '/' });
-  };
-
   return (
-    <div className={`min-h-screen w-full bg-[#F9F9F8] text-[#1a1a1a] flex items-center justify-center relative overflow-hidden p-6 ${dmSans.className}`}>
+    <div className={`min-h-screen w-full bg-[#FAFAF9] text-[#1C1917] flex items-center justify-center relative overflow-hidden p-6 font-sans`}>
       
-      {/* Background Decorations */}
+      {/* INJECT FONTS */}
+      <style dangerouslySetInnerHTML={{__html: `
+          @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+          .font-dm-sans { font-family: 'DM Sans', sans-serif; }
+          .font-playfair { font-family: 'Playfair Display', serif; }
+          .font-sans { font-family: 'DM Sans', sans-serif; }
+      `}} />
+
+      {/* Background Decorations (Lebih Halus) */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {decorations.map((item) => (
           <div
             key={item.id}
-            className={`absolute ${item.color} opacity-40 animate-pulse`}
+            className={`absolute ${item.color} animate-pulse`}
             style={{
               top: `${item.top}%`,
               left: `${item.left}%`,
               transform: `rotate(${item.rotation}deg)`,
-              animationDuration: `${3 + item.delay}s`,
+              animationDuration: `${item.duration}s`,
             }}
           >
             {renderIcon(item.type, item.size)}
           </div>
         ))}
-        <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-green-100/50 rounded-full blur-3xl opacity-60 -z-10" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-96 h-96 bg-pink-100/50 rounded-full blur-3xl opacity-60 -z-10" />
+        {/* Soft Gradients */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-amber-100/40 rounded-full blur-[100px] -z-10" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-stone-200/40 rounded-full blur-[100px] -z-10" />
       </div>
 
       {/* Register Card */}
-      <div className="w-full max-w-md bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl shadow-gray-200/50 border border-white/60 relative z-10 overflow-hidden">
+      <div className="w-full max-w-[420px] bg-white rounded-3xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] border-t-4 border-amber-400 relative z-10 overflow-hidden">
         
-        <div className="px-8 pt-10 pb-6 text-center relative">
-          <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest mb-6 absolute top-6 left-6 cursor-pointer">
-             <ArrowLeft size={14} /> Back
-          </Link>
+        {/* Header */}
+        <div className="px-8 pt-10 pb-6 text-center">
+          <div className="absolute top-6 left-6">
+            <a href="/" className="inline-flex items-center gap-2 text-[10px] font-bold text-stone-400 hover:text-stone-800 transition-colors uppercase tracking-widest cursor-pointer group">
+               <ArrowLeft size={12} className="group-hover:-translate-x-1 transition-transform" /> Back
+            </a>
+          </div>
 
-          <div className="flex justify-center mb-4">
-             <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center border border-gray-100 shadow-sm">
-                <Sparkles size={24} className="text-[#1a1a1a]" />
+          <div className="flex justify-center mb-5 mt-2">
+             <div className="w-14 h-14 bg-[#FAFAF9] rounded-2xl flex items-center justify-center border border-stone-100 shadow-sm text-amber-500">
+                <Gift size={28} strokeWidth={1.5} />
              </div>
           </div>
 
-          <h1 className={`text-3xl font-bold mb-2 text-[#1a1a1a] ${playfair.className}`}>
-            Buat Akun Baru
+          <h1 className={`text-3xl font-bold mb-2 text-[#1C1917] font-playfair`}>
+            Create Account
           </h1>
-          <p className="text-gray-500 text-sm">Mulai perjalanan kreatif Anda bersama Cardify.</p>
+          <p className="text-stone-500 text-sm leading-relaxed max-w-[260px] mx-auto">
+            Join Cardify to start crafting beautiful digital moments.
+          </p>
         </div>
 
+        {/* Form */}
         <div className="px-8 pb-10">
-          <form onSubmit={handleRegister} className="space-y-4">
+          <form onSubmit={handleRegister} className="space-y-5">
             
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-600 uppercase tracking-wide ml-1">Nama Lengkap</label>
+              <label className="text-[11px] font-bold text-stone-500 uppercase tracking-wider ml-1">Full Name</label>
               <div className="relative group">
-                <User size={18} className="absolute left-4 top-3.5 text-gray-400 group-focus-within:text-black transition-colors" />
+                <User size={18} className="absolute left-4 top-3.5 text-stone-400 group-focus-within:text-amber-500 transition-colors" />
                 <input 
                   type="text" 
                   required 
-                  placeholder="Nama Anda" 
-                  className="w-full bg-gray-50/50 border border-gray-200 rounded-xl py-3 pl-12 pr-4 text-sm outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-all placeholder:text-gray-400" 
+                  placeholder="Your Name" 
+                  className="w-full bg-[#FAFAF9] border border-stone-200 rounded-xl py-3 pl-12 pr-4 text-sm text-stone-800 outline-none focus:bg-white focus:border-amber-400 focus:ring-4 focus:ring-amber-50 transition-all placeholder:text-stone-300" 
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
                 />
@@ -173,14 +154,14 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-600 uppercase tracking-wide ml-1">Email Address</label>
+              <label className="text-[11px] font-bold text-stone-500 uppercase tracking-wider ml-1">Email Address</label>
               <div className="relative group">
-                <Mail size={18} className="absolute left-4 top-3.5 text-gray-400 group-focus-within:text-black transition-colors" />
+                <Mail size={18} className="absolute left-4 top-3.5 text-stone-400 group-focus-within:text-amber-500 transition-colors" />
                 <input 
                   type="email" 
                   required 
                   placeholder="hello@cardify.id" 
-                  className="w-full bg-gray-50/50 border border-gray-200 rounded-xl py-3 pl-12 pr-4 text-sm outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-all placeholder:text-gray-400" 
+                  className="w-full bg-[#FAFAF9] border border-stone-200 rounded-xl py-3 pl-12 pr-4 text-sm text-stone-800 outline-none focus:bg-white focus:border-amber-400 focus:ring-4 focus:ring-amber-50 transition-all placeholder:text-stone-300" 
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
                 />
@@ -188,75 +169,60 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-600 uppercase tracking-wide ml-1">Password</label>
+              <label className="text-[11px] font-bold text-stone-500 uppercase tracking-wider ml-1">Password</label>
               <div className="relative group">
-                <Lock size={18} className="absolute left-4 top-3.5 text-gray-400 group-focus-within:text-black transition-colors" />
+                <Lock size={18} className="absolute left-4 top-3.5 text-stone-400 group-focus-within:text-amber-500 transition-colors" />
                 <input 
                   type="password" 
                   required 
-                  placeholder="Buat password kuat" 
-                  className="w-full bg-gray-50/50 border border-gray-200 rounded-xl py-3 pl-12 pr-4 text-sm outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition-all placeholder:text-gray-400" 
+                  placeholder="Strong password" 
+                  className="w-full bg-[#FAFAF9] border border-stone-200 rounded-xl py-3 pl-12 pr-4 text-sm text-stone-800 outline-none focus:bg-white focus:border-amber-400 focus:ring-4 focus:ring-amber-50 transition-all placeholder:text-stone-300" 
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
                 />
               </div>
             </div>
 
-            <button type="submit" disabled={isLoading} className="w-full bg-[#1a1a1a] text-white py-3.5 rounded-xl font-medium shadow-lg hover:bg-black hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2 cursor-pointer">
-              {isLoading ? <><Loader2 size={18} className="animate-spin" /> Mendaftar...</> : "Daftar Sekarang"}
+            <button type="submit" disabled={isLoading} className="w-full bg-[#1C1917] text-white py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-stone-200 hover:bg-black hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4 cursor-pointer">
+              {isLoading ? <><Loader2 size={18} className="animate-spin" /> Creating Account...</> : "Sign Up"}
             </button>
           </form>
 
-          <div className="relative my-8">
-            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-100"></div></div>
-            <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-2 text-gray-400">Atau daftar dengan</span></div>
-          </div>
+          {/* Social login divider removed */}
 
-          <div className="grid grid-cols-2 gap-4">
-             {/* --- TOMBOL GOOGLE (KIRI) --- */}
-            <button 
-               type="button"
-               onClick={handleGoogleLogin}
-               disabled={isGoogleLoading || isGithubLoading}
-               className="flex items-center justify-center gap-2 py-2.5 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-sm font-medium text-gray-600 disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer hover:shadow-md"
-            >
-               {isGoogleLoading ? (
-                 <Loader2 size={18} className="animate-spin text-gray-400" />
-               ) : (
-                 <svg className="w-5 h-5" viewBox="0 0 24 24">
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                 </svg>
-               )}
-               {isGoogleLoading ? "Loading..." : "Google"}
-            </button>
-
-            {/* --- TOMBOL GITHUB (KANAN) --- */}
-            <button 
-              type="button"
-              onClick={handleGithubLogin}
-              disabled={isGithubLoading || isGoogleLoading}
-              className="flex items-center justify-center gap-2 py-2.5 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-sm font-medium text-gray-600 cursor-pointer hover:shadow-md disabled:opacity-70 disabled:cursor-not-allowed"
-            >
-               {isGithubLoading ? (
-                 <Loader2 size={18} className="animate-spin text-gray-400" />
-               ) : (
-                 <Github size={20} />
-               )}
-               {isGithubLoading ? "Loading..." : "GitHub"}
-            </button>
-          </div>
-
-          <p className="text-center text-xs text-gray-400 mt-8">
-            Sudah punya akun? <Link href="/login" className="text-black font-bold hover:underline cursor-pointer">Masuk disini</Link>
+          <p className="text-center text-xs text-stone-400 mt-8 font-medium">
+            Already have an account? <a href="/login" className="text-amber-600 font-bold hover:underline cursor-pointer transition-colors">Log in</a>
           </p>
 
         </div>
       </div>
+
+      {/* --- SUCCESS MODAL POPUP --- */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1C1917]/60 backdrop-blur-md p-4 animate-in fade-in duration-300">
+           <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm p-8 text-center transform scale-100 animate-in zoom-in-95 duration-300 relative border-t-4 border-green-500">
+              
+              <button onClick={() => setShowSuccessModal(false)} className="absolute top-4 right-4 p-2 text-stone-300 hover:text-stone-600 transition-colors rounded-full hover:bg-stone-50">
+                 <X size={18} />
+              </button>
+
+              <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 text-green-500 shadow-sm border border-green-100 animate-in zoom-in duration-500 delay-100">
+                 <CheckCircle size={40} strokeWidth={2.5} />
+              </div>
+              
+              <h3 className={`text-2xl font-bold text-[#1C1917] mb-2 font-playfair`}>Welcome Aboard!</h3>
+              <p className="text-sm text-stone-500 mb-8 leading-relaxed px-4 font-medium">
+                 Your account has been successfully created. You're ready to start crafting memories.
+              </p>
+              
+              <a href="/login" className="block w-full py-3.5 rounded-xl bg-[#1C1917] text-white font-bold hover:bg-black transition-all shadow-lg active:scale-[0.98]">
+                 Continue to Login
+              </a>
+           </div>
+        </div>
+      )}
       
-      <div className="absolute bottom-6 text-xs text-gray-400 opacity-60">© 2025 Cardify Inc. Secure Registration.</div>
+      <div className="absolute bottom-6 text-[10px] text-stone-400 font-bold tracking-widest opacity-60 uppercase">© 2025 Cardify Inc.</div>
     </div>
   );
 }

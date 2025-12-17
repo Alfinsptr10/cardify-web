@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 // REMOVED: import Link from "next/link"; -> Replaced with <a> tag
 import { 
   ArrowLeft, Image as ImageIcon, 
-  Share2, X, Eye, Loader2, Copy, Check, Music, Play, Type, Plus, Trash2, Upload, Heart, Camera, Headphones, Cloud, Sun, Pause, Disc, Link as LinkIcon, FileAudio, Home
+  Share2, X, Eye, Loader2, Copy, Check, Music, Play, Type, Plus, Trash2, Upload, Heart, Camera, Headphones, Cloud, Sun, Pause, Disc, Link as LinkIcon, FileAudio, Home, Mail
 } from "lucide-react";
 
 // REMOVED: import { ... } from "next/font/google"; -> Replaced with standard CSS import below
@@ -13,6 +13,10 @@ import {
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "firebase/auth";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
+
+// --- KONFIGURASI BACKGROUND (EDITOR) ---
+// Ganti background editor menjadi field.jpeg
+const EDITOR_BG_IMAGE = "/field.jpeg";
 
 // --- MOCK FONTS (Standard CSS Classes replacement) ---
 const dmSans = { className: "font-dm-sans" };
@@ -67,24 +71,28 @@ if (firebaseConfig && firebaseConfig.apiKey) {
 
 // --- COMPONENTS VISUAL ---
 
-const BackgroundEffects = () => (
-  <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 bg-[#e0f7fa]">
-     <div className="absolute inset-0 bg-gradient-to-b from-[#87CEEB] via-[#B2EBF2] to-[#FAFAF9]" />
-     <div className="absolute -top-20 -right-20 opacity-50 animate-spin-slow" style={{ animationDuration: '60s' }}>
-        <Sun size={400} className="text-yellow-200 fill-yellow-100" />
-     </div>
-     <div className="absolute top-20 left-[10%] text-white/90 animate-float-slow drop-shadow-sm">
-        <Cloud size={80} fill="white" className="text-white" />
-     </div>
-     <div className="absolute top-40 right-[15%] text-white/70 animate-float" style={{ animationDelay: '2s', '--rot': '0deg' } as React.CSSProperties}>
-        <Cloud size={60} fill="white" className="text-white" />
-     </div>
-     <div className="absolute bottom-1/3 left-[20%] text-white/50 animate-float-slow" style={{ animationDelay: '5s', '--rot': '0deg' } as React.CSSProperties}>
-        <Cloud size={120} fill="white" className="text-white" />
-     </div>
-     <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
-  </div>
-);
+// UPDATED: BackgroundEffects supports custom image
+const BackgroundEffects = ({ image }: { image?: string }) => {
+  if (image) {
+      return (
+          <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+             <div className="absolute inset-0 bg-black/40 z-10" />
+             {/* eslint-disable-next-line @next/next/no-img-element */}
+             <img src={image} alt="Background" className="w-full h-full object-cover animate-in fade-in duration-1000" />
+          </div>
+      );
+  }
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 bg-[#e0f7fa]">
+       <div className="absolute inset-0 bg-gradient-to-b from-[#87CEEB] via-[#B2EBF2] to-[#FAFAF9]" />
+       <div className="absolute -top-20 -right-20 opacity-50 animate-spin-slow" style={{ animationDuration: '60s' }}>
+          <Sun size={400} className="text-yellow-200 fill-yellow-100" />
+       </div>
+       {/* ... clouds ... */}
+       <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
+    </div>
+  );
+};
 
 const HangingMenu = ({ icon: Icon, label, onClick, delay = 0, rotation = 0, img }: any) => (
   <div onClick={onClick} className="flex flex-col items-center group cursor-pointer animate-in fade-in slide-in-from-top-10 duration-1000 animate-float" style={{ animationDelay: `${delay}ms`, '--rot': `${rotation}deg` } as React.CSSProperties}>
@@ -159,30 +167,45 @@ const StickyNote = ({ text, color = "#fef3c7", rotation = 0, onClick, delay = 0 
   </div>
 );
 
+// UPDATED: TitleCard with Rose/Pink theme and flexible height
 const TitleCard = ({ title, subtitle, onClick, onEdit }: { title: string, subtitle: string, onClick?: () => void, onEdit?: (field: string, value: string) => void }) => (
-  <div className="flex flex-col items-center group relative animate-float-slow">
-    <div onClick={onClick} className="text-center p-6 relative cursor-pointer hover:scale-105 transition-transform duration-300 w-80">
-      <div className="inline-block border-[6px] border-double border-sky-200 p-8 bg-white shadow-[0_10px_30px_-5px_rgba(135,206,235,0.4)] relative rounded-xl rotate-1 w-full">
+  <div className="flex flex-col items-center group relative animate-float-slow w-full px-4">
+    <div onClick={onClick} className="text-center relative mt-4 max-w-full cursor-pointer hover:scale-105 transition-transform duration-300">
+      {/* Changed border color to rose-200 and shadow to match pink theme */}
+      <div className="inline-block border-[6px] border-double border-rose-200 p-8 bg-white shadow-[0_10px_30px_-5px_rgba(251,113,133,0.2)] relative rounded-xl rotate-1 min-w-[320px] max-w-full">
           {onEdit ? (
-            <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
-                <input 
+            <div className="space-y-2 flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
+                {/* Replaced input with textarea for auto-wrap/size adaptation */}
+                <textarea 
                     value={title}
                     onChange={(e) => onEdit('title', e.target.value)}
-                    className={`w-full text-center text-5xl md:text-6xl text-sky-600 bg-transparent border-b border-transparent hover:border-sky-200 focus:border-sky-300 focus:outline-none transition-colors ${greatVibes.className}`}
+                    className={`w-full text-center text-5xl md:text-6xl text-rose-500 bg-transparent border-b border-transparent hover:border-rose-200 focus:border-rose-300 focus:outline-none transition-colors resize-none overflow-hidden ${greatVibes.className}`}
                     placeholder="Your Title"
+                    rows={1}
+                    style={{ minHeight: '80px', height: 'auto' }}
+                    onInput={(e) => {
+                        // Auto-grow height script
+                        e.currentTarget.style.height = 'auto'; 
+                        e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
+                    }}
                 />
-                <div className="w-20 h-1 bg-sky-300 mx-auto mb-4 rounded-full opacity-50"></div>
-                <input 
+                <div className="w-20 h-1 bg-rose-300 mx-auto mb-4 rounded-full opacity-50"></div>
+                <textarea 
                     value={subtitle}
                     onChange={(e) => onEdit('subtitle', e.target.value)}
-                    className={`w-full text-center text-lg text-stone-500 bg-transparent border-b border-transparent hover:border-stone-200 focus:border-stone-300 focus:outline-none italic ${dmSans.className}`}
+                    className={`w-full text-center text-lg text-stone-500 bg-transparent border-b border-transparent hover:border-stone-200 focus:border-stone-300 focus:outline-none italic resize-none overflow-hidden ${dmSans.className}`}
                     placeholder="Your Subtitle"
+                    rows={1}
+                    onInput={(e) => {
+                        e.currentTarget.style.height = 'auto'; 
+                        e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
+                    }}
                 />
             </div>
           ) : (
              <>
-                <h1 className={`text-5xl md:text-7xl font-bold text-sky-600 mb-2 ${greatVibes.className} drop-shadow-sm`}>{title || "Title Here"}</h1>
-                <div className="w-20 h-1 bg-sky-300 mx-auto mb-4 rounded-full"></div>
+                <h1 className={`text-5xl md:text-7xl font-bold text-rose-500 mb-2 ${greatVibes.className} drop-shadow-sm`}>{title || "Title Here"}</h1>
+                <div className="w-20 h-1 bg-rose-300 mx-auto mb-4 rounded-full"></div>
                 <p className={`text-xl text-stone-500 italic ${dmSans.className}`}>{subtitle || "Subtitle Here"}</p>
              </>
           )}
@@ -247,7 +270,7 @@ const EditModal = ({ slide, onClose, onUpdate, onDelete, onImageUpload }: any) =
     );
 };
 
-// --- ADD MUSIC MODAL (RETRO DARK DESIGN - COMPACT) ---
+// --- ADD MUSIC MODAL (SOFT PINK/CREAM THEME) ---
 const MusicModal = ({ playlist, onClose, onAddSong, onDeleteSong, onSelectSong, currentSongId, togglePlay, isPlaying, playingId }: any) => {
     const [newTitle, setNewTitle] = useState("");
     const [newArtist, setNewArtist] = useState("");
@@ -272,7 +295,6 @@ const MusicModal = ({ playlist, onClose, onAddSong, onDeleteSong, onSelectSong, 
     const handleAudioUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-             // SIZE CHECK: 750KB limit to fit in 1MB Firestore doc (Base64 adds 33% overhead)
              if (file.size > 750 * 1024) { 
                  alert("Batas Firestore adalah 1MB/dokumen. Mohon gunakan audio di bawah 750KB atau gunakan fitur 'Link URL' untuk file besar.");
                  return;
@@ -296,61 +318,61 @@ const MusicModal = ({ playlist, onClose, onAddSong, onDeleteSong, onSelectSong, 
     };
 
     return (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-            {/* CONTAINER UTAMA: Gaya Gelap & Retro */}
-            <div className="bg-[#1a1f1a] border-2 border-yellow-400 rounded-3xl w-full max-w-[340px] p-5 text-white text-center shadow-[0_0_40px_rgba(251,191,36,0.2)] relative overflow-hidden flex flex-col max-h-[85vh]">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+            {/* CONTAINER UTAMA: Soft Pink/Cream, tidak terlalu terang, border tipis */}
+            <div className="bg-[#fff9f9] border border-rose-100 rounded-[2rem] w-full max-w-[360px] p-6 text-stone-700 shadow-2xl relative overflow-hidden flex flex-col max-h-[85vh]">
                 
-                {/* Decorative Screws */}
-                <div className="absolute top-3 left-3 w-3 h-3 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center"><div className="w-1.5 h-0.5 bg-zinc-600 rotate-45"></div></div>
-                <div className="absolute top-3 right-3 w-3 h-3 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center"><div className="w-1.5 h-0.5 bg-zinc-600 rotate-45"></div></div>
-                <div className="absolute bottom-3 left-3 w-3 h-3 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center"><div className="w-1.5 h-0.5 bg-zinc-600 rotate-45"></div></div>
-                <div className="absolute bottom-3 right-3 w-3 h-3 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center"><div className="w-1.5 h-0.5 bg-zinc-600 rotate-45"></div></div>
+                {/* Decorative Elements - Subtle */}
+                <div className="absolute top-5 left-5 w-2 h-2 rounded-full bg-rose-200"></div>
+                <div className="absolute top-5 right-12 w-2 h-2 rounded-full bg-rose-200"></div>
 
-                <button onClick={onClose} className="absolute top-2 right-2 p-2 text-zinc-500 hover:text-white transition-colors z-20"><X size={18} /></button>
+                <button onClick={onClose} className="absolute top-3 right-3 p-2 hover:bg-rose-50 text-stone-400 hover:text-rose-400 rounded-full transition-colors z-20"><X size={18} /></button>
 
                 {/* Header Title */}
-                <div className="text-center mb-4 mt-2">
-                    <h2 className={`text-amber-400 text-sm tracking-widest font-bold uppercase ${pressStart.className}`}>MIXTAPE VOL.1</h2>
-                    <div className="w-16 h-1 bg-amber-500/50 mx-auto mt-2 rounded-full"></div>
+                <div className="text-center mb-6 mt-1">
+                    <h2 className={`text-stone-600 text-xl tracking-widest font-bold uppercase ${greatVibes.className} text-3xl`}>My Playlist</h2>
+                    <div className="w-12 h-1 bg-rose-200 mx-auto mt-1 rounded-full"></div>
                 </div>
                 
-                {/* NOW PLAYING SECTION (COMPACT) */}
-                <div className="bg-zinc-900/80 rounded-xl p-3 border border-zinc-800 mb-4 shrink-0 shadow-inner">
-                    <div className="flex gap-3">
-                        {/* Song Cover Image - Compact but visible */}
-                        <div className="w-20 h-20 rounded-lg bg-black flex-shrink-0 overflow-hidden relative border border-zinc-700 group shadow-lg">
+                {/* NOW PLAYING SECTION (Soft) */}
+                <div className="bg-white rounded-2xl p-4 border border-rose-50 mb-6 shadow-sm relative overflow-hidden group">
+                    {/* Decorative bg shape */}
+                    <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-rose-50 rounded-full blur-xl"></div>
+                    
+                    <div className="flex gap-4 relative z-10">
+                        {/* Song Cover Image */}
+                        <div className="w-20 h-20 rounded-xl bg-stone-50 shadow-sm flex-shrink-0 overflow-hidden relative border border-stone-100">
                             {activeSong?.cover ? (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img src={activeSong.cover} alt="Song Cover" className="w-full h-full object-cover" />
                             ) : (
-                                <div className="flex flex-col items-center justify-center opacity-50 w-full h-full">
-                                    <Disc size={24} className="animate-spin-slow mb-1" />
-                                    <span className="text-[10px] uppercase">No Cover</span>
+                                <div className="flex flex-col items-center justify-center opacity-50 w-full h-full text-rose-300">
+                                    <Disc size={28} className="animate-spin-slow mb-1" />
                                 </div>
                             )}
                             {/* Play Overlay if playing */}
                             {isPlaying && (
-                                <div className="absolute inset-0 bg-black/20 flex items-end justify-center pb-1 gap-0.5">
-                                    <div className="w-1 bg-amber-400 animate-[bounce_0.6s_infinite] h-1/2"></div>
-                                    <div className="w-1 bg-amber-400 animate-[bounce_0.8s_infinite] h-3/4"></div>
-                                    <div className="w-1 bg-amber-400 animate-[bounce_0.5s_infinite] h-1/3"></div>
+                                <div className="absolute inset-0 bg-rose-400/20 flex items-end justify-center pb-1 gap-0.5">
+                                    <div className="w-1 bg-white animate-[bounce_0.6s_infinite] h-1/2 rounded-full"></div>
+                                    <div className="w-1 bg-white animate-[bounce_0.8s_infinite] h-3/4 rounded-full"></div>
+                                    <div className="w-1 bg-white animate-[bounce_0.5s_infinite] h-1/3 rounded-full"></div>
                                 </div>
                             )}
                         </div>
 
                         {/* Info & Controls */}
-                        <div className="flex-1 flex flex-col justify-center min-w-0 text-left pl-1">
+                        <div className="flex-1 flex flex-col justify-center min-w-0 text-left">
                             <div className="mb-2">
-                                <p className="text-xs font-bold text-white truncate max-w-[150px]">{activeSong ? activeSong.title : "No Track Selected"}</p>
-                                <p className="text-[9px] text-zinc-400 uppercase tracking-wider truncate max-w-[150px]">{activeSong ? activeSong.artist : "Select a song below"}</p>
+                                <p className="text-sm font-bold text-stone-700 truncate">{activeSong ? activeSong.title : "No Track Selected"}</p>
+                                <p className="text-xs text-stone-400 font-medium uppercase tracking-wider truncate">{activeSong ? activeSong.artist : "Select a song"}</p>
                             </div>
 
                             {/* HTML Audio Player Control (Native) */}
                             <audio 
-                                className="w-full h-6 opacity-60 hover:opacity-100 transition-opacity" 
+                                className="w-full h-6 opacity-70 hover:opacity-100 transition-opacity accent-rose-400" 
                                 controls 
                                 src={activeSong?.audio}
-                                key={activeSong?.id || 'no-song'} // Force re-render on song change
+                                key={activeSong?.id || 'no-song'} 
                                 autoPlay={isPlaying}
                                 onPlay={() => activeSong && !isPlaying && togglePlay(activeSong.id)}
                                 onPause={() => isPlaying && togglePlay(activeSong?.id)}
@@ -361,35 +383,40 @@ const MusicModal = ({ playlist, onClose, onAddSong, onDeleteSong, onSelectSong, 
                     </div>
                 </div>
 
-                {/* PLAYLIST (LIST DECIMAL - COMPACT) */}
-                <div className="text-sm text-left mb-3 mt-2 border-t border-zinc-800 pt-2 flex-grow overflow-y-auto custom-scrollbar" style={{ maxHeight: '150px' }}>
+                {/* PLAYLIST */}
+                <div className="text-sm text-left mb-4 flex-grow overflow-y-auto custom-scrollbar pr-1" style={{ maxHeight: '200px' }}>
                     {playlist.length === 0 ? (
-                        <p className="text-zinc-600 italic text-[10px] text-center py-4">Playlist is empty.</p>
+                        <div className="text-center py-8 border border-dashed border-rose-100 rounded-xl bg-white/50">
+                            <Music size={24} className="text-rose-200 mx-auto mb-2" />
+                            <p className="text-rose-300 text-xs">Playlist is empty.</p>
+                        </div>
                     ) : (
-                        <div className="space-y-1">
+                        <div className="space-y-2">
                             {playlist.map((song: any, i: number) => (
                                 <div 
                                     key={song.id} 
                                     onClick={() => onSelectSong(song.id)}
-                                    className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all border ${currentSongId === song.id ? 'bg-amber-500/10 border-amber-500/50' : 'bg-zinc-800/30 border-transparent hover:bg-zinc-800'}`}
+                                    className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all border ${currentSongId === song.id ? 'bg-white border-rose-200 shadow-sm' : 'bg-transparent border-transparent hover:bg-white hover:border-stone-100'}`}
                                 >
-                                    <div className="flex items-center gap-2 min-w-0">
-                                        <span className={`text-[10px] font-mono w-4 text-center ${currentSongId === song.id ? 'text-amber-400' : 'text-zinc-600'}`}>{i + 1}</span>
+                                    <div className="flex items-center gap-3 min-w-0">
+                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${currentSongId === song.id ? 'bg-rose-400 text-white' : 'bg-stone-100 text-stone-400'}`}>
+                                            {currentSongId === song.id && isPlaying ? <div className="w-1.5 h-1.5 bg-white rounded-full animate-ping"/> : i + 1}
+                                        </div>
                                         <div className="min-w-0">
-                                            <p className={`text-[11px] font-bold truncate max-w-[120px] ${currentSongId === song.id ? 'text-amber-300' : 'text-zinc-300'}`}>{song.title}</p>
-                                            <p className="text-[9px] text-zinc-500 truncate max-w-[120px]">{song.artist}</p>
+                                            <p className={`text-xs font-bold truncate max-w-[120px] ${currentSongId === song.id ? 'text-stone-800' : 'text-stone-600'}`}>{song.title}</p>
+                                            <p className="text-[10px] text-stone-400 truncate max-w-[120px]">{song.artist}</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-1">
+                                    <div className="flex items-center gap-2">
                                         <button 
                                             onClick={(e) => { e.stopPropagation(); togglePlay(song.id); }} 
-                                            className={`p-1.5 rounded-full ${currentSongId === song.id && isPlaying ? 'text-amber-400 bg-amber-900/30' : 'text-zinc-500 hover:text-zinc-300'}`}
+                                            className={`p-2 rounded-full transition-colors ${currentSongId === song.id && isPlaying ? 'text-rose-500 bg-rose-50' : 'text-stone-400 hover:bg-stone-100'}`}
                                         >
-                                            {currentSongId === song.id && isPlaying ? <Pause size={10} fill="currentColor"/> : <Play size={10} fill="currentColor"/>}
+                                            {currentSongId === song.id && isPlaying ? <Pause size={12} fill="currentColor"/> : <Play size={12} fill="currentColor"/>}
                                         </button>
                                         <button 
                                             onClick={(e) => { e.stopPropagation(); onDeleteSong(song.id); }} 
-                                            className="p-1.5 text-zinc-600 hover:text-red-400 transition-colors"
+                                            className="p-2 text-stone-300 hover:text-rose-400 hover:bg-rose-50 rounded-full transition-colors"
                                         >
                                             <Trash2 size={12} />
                                         </button>
@@ -400,53 +427,53 @@ const MusicModal = ({ playlist, onClose, onAddSong, onDeleteSong, onSelectSong, 
                     )}
                 </div>
 
-                {/* ADD NEW SONG FORM (COMPACT) */}
+                {/* ADD NEW SONG FORM */}
                 {!isFull ? (
-                    <div className="bg-zinc-900 p-2 rounded border border-zinc-800 mb-1 shrink-0">
+                    <div className="bg-white p-3 rounded-2xl border border-stone-100 shrink-0 shadow-sm">
                         <div className="flex justify-between items-center mb-2">
-                             <p className="text-[9px] text-zinc-500 uppercase font-bold text-left pl-1">Add Track ({playlist.length}/5)</p>
-                             <div className="flex bg-black rounded p-0.5 gap-0.5">
-                                 <button onClick={() => setInputType('upload')} className={`px-2 py-0.5 text-[8px] uppercase font-bold rounded ${inputType === 'upload' ? 'bg-amber-500 text-black' : 'text-zinc-500'}`}>Upload</button>
-                                 <button onClick={() => setInputType('link')} className={`px-2 py-0.5 text-[8px] uppercase font-bold rounded ${inputType === 'link' ? 'bg-amber-500 text-black' : 'text-zinc-500'}`}>Link</button>
+                             <p className="text-[10px] text-stone-400 uppercase font-bold text-left pl-1 tracking-wide">Add Track ({playlist.length}/5)</p>
+                             <div className="flex bg-stone-50 border border-stone-100 rounded-lg p-0.5 gap-0.5">
+                                 <button onClick={() => setInputType('upload')} className={`px-2 py-0.5 text-[9px] uppercase font-bold rounded-md transition-colors ${inputType === 'upload' ? 'bg-white text-stone-700 shadow-sm' : 'text-stone-400 hover:text-stone-600'}`}>Upload</button>
+                                 <button onClick={() => setInputType('link')} className={`px-2 py-0.5 text-[9px] uppercase font-bold rounded-md transition-colors ${inputType === 'link' ? 'bg-white text-stone-700 shadow-sm' : 'text-stone-400 hover:text-stone-600'}`}>Link</button>
                              </div>
                         </div>
 
-                        <div className="flex gap-1 mb-1">
-                            <input value={newTitle} onChange={e => setNewTitle(e.target.value)} className="w-1/2 bg-black border border-zinc-700 rounded px-2 py-1 text-[10px] text-white focus:border-amber-500 outline-none placeholder:text-zinc-600" placeholder="Title" />
-                            <input value={newArtist} onChange={e => setNewArtist(e.target.value)} className="w-1/2 bg-black border border-zinc-700 rounded px-2 py-1 text-[10px] text-white focus:border-amber-500 outline-none placeholder:text-zinc-600" placeholder="Artist" />
+                        <div className="flex gap-2 mb-2">
+                            <input value={newTitle} onChange={e => setNewTitle(e.target.value)} className="w-1/2 bg-stone-50 border border-stone-100 rounded-lg px-3 py-1.5 text-xs text-stone-700 focus:border-rose-200 focus:bg-white outline-none placeholder:text-stone-300 transition-all" placeholder="Song Title" />
+                            <input value={newArtist} onChange={e => setNewArtist(e.target.value)} className="w-1/2 bg-stone-50 border border-stone-100 rounded-lg px-3 py-1.5 text-xs text-stone-700 focus:border-rose-200 focus:bg-white outline-none placeholder:text-stone-300 transition-all" placeholder="Artist Name" />
                         </div>
                         
-                        <div className="flex gap-1">
-                            <label className={`flex-1 bg-zinc-800 hover:bg-zinc-700 text-[9px] py-1 rounded cursor-pointer text-center border border-zinc-700 truncate px-1 transition-colors ${newCover ? 'text-amber-400 border-amber-900' : 'text-zinc-400'}`}>
+                        <div className="flex gap-2 items-center">
+                            <label className={`flex-1 bg-stone-50 hover:bg-white text-[10px] py-2 rounded-lg cursor-pointer text-center border transition-all ${newCover ? 'text-rose-500 border-rose-200 font-bold bg-rose-50' : 'text-stone-400 border-stone-100'}`}>
                                 {newCover ? "Cover OK" : "+ Cover"}
                                 <input type="file" hidden accept="image/*" onChange={handleCoverUpload} />
                             </label>
                             
                             {inputType === 'upload' ? (
-                                <label className={`flex-1 bg-zinc-800 hover:bg-zinc-700 text-[9px] py-1.5 rounded cursor-pointer text-center border border-zinc-700 truncate px-1 transition-colors ${newAudio ? 'text-green-400 border-green-900' : 'text-zinc-400'}`}>
-                                    {newAudio ? "MP3 OK" : "+ Audio File"}
+                                <label className={`flex-1 bg-stone-50 hover:bg-white text-[10px] py-2 rounded-lg cursor-pointer text-center border transition-all ${newAudio ? 'text-rose-500 border-rose-200 font-bold bg-rose-50' : 'text-stone-400 border-stone-100'}`}>
+                                    {newAudio ? "Audio OK" : "+ MP3"}
                                     <input type="file" hidden accept="audio/*" onChange={handleAudioUpload} />
                                 </label>
                             ) : (
                                 <input 
                                     value={newAudio || ''} 
                                     onChange={(e) => setNewAudio(e.target.value)} 
-                                    className="flex-[2] bg-black border border-zinc-700 rounded px-2 py-1 text-[10px] text-white focus:border-green-500 outline-none placeholder:text-zinc-600" 
-                                    placeholder="Paste Direct MP3 Link here..." 
+                                    className="flex-[2] bg-stone-50 border border-stone-100 rounded-lg px-3 py-1.5 text-xs text-stone-700 focus:border-rose-200 focus:bg-white outline-none placeholder:text-stone-300 transition-all" 
+                                    placeholder="Link..." 
                                 />
                             )}
                             
-                            <button onClick={handleAdd} disabled={!newTitle || !newArtist || !newAudio} className="w-8 bg-amber-500 hover:bg-amber-400 text-black rounded flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg">
-                                <Plus size={14} />
+                            <button onClick={handleAdd} disabled={!newTitle || !newArtist || !newAudio} className="w-8 h-8 bg-rose-400 hover:bg-rose-500 text-white rounded-lg flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg">
+                                <Plus size={16} />
                             </button>
                         </div>
                         {inputType === 'link' && (
-                            <p className="text-[8px] text-amber-500/70 mt-1 italic">*Spotify/YouTube links will NOT work. Use direct MP3 links.</p>
+                            <p className="text-[9px] text-stone-300 mt-1.5 italic text-center">*Direct MP3 links only</p>
                         )}
                     </div>
                 ) : (
-                    <div className="bg-red-500/10 border border-red-500/20 p-2 rounded-lg text-center shrink-0 mb-1">
-                        <p className="text-[10px] text-red-400 font-bold uppercase tracking-wider">Mixtape Full (5/5)</p>
+                    <div className="bg-rose-50 border border-rose-100 p-3 rounded-xl text-center shrink-0 mb-1">
+                        <p className="text-[10px] text-rose-400 font-bold uppercase tracking-wider">Playlist Full</p>
                     </div>
                 )}
             </div>
@@ -571,51 +598,47 @@ export default function WebStoryEditor() {
   const handlePublish = async () => {
     setIsPublishing(true);
 
-    // 1. Cek Database Ready gak?
     if (!isDbReady) {
         alert("Database belum siap/error konfigurasi. Coba refresh halaman.");
         setIsPublishing(false);
         return;
     }
 
-    // 2. Cek User. Kalau null, COBA LOGIN DULU JANGAN NYERAH.
     let currentUser = user;
     if (!currentUser && auth) {
         try {
             console.log("User null, attempting panic login...");
             const result = await signInAnonymously(auth);
             currentUser = result.user;
-            setUser(currentUser); // Update state lokal biar UI tau
+            setUser(currentUser);
         } catch (e) {
             console.error("Auto-login error:", e);
         }
     }
 
-    // 3. Kalau masih null juga, baru kasih error (BUKAN DEMO)
     if (!currentUser) {
         alert("Gagal memverifikasi user. Cek koneksi internet lalu coba lagi.");
         setIsPublishing(false);
         return;
     }
     
-    // 4. Proses Simpan
     try {
         const payload = {
             storyInfo,
             galleryItems,
             letterData,
-            playlist, // Full playlist with Base64 audio/images
-            currentSongId, // Default selected song
+            playlist, 
+            currentSongId,
+            backgroundImage: EDITOR_BG_IMAGE, // Add custom BG to database
             creatorId: currentUser.uid,
             createdAt: new Date().toISOString(),
             type: "web-story-v3"
         };
 
-        // SAFETY CHECK: Calculate Size BEFORE sending to prevent crash
         const payloadStr = JSON.stringify(payload);
         const sizeInBytes = new Blob([payloadStr]).size;
         
-        if (sizeInBytes > 1000000) { // 1MB limit
+        if (sizeInBytes > 1000000) { 
              const sizeInMB = (sizeInBytes / 1024 / 1024).toFixed(2);
              alert(`GAGAL: Total ukuran data terlalu besar (${sizeInMB} MB).\n\nBatas maksimal Firestore adalah 1 MB.\nSolusi: Gunakan fitur 'Link URL' untuk lagu daripada upload file, atau hapus beberapa foto.`);
              setIsPublishing(false);
@@ -624,7 +647,6 @@ export default function WebStoryEditor() {
         
         const docRef = await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'stories'), payload);
         
-        // PENTING: Generate Link Asli
         const url = `${window.location.origin}/s/${docRef.id}`;
         setPublishedUrl(url);
     } catch (error) {
@@ -653,7 +675,7 @@ export default function WebStoryEditor() {
   const renderHome = () => (
       <div className="flex flex-col items-center justify-center min-h-[85vh] w-full max-w-5xl mx-auto animate-in fade-in duration-700 relative z-10 py-10">
          {/* ADDED: Back to App Home Button */}
-         <div className="absolute top-4 left-6 md:top-8 md:left-[-100px] z-50">
+         <div className="absolute top-4 left-4 md:top-8 md:left-[-100px] z-50">
             <a href="/" className="flex items-center gap-2 bg-white/40 hover:bg-white/80 backdrop-blur-md px-5 py-2.5 rounded-full text-stone-600 hover:text-sky-600 font-bold uppercase text-xs tracking-widest shadow-sm border border-white/50 transition-all duration-300 group">
                 <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
                 <span>Exit Editor</span>
@@ -677,7 +699,7 @@ export default function WebStoryEditor() {
 
          <div className="mt-20 w-full max-w-md px-6 text-center">
              {!publishedUrl ? (
-                 <button onClick={handlePublish} disabled={isPublishing} className="w-full py-4 bg-sky-600 text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-sky-500 hover:scale-105 transition-all shadow-xl shadow-sky-200 disabled:opacity-70">
+                 <button onClick={handlePublish} disabled={isPublishing} className="w-full py-4 bg-sky-600 text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-sky-500 hover:scale-105 transition-all shadow-xl shadow-sky-0 disabled:opacity-70">
                     {isPublishing ? <Loader2 size={20} className="animate-spin" /> : <Share2 size={20} />}
                     {isPublishing ? "Saving..." : "Publish Website"}
                  </button>
@@ -837,7 +859,7 @@ export default function WebStoryEditor() {
         `}</style>
 
         {/* Background Effect */}
-        <BackgroundEffects />
+        <BackgroundEffects image={EDITOR_BG_IMAGE} />
         
         {/* VIEW SWITCHER */}
         {view === 'home' && renderHome()}

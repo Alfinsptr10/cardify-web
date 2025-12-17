@@ -11,6 +11,10 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, signInAnonymously } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 
+// --- KONFIGURASI BACKGROUND MANUAL ---
+// Ganti default menjadi field.jpeg agar sama dengan editor
+const MANUAL_BG_IMAGE = "/field.jpeg"; 
+
 // --- MOCK FONTS (Untuk Preview) ---
 const dmSans = { className: "font-dm-sans" };
 const playfair = { className: "font-playfair" };
@@ -52,33 +56,45 @@ if (firebaseConfig && firebaseConfig.apiKey) {
 
 // --- VISUAL COMPONENTS (READ ONLY) ---
 
-const BackgroundEffects = () => (
-  <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 bg-[#e0f7fa]">
-     <div className="absolute inset-0 bg-gradient-to-b from-[#87CEEB] via-[#B2EBF2] to-[#FAFAF9]" />
-     <div className="absolute -top-20 -right-20 opacity-50 animate-spin-slow" style={{ animationDuration: '60s' }}>
-        <Sun size={400} className="text-yellow-200 fill-yellow-100" />
-     </div>
-     <div className="absolute top-20 left-[10%] text-white/90 animate-float-slow drop-shadow-sm">
-        <Cloud size={80} fill="white" className="text-white" />
-     </div>
-     <div className="absolute top-40 right-[15%] text-white/70 animate-float" style={{ animationDelay: '2s', '--rot': '0deg' } as React.CSSProperties}>
-        <Cloud size={60} fill="white" className="text-white" />
-     </div>
-     <div className="absolute bottom-1/3 left-[20%] text-white/50 animate-float-slow" style={{ animationDelay: '5s', '--rot': '0deg' } as React.CSSProperties}>
-        <Cloud size={120} fill="white" className="text-white" />
-     </div>
-     <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
-  </div>
-);
+// UPDATED: BackgroundEffects now accepts a custom image prop
+const BackgroundEffects = ({ image }: { image?: string | null }) => {
+  // Jika ada custom image (dari DB atau Manual), pakai itu
+  if (image) {
+      return (
+          <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+             {/* Overlay Gelap supaya teks tetap terbaca */}
+             <div className="absolute inset-0 bg-black/40 z-10" />
+             {/* eslint-disable-next-line @next/next/no-img-element */}
+             <img src={image} alt="Background" className="w-full h-full object-cover animate-in fade-in duration-1000" />
+          </div>
+      );
+  }
 
-// REMOVED: HeartClip component
+  // Jika tidak ada gambar, pakai tema Langit Default
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 bg-[#e0f7fa]">
+       <div className="absolute inset-0 bg-gradient-to-b from-[#87CEEB] via-[#B2EBF2] to-[#FAFAF9]" />
+       <div className="absolute -top-20 -right-20 opacity-50 animate-spin-slow" style={{ animationDuration: '60s' }}>
+          <Sun size={400} className="text-yellow-200 fill-yellow-100" />
+       </div>
+       <div className="absolute top-20 left-[10%] text-white/90 animate-float-slow drop-shadow-sm">
+          <Cloud size={80} fill="white" className="text-white" />
+       </div>
+       <div className="absolute top-40 right-[15%] text-white/70 animate-float" style={{ animationDelay: '2s', '--rot': '0deg' } as React.CSSProperties}>
+          <Cloud size={60} fill="white" className="text-white" />
+       </div>
+       <div className="absolute bottom-1/3 left-[20%] text-white/50 animate-float-slow" style={{ animationDelay: '5s', '--rot': '0deg' } as React.CSSProperties}>
+          <Cloud size={120} fill="white" className="text-white" />
+       </div>
+       <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
+    </div>
+  );
+};
 
 const HangingMenu = ({ icon: Icon, label, onClick, delay = 0, rotation = 0, img }: any) => (
   <div onClick={onClick} className="flex flex-col items-center group cursor-pointer animate-in fade-in slide-in-from-top-10 duration-1000 animate-float" style={{ animationDelay: `${delay}ms`, '--rot': `${rotation}deg` } as React.CSSProperties}>
     <div className="relative transform transition-all hover:scale-110 hover:z-20 hover:drop-shadow-2xl">
-        {/* HAPUS HeartClip DI SINI */}
-        
-        {/* UKURAN DIPERBESAR & DISAMAKAN: w-60 h-60 (240px) */}
+        {/* UKURAN FIXED: w-60 h-60 (240px) */}
         <div className="w-60 h-60 relative filter drop-shadow-xl transition-all duration-300">
             {img ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -99,13 +115,12 @@ const HangingMenu = ({ icon: Icon, label, onClick, delay = 0, rotation = 0, img 
 const Polaroid = ({ img, caption, rotation = 0, onClick, delay = 0 }: any) => (
   <div className="flex flex-col items-center group relative animate-float" style={{ animationDelay: `${delay}ms`, '--rot': `${rotation}deg` } as React.CSSProperties}>
     <div onClick={onClick} className="relative bg-white p-3 pb-10 shadow-xl transform transition-all hover:scale-105 hover:z-30 hover:shadow-2xl duration-300 w-64 cursor-pointer rounded-sm mt-8">
-      {/* HAPUS HeartClip */}
       <div className="aspect-square bg-stone-100 overflow-hidden mb-3 border border-stone-100 relative group">
          {img ? (
            // eslint-disable-next-line @next/next/no-img-element
            <img src={img} alt={caption} className="w-full h-full object-cover" />
          ) : (
-           <div className="w-full h-full flex flex-col items-center justify-center text-sky-300 bg-sky-50 gap-2">
+           <div className="w-full h-full flex flex-col items-center justify-center text-rose-300 bg-rose-50 gap-2">
               <ImageIcon size={32} />
            </div>
          )}
@@ -120,7 +135,6 @@ const StickyNote = ({ text, color = "#fef3c7", rotation = 0, onClick, delay = 0 
     <div onClick={onClick} className="relative p-6 shadow-lg transform transition-all hover:scale-105 hover:z-20 hover:shadow-xl duration-300 w-64 mx-auto flex items-center justify-center text-center cursor-pointer group mt-8" style={{ backgroundColor: color, minHeight: '200px' }}>
       <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 bg-black/5 rounded-full blur-sm"></div> 
       <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-24 h-6 bg-white/40 rotate-2 backdrop-blur-sm shadow-sm"></div> 
-      {/* HAPUS HeartClip */}
       <div className="w-full mt-4">
           <p className={`text-xl leading-relaxed text-stone-800 ${caveat.className} w-full break-words`}>{text}</p>
       </div>
@@ -128,14 +142,15 @@ const StickyNote = ({ text, color = "#fef3c7", rotation = 0, onClick, delay = 0 
   </div>
 );
 
+// UPDATED: TitleCard with Rose/Pink theme (Matching Editor)
 const TitleCard = ({ title, subtitle }: any) => (
-  <div className="flex flex-col items-center group relative animate-float-slow">
-    <div className="text-center p-6 relative w-80 mt-4">
-      {/* HAPUS HeartClip */}
-      <div className="inline-block border-[6px] border-double border-sky-200 p-8 bg-white shadow-[0_10px_30px_-5px_rgba(135,206,235,0.4)] relative rounded-xl rotate-1 w-full">
-          <h1 className={`text-5xl md:text-7xl font-bold text-sky-600 mb-2 ${greatVibes.className} drop-shadow-sm`}>{title}</h1>
-          <div className="w-20 h-1 bg-sky-300 mx-auto mb-4 rounded-full"></div>
-          <p className={`text-xl text-stone-500 italic ${dmSans.className}`}>{subtitle}</p>
+  <div className="flex flex-col items-center group relative animate-float-slow w-full px-4">
+    <div className="text-center relative mt-4 max-w-full">
+      {/* Changed border to rose-200, text to rose-500, lighter shadow */}
+      <div className="inline-block border-[6px] border-double border-rose-200 p-8 bg-white shadow-[0_10px_30px_-5px_rgba(251,113,133,0.2)] relative rounded-xl rotate-1 min-w-[320px] max-w-full">
+          <h1 className={`text-5xl md:text-7xl font-bold text-rose-500 mb-2 ${greatVibes.className} drop-shadow-sm break-words`}>{title}</h1>
+          <div className="w-20 h-1 bg-rose-300 mx-auto mb-4 rounded-full"></div>
+          <p className={`text-xl text-stone-500 italic ${dmSans.className} break-words`}>{subtitle}</p>
       </div>
     </div>
   </div>
@@ -154,55 +169,58 @@ const MusicMenu = ({ onClick, currentSong }: { onClick: () => void, currentSong:
   <HangingMenu img="/template/music.png" label={currentSong || "Music"} onClick={onClick} icon={Headphones} rotation={1} delay={400} />
 );
 
-// --- MUSIC PLAYER MODAL (READ ONLY) ---
+// --- MUSIC PLAYER MODAL (READ ONLY - SOFT PINK THEME) ---
 const MusicPlayerModal = ({ playlist, onClose, onSelectSong, currentSongId, togglePlay, isPlaying }: any) => {
     const activeSong = playlist.find((s: any) => s.id === currentSongId);
 
     return (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-            <div className="bg-[#1a1f1a] border-2 border-yellow-400 rounded-3xl w-full max-w-[340px] p-5 text-white text-center shadow-[0_0_40px_rgba(251,191,36,0.2)] relative overflow-hidden flex flex-col max-h-[85vh]">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+            {/* CONTAINER: Soft Pink/Cream Theme */}
+            <div className="bg-[#fff9f9] border border-rose-100 rounded-[2rem] w-full max-w-[360px] p-6 text-stone-700 shadow-2xl relative overflow-hidden flex flex-col max-h-[85vh]">
                 
-                <div className="absolute top-3 left-3 w-3 h-3 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center"><div className="w-1.5 h-0.5 bg-zinc-600 rotate-45"></div></div>
-                <div className="absolute top-3 right-3 w-3 h-3 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center"><div className="w-1.5 h-0.5 bg-zinc-600 rotate-45"></div></div>
-                <div className="absolute bottom-3 left-3 w-3 h-3 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center"><div className="w-1.5 h-0.5 bg-zinc-600 rotate-45"></div></div>
-                <div className="absolute bottom-3 right-3 w-3 h-3 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center"><div className="w-1.5 h-0.5 bg-zinc-600 rotate-45"></div></div>
+                {/* Decorative Elements */}
+                <div className="absolute top-5 left-5 w-2 h-2 rounded-full bg-rose-200"></div>
+                <div className="absolute top-5 right-12 w-2 h-2 rounded-full bg-rose-200"></div>
 
-                <button onClick={onClose} className="absolute top-2 right-2 p-2 text-zinc-500 hover:text-white transition-colors z-20"><X size={18} /></button>
+                <button onClick={onClose} className="absolute top-3 right-3 p-2 hover:bg-rose-50 text-stone-400 hover:text-rose-400 rounded-full transition-colors z-20"><X size={18} /></button>
 
-                <div className="text-center mb-4 mt-2">
-                    <h2 className={`text-amber-400 text-sm tracking-widest font-bold uppercase ${pressStart.className}`}>MIXTAPE VOL.1</h2>
-                    <div className="w-16 h-1 bg-amber-500/50 mx-auto mt-2 rounded-full"></div>
+                <div className="text-center mb-6 mt-1">
+                    <h2 className={`text-stone-600 text-xl tracking-widest font-bold uppercase ${greatVibes.className} text-3xl`}>My Playlist</h2>
+                    <div className="w-12 h-1 bg-rose-200 mx-auto mt-1 rounded-full"></div>
                 </div>
                 
-                <div className="bg-zinc-900/80 rounded-xl p-3 border border-zinc-800 mb-4 shrink-0 shadow-inner">
-                    <div className="flex gap-3">
-                        <div className="w-20 h-20 rounded-lg bg-black flex-shrink-0 overflow-hidden relative border border-zinc-700 group shadow-lg">
+                {/* NOW PLAYING SECTION (Soft) */}
+                <div className="bg-white rounded-2xl p-4 border border-rose-50 mb-6 shadow-sm relative overflow-hidden group">
+                    <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-rose-50 rounded-full blur-xl"></div>
+                    
+                    <div className="flex gap-4 relative z-10">
+                        <div className="w-20 h-20 rounded-xl bg-stone-50 shadow-sm flex-shrink-0 overflow-hidden relative border border-stone-100">
                             {activeSong?.cover ? (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img src={activeSong.cover} alt="Song Cover" className="w-full h-full object-cover" />
                             ) : (
-                                <div className="flex flex-col items-center justify-center opacity-50 w-full h-full">
-                                    <Disc size={24} className="animate-spin-slow mb-1" />
+                                <div className="flex flex-col items-center justify-center opacity-50 w-full h-full text-rose-300">
+                                    <Disc size={28} className="animate-spin-slow mb-1" />
                                     <span className="text-[10px] uppercase">No Cover</span>
                                 </div>
                             )}
                             {isPlaying && (
-                                <div className="absolute inset-0 bg-black/20 flex items-end justify-center pb-1 gap-0.5">
-                                    <div className="w-1 bg-amber-400 animate-[bounce_0.6s_infinite] h-1/2"></div>
-                                    <div className="w-1 bg-amber-400 animate-[bounce_0.8s_infinite] h-3/4"></div>
-                                    <div className="w-1 bg-amber-400 animate-[bounce_0.5s_infinite] h-1/3"></div>
+                                <div className="absolute inset-0 bg-rose-400/20 flex items-end justify-center pb-1 gap-0.5">
+                                    <div className="w-1 bg-white animate-[bounce_0.6s_infinite] h-1/2 rounded-full"></div>
+                                    <div className="w-1 bg-white animate-[bounce_0.8s_infinite] h-3/4 rounded-full"></div>
+                                    <div className="w-1 bg-white animate-[bounce_0.5s_infinite] h-1/3 rounded-full"></div>
                                 </div>
                             )}
                         </div>
 
-                        <div className="flex-1 flex flex-col justify-center min-w-0 text-left pl-1">
+                        <div className="flex-1 flex flex-col justify-center min-w-0 text-left">
                             <div className="mb-2">
-                                <p className="text-xs font-bold text-white truncate max-w-[150px]">{activeSong ? activeSong.title : "No Track Selected"}</p>
-                                <p className="text-[9px] text-zinc-400 uppercase tracking-wider truncate max-w-[150px]">{activeSong ? activeSong.artist : "Select a song below"}</p>
+                                <p className="text-sm font-bold text-stone-700 truncate">{activeSong ? activeSong.title : "No Track Selected"}</p>
+                                <p className="text-xs text-stone-400 font-medium uppercase tracking-wider truncate">{activeSong ? activeSong.artist : "Select a song"}</p>
                             </div>
 
                             <audio 
-                                className="w-full h-6 opacity-60 hover:opacity-100 transition-opacity" 
+                                className="w-full h-6 opacity-70 hover:opacity-100 transition-opacity accent-rose-400" 
                                 controls 
                                 src={activeSong?.audio}
                                 key={activeSong?.id || 'no-song'}
@@ -216,30 +234,36 @@ const MusicPlayerModal = ({ playlist, onClose, onSelectSong, currentSongId, togg
                     </div>
                 </div>
 
-                <div className="text-sm text-left mb-3 mt-2 border-t border-zinc-800 pt-2 flex-grow overflow-y-auto custom-scrollbar" style={{ maxHeight: '250px' }}>
+                {/* PLAYLIST */}
+                <div className="text-sm text-left mb-4 flex-grow overflow-y-auto custom-scrollbar pr-1" style={{ maxHeight: '200px' }}>
                     {playlist.length === 0 ? (
-                        <p className="text-zinc-600 italic text-[10px] text-center py-4">Playlist is empty.</p>
+                        <div className="text-center py-8 border border-dashed border-rose-100 rounded-xl bg-white/50">
+                            <Music size={24} className="text-rose-200 mx-auto mb-2" />
+                            <p className="text-rose-300 text-xs">Playlist is empty.</p>
+                        </div>
                     ) : (
-                        <div className="space-y-1">
+                        <div className="space-y-2">
                             {playlist.map((song: any, i: number) => (
                                 <div 
                                     key={song.id} 
                                     onClick={() => onSelectSong(song.id)}
-                                    className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all border ${currentSongId === song.id ? 'bg-amber-500/10 border-amber-500/50' : 'bg-zinc-800/30 border-transparent hover:bg-zinc-800'}`}
+                                    className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all border ${currentSongId === song.id ? 'bg-white border-rose-200 shadow-sm' : 'bg-transparent border-transparent hover:bg-white hover:border-stone-100'}`}
                                 >
-                                    <div className="flex items-center gap-2 min-w-0">
-                                        <span className={`text-[10px] font-mono w-4 text-center ${currentSongId === song.id ? 'text-amber-400' : 'text-zinc-600'}`}>{i + 1}</span>
+                                    <div className="flex items-center gap-3 min-w-0">
+                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${currentSongId === song.id ? 'bg-rose-400 text-white' : 'bg-stone-100 text-stone-400'}`}>
+                                            {currentSongId === song.id && isPlaying ? <div className="w-1.5 h-1.5 bg-white rounded-full animate-ping"/> : i + 1}
+                                        </div>
                                         <div className="min-w-0">
-                                            <p className={`text-[11px] font-bold truncate max-w-[150px] ${currentSongId === song.id ? 'text-amber-300' : 'text-zinc-300'}`}>{song.title}</p>
-                                            <p className="text-[9px] text-zinc-500 truncate max-w-[150px]">{song.artist}</p>
+                                            <p className={`text-xs font-bold truncate max-w-[120px] ${currentSongId === song.id ? 'text-stone-800' : 'text-stone-600'}`}>{song.title}</p>
+                                            <p className="text-[10px] text-stone-400 truncate max-w-[120px]">{song.artist}</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-1">
+                                    <div className="flex items-center gap-2">
                                         <button 
                                             onClick={(e) => { e.stopPropagation(); togglePlay(song.id); }} 
-                                            className={`p-1.5 rounded-full ${currentSongId === song.id && isPlaying ? 'text-amber-400 bg-amber-900/30' : 'text-zinc-500 hover:text-zinc-300'}`}
+                                            className={`p-2 rounded-full transition-colors ${currentSongId === song.id && isPlaying ? 'text-rose-500 bg-rose-50' : 'text-stone-400 hover:bg-stone-100'}`}
                                         >
-                                            {currentSongId === song.id && isPlaying ? <Pause size={10} fill="currentColor"/> : <Play size={10} fill="currentColor"/>}
+                                            {currentSongId === song.id && isPlaying ? <Pause size={12} fill="currentColor"/> : <Play size={12} fill="currentColor"/>}
                                         </button>
                                     </div>
                                 </div>
@@ -248,7 +272,7 @@ const MusicPlayerModal = ({ playlist, onClose, onSelectSong, currentSongId, togg
                     )}
                 </div>
                 
-                <button onClick={onClose} className="w-full bg-[#d32f2f] hover:bg-[#b71c1c] text-white py-2 rounded-md font-bold text-xs transition-colors shadow-lg mt-auto">
+                <button onClick={onClose} className="w-full bg-rose-400 hover:bg-rose-500 text-white py-2 rounded-md font-bold text-xs transition-colors shadow-lg mt-auto">
                     CLOSE PLAYER
                 </button>
 
@@ -290,7 +314,6 @@ const LightboxModal = ({ item, onClose }: any) => {
 
 // --- MAIN PAGE VIEWER ---
 export default function WebStoryViewer() {
-  // Use Manual URL parsing instead of useParams for preview compatibility
   const [id, setId] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(true);
@@ -306,6 +329,9 @@ export default function WebStoryViewer() {
   const [currentSongId, setCurrentSongId] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [bgMusic, setBgMusic] = useState("Music");
+
+  // Background State
+  const [bgImage, setBgImage] = useState<string | null>(MANUAL_BG_IMAGE || null);
 
   // View State
   const [view, setView] = useState<'home' | 'gallery' | 'letter'>('home');
@@ -346,6 +372,12 @@ export default function WebStoryViewer() {
                     setGalleryItems(data.galleryItems || []);
                     setLetterData(data.letterData || { title: "", body: "", sender: "" });
                     setBgMusic(data.bgMusic || "Music");
+                    
+                    // Ambil background image dari DB jika tidak di-hardcode
+                    if (data.backgroundImage && !MANUAL_BG_IMAGE) {
+                        setBgImage(data.backgroundImage);
+                    }
+
                     if(data.playlist) setPlaylist(data.playlist);
                     if(data.currentSongId) setCurrentSongId(data.currentSongId);
                 } else {
@@ -377,7 +409,7 @@ export default function WebStoryViewer() {
       return (
           <div className="min-h-screen bg-[#e0f7fa] flex flex-col items-center justify-center text-sky-600 gap-4">
               <Loader2 size={40} className="animate-spin" />
-              <p className={`text-lg font-medium ${playfair.className}`}>Mengambil Kenangan...</p>
+              <p className={`text-4xl font-medium ${greatVibes.className}`}>Fetching Memories...</p>
           </div>
       );
   }
@@ -411,9 +443,9 @@ export default function WebStoryViewer() {
               />
          </div>
 
-         <div className="mt-20 opacity-60">
-             <div className="flex items-center gap-2 px-4 py-2 bg-white/40 backdrop-blur rounded-full text-stone-500 text-xs font-bold uppercase tracking-widest border border-white/50">
-                 <Gift size={14} className="text-rose-400" /> Made with Cardify
+         <div className="mt-20">
+             <div className="flex items-center gap-2 px-5 py-2.5 bg-white/90 backdrop-blur-md rounded-full text-stone-600 text-xs font-bold uppercase tracking-widest border border-white shadow-lg hover:scale-105 transition-transform cursor-default">
+                 <Gift size={14} className="text-rose-500" /> Made with Cardify
              </div>
          </div>
       </div>
@@ -421,12 +453,15 @@ export default function WebStoryViewer() {
 
   const renderGallery = () => (
       <div className="flex flex-col min-h-screen relative z-10 w-full">
-          <div className="p-6 flex items-center justify-between sticky top-0 z-40">
-             <button onClick={() => setView('home')} className="flex items-center gap-2 bg-white/80 backdrop-blur px-5 py-2.5 rounded-full text-stone-600 hover:text-black font-bold uppercase text-xs tracking-widest group shadow-sm border border-white/50 hover:scale-105 transition-all">
-                 <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform"/> Back to Menu
-             </button>
-             <h2 className={`text-4xl text-sky-600 ${greatVibes.className} drop-shadow-sm hidden md:block`}>{storyInfo.title} Gallery</h2>
-             <div className="w-8"></div> 
+          {/* UPDATED HEADER: Centered Title, Pink Color */}
+          <div className="p-6 flex items-center justify-center sticky top-0 z-40 relative">
+             <div className="absolute left-6 top-6 z-10">
+                <button onClick={() => setView('home')} className="flex items-center gap-2 bg-white/80 backdrop-blur px-5 py-2.5 rounded-full text-stone-600 hover:text-black font-bold uppercase text-xs tracking-widest group shadow-sm border border-white/50 hover:scale-105 transition-all">
+                    <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform"/> Back to Menu
+                </button>
+             </div>
+             {/* Center Title, Rose-400 Color */}
+             <h2 className={`text-4xl text-rose-400 ${greatVibes.className} drop-shadow-sm hidden md:block`}>{storyInfo.title} Gallery</h2>
           </div>
           
           <div className="flex-grow overflow-x-auto overflow-y-hidden flex items-center px-10 gap-16 pb-20 custom-scrollbar scroll-smooth pt-20">
@@ -464,16 +499,20 @@ export default function WebStoryViewer() {
              </button>
           </div>
 
-          <div className="max-w-2xl w-full bg-[#fffcf5] p-10 md:p-16 rounded-sm shadow-2xl relative animate-in slide-in-from-bottom-10 duration-700 border border-[#f0ead6] rotate-1">
-               <div className="absolute inset-0 opacity-20 pointer-events-none mix-blend-multiply bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')]" />
+          <div className="max-w-2xl w-full bg-[#fdfbf7] p-10 md:p-16 rounded-sm shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] relative animate-in slide-in-from-bottom-10 duration-700 border border-[#eaddcf] rotate-1">
+               {/* Paper Texture - Enhanced */}
+               <div className="absolute inset-0 opacity-40 pointer-events-none mix-blend-multiply bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')]" />
                
+               {/* Subtle Gradient for lighting/depth */}
+               <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-white/40 via-transparent to-black/5 rounded-sm" />
+
                <div className="relative z-10 space-y-8 text-center">
-                   <h1 className={`text-5xl md:text-6xl text-rose-500 ${greatVibes.className}`}>{letterData.title}</h1>
-                   <p className={`text-xl md:text-2xl text-stone-700 leading-loose ${caveat.className} whitespace-pre-wrap`}>
+                   <h1 className={`text-5xl md:text-6xl text-rose-500 ${greatVibes.className} drop-shadow-sm`}>{letterData.title}</h1>
+                   <p className={`text-xl md:text-2xl text-stone-800 leading-loose ${caveat.className} whitespace-pre-wrap font-medium`}>
                       {letterData.body}
                    </p>
-                   <div className="text-right mt-8 pt-8 border-t border-stone-100/50">
-                       <p className={`text-3xl text-stone-500 ${caveat.className}`}>{letterData.sender}</p>
+                   <div className="text-right mt-8 pt-8 border-t border-stone-300/30">
+                       <p className={`text-3xl text-stone-600 ${caveat.className}`}>{letterData.sender}</p>
                    </div>
                </div>
           </div>
@@ -530,7 +569,7 @@ export default function WebStoryViewer() {
         `}</style>
 
         {/* Background Effect */}
-        <BackgroundEffects />
+        <BackgroundEffects image={bgImage} />
         
         {/* VIEW SWITCHER */}
         {view === 'home' && renderHome()}

@@ -1,33 +1,15 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
-import { SessionProvider, useSession, signOut } from "next-auth/react"; 
-import { Playfair_Display, DM_Sans } from "next/font/google"; 
+// MOCK IMPORTS REPLACEMENT: Use standard HTML/React components
 import { 
-  ArrowLeft, Gift, User, LogOut, Settings, ChevronDown, 
-  Shield, Lock, Eye, FileText, Server, Mail, Instagram, Globe, MessageCircle,
-  Menu, X
+  ArrowRight, Gift, User, LogOut, Settings, ChevronDown, 
+  Shield, Lock, Eye, FileText, Server, Mail, Smartphone, Image as ImageIcon,
+  Menu, X, Instagram, MessageCircle
 } from "lucide-react";
 
-// --- KONFIGURASI FONT ---
-const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
-const dmSans = DM_Sans({ subsets: ["latin"], weight: ["400", "500", "700"] });
-
-// --- WRAPPER SESSION ---
+// --- MAIN CONTENT ---
 export default function PrivacyPage() {
-  return (
-    <SessionProvider>
-      <PrivacyContent />
-    </SessionProvider>
-  );
-}
-
-// --- KONTEN UTAMA ---
-function PrivacyContent() {
-  const { data: session } = useSession(); 
-  
   // State
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -40,13 +22,8 @@ function PrivacyContent() {
   useEffect(() => {
     document.title = "Privacy Policy - Cardify";
 
-    if (session?.user) {
-      setUserData({
-        name: session.user.name || "User",
-        email: session.user.email || "user@cardify.id",
-        image: session.user.image || null,
-      });
-    } else if (typeof window !== "undefined") {
+    // Check Manual Login
+    if (typeof window !== "undefined") {
       const isManualLogin = localStorage.getItem("isLoggedIn");
       if (isManualLogin === "true") {
         setUserData({
@@ -87,10 +64,9 @@ function PrivacyContent() {
       document.removeEventListener("mousedown", handleClickOutside);
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [session]);
+  }, []);
 
   const handleLogout = async () => {
-    await signOut({ redirect: false });
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("userName");
     localStorage.removeItem("userEmail");
@@ -109,36 +85,84 @@ function PrivacyContent() {
   };
 
   return (
-    <div className={`min-h-screen w-full bg-[#FAFAF9] text-[#1C1917] flex flex-col ${dmSans.className}`}>
+    <div className={`min-h-screen w-full bg-[#FAFAF9] text-[#1C1917] flex flex-col font-sans`}>
       
-      {/* --- NAVBAR --- */}
+      {/* INJECT FONTS */}
+      <style dangerouslySetInnerHTML={{__html: `
+          @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+          .font-dm-sans { font-family: 'DM Sans', sans-serif; }
+          .font-playfair { font-family: 'Playfair Display', serif; }
+          .font-sans { font-family: 'DM Sans', sans-serif; }
+      `}} />
+
+      {/* --- NAVBAR (UPDATED: Identical to Home) --- */}
       <nav className={`fixed z-50 w-full transition-all duration-300 border-b ${scrolled ? "bg-[#FAFAF9]/90 backdrop-blur-xl border-stone-200 shadow-sm py-3" : "bg-transparent border-transparent py-5"}`}>
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center relative">
-          <Link href="/" className="flex items-center gap-2.5 cursor-pointer group">
+          
+          {/* Logo Brand */}
+          <a href="/" className="flex items-center gap-2.5 cursor-pointer group">
             <div className="w-9 h-9 bg-[#1C1917] rounded-xl flex items-center justify-center text-white shadow-lg group-hover:rotate-12 transition-transform duration-300">
                <Gift size={18} strokeWidth={2.5} className="text-amber-400" />
             </div>
-            <span className={`text-2xl font-bold tracking-tight ${playfair.className} italic text-[#1C1917]`}>Cardify.</span>
-          </Link>
+            <span className={`text-2xl font-bold tracking-tight font-playfair italic text-[#1C1917]`}>Cardify.</span>
+          </a>
           
+          {/* Navigation Links - Centered */}
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-stone-600 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            <Link href="/#templates" className="hover:text-[#1C1917] transition-colors">Templates</Link>
-            <Link href="/about" className="hover:text-[#1C1917] transition-colors">About</Link>
-            <Link href="/#features" className="hover:text-[#1C1917] transition-colors">Features</Link>
+            
+            {/* Templates Dropdown */}
+            <div className="relative group h-full flex items-center cursor-pointer">
+                <a href="/templates" className="hover:text-[#1C1917] transition-colors relative py-2 flex items-center gap-1 text-[#1C1917]">
+                  Templates
+                  <ChevronDown size={14} className="opacity-50 group-hover:opacity-100 transition-transform duration-300 group-hover:rotate-180 text-amber-600" />
+                </a>
+                
+                {/* Dropdown Menu */}
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-72 bg-white rounded-2xl shadow-xl border border-stone-100 p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top translate-y-2 group-hover:translate-y-0 z-50">
+                   <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-t border-l border-stone-100 transform rotate-45"></div>
+                   <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-2 px-2">Create New</p>
+
+                   <a href="/web-story" className="flex items-start gap-3 p-3 rounded-xl hover:bg-stone-50 transition-colors group/item relative z-10 mb-1">
+                      <div className="w-10 h-10 rounded-full bg-rose-50 flex-shrink-0 flex items-center justify-center text-rose-500 group-hover/item:bg-rose-500 group-hover/item:text-white transition-all shadow-sm">
+                         <Smartphone size={18} />
+                      </div>
+                      <div>
+                         <p className="text-sm font-bold text-stone-800 group-hover/item:text-rose-600 transition-colors">Web Story</p>
+                         <p className="text-[10px] text-stone-500 font-medium leading-tight mt-0.5">Interactive, Music, Animations</p>
+                      </div>
+                   </a>
+
+                   <a href="/templates?filter=card-image" className="flex items-start gap-3 p-3 rounded-xl hover:bg-stone-50 transition-colors group/item relative z-10">
+                      <div className="w-10 h-10 rounded-full bg-amber-50 flex-shrink-0 flex items-center justify-center text-amber-500 group-hover/item:bg-amber-500 group-hover/item:text-white transition-all shadow-sm">
+                         <ImageIcon size={18} />
+                      </div>
+                      <div>
+                         <p className="text-sm font-bold text-stone-800 group-hover/item:text-amber-600 transition-colors">Card Image</p>
+                         <p className="text-[10px] text-stone-500 font-medium leading-tight mt-0.5">Static, Printable, Classic</p>
+                      </div>
+                   </a>
+                </div>
+            </div>
+            
+            <a href="/#features" className="hover:text-[#1C1917] transition-colors">Features</a>
+            <a href="/about" className="hover:text-[#1C1917] transition-colors">About</a>
+            <a href="mailto:cardify.official.id@gmail.com" className="hover:text-[#1C1917] transition-colors">Contact</a>
           </div>
 
+          {/* Auth Actions */}
           <div className="flex items-center gap-4">
             {userData ? (
               <div className="relative" ref={profileMenuRef}>
                 <button onClick={() => setShowProfileMenu(!showProfileMenu)} className="flex items-center gap-3 pl-1 pr-4 py-1 rounded-full bg-white border border-stone-200 shadow-sm hover:shadow-md transition-all duration-300 group">
                   {userData.image ? (
-                    <Image src={userData.image} alt={userData.name} width={34} height={34} className="rounded-full border border-stone-100" />
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img src={userData.image} alt={userData.name} width={34} height={34} className="rounded-full border border-stone-100" />
                   ) : (
                     <div className="w-[34px] h-[34px] bg-gradient-to-tr from-amber-100 to-orange-50 rounded-full flex items-center justify-center border border-white text-[#1C1917] shadow-inner"><User size={16} /></div>
                   )}
                   <div className="hidden sm:block text-left">
-                     <span className="text-xs font-bold text-stone-800 block max-w-[80px] truncate">{userData.name}</span>
-                     <span className="text-[9px] text-stone-400 font-bold uppercase tracking-wider">Free Plan</span>
+                      <span className="text-xs font-bold text-stone-800 block max-w-[80px] truncate">{userData.name}</span>
+                      <span className="text-[9px] text-stone-400 font-bold uppercase tracking-wider">Free Plan</span>
                   </div>
                   <ChevronDown size={14} className={`text-stone-400 transition-transform duration-300 group-hover:text-amber-600 ${showProfileMenu ? 'rotate-180' : ''}`} />
                 </button>
@@ -150,6 +174,8 @@ function PrivacyContent() {
                     </div>
                     <div className="flex flex-col gap-1">
                       <button className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-stone-50 rounded-xl transition-all font-medium"><User size={16} /> Profile</button>
+                      <button className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-stone-50 rounded-xl transition-all font-medium"><Settings size={16} /> Preferences</button>
+                      <div className="h-px bg-stone-100 my-1 mx-2"></div>
                       <button onClick={handleLogout} className="flex items-center gap-3 w-full p-2.5 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-all font-medium"><LogOut size={16} /> Sign Out</button>
                     </div>
                   </div>
@@ -157,10 +183,13 @@ function PrivacyContent() {
               </div>
             ) : (
               <div className="flex items-center gap-6">
-                <Link href="/login" className="hidden md:flex text-sm font-bold text-stone-600 hover:text-black">Log in</Link>
-                <Link href="/register" className="hidden md:flex text-sm font-bold text-stone-600 hover:text-black">Sign Up</Link>
+                <a href="/login" className="hidden md:flex text-sm font-bold text-stone-600 hover:text-black transition-colors">Log in</a>
+                <a href="/register" className="hidden md:flex text-sm font-bold text-stone-600 hover:text-black transition-colors">Sign Up</a>
               </div>
             )}
+            <a href="/templates" className="px-6 py-2.5 rounded-full bg-[#1C1917] text-white text-sm font-bold hover:bg-black hover:scale-105 hover:shadow-xl hover:shadow-amber-900/10 transition-all flex items-center gap-2">
+              Start Creating <ArrowRight size={16} strokeWidth={2.5} className="text-amber-400" />
+            </a>
           </div>
         </div>
       </nav>
@@ -169,9 +198,9 @@ function PrivacyContent() {
       <header className="pt-40 pb-20 px-6 relative z-10 bg-white border-b border-stone-100">
          <div className="max-w-4xl mx-auto text-center space-y-6">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-stone-50 rounded-2xl mb-2 text-stone-800 shadow-sm border border-stone-100">
-                <Shield size={32} />
+               <Shield size={32} />
             </div>
-            <h1 className={`text-4xl md:text-6xl font-bold text-[#1C1917] ${playfair.className}`}>Privacy Policy</h1>
+            <h1 className={`text-4xl md:text-6xl font-bold text-[#1C1917] font-playfair`}>Privacy Policy</h1>
             <p className="text-lg text-stone-500 max-w-2xl mx-auto leading-relaxed">
                We value your privacy as much as we value your special moments. Here's how we protect and manage your data.
             </p>
@@ -217,7 +246,7 @@ function PrivacyContent() {
                   <div className="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-4 mb-6 pb-6 border-b border-stone-100">
                        <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center text-amber-600"><Eye size={20} /></div>
-                       <h2 className={`text-2xl font-bold ${playfair.className}`}>1. Information We Collect</h2>
+                       <h2 className={`text-2xl font-bold font-playfair`}>1. Information We Collect</h2>
                     </div>
                     <div className="prose prose-stone text-stone-600 leading-relaxed">
                        <p className="mb-4">
@@ -246,14 +275,14 @@ function PrivacyContent() {
                   <div className="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-4 mb-6 pb-6 border-b border-stone-100">
                        <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600"><FileText size={20} /></div>
-                       <h2 className={`text-2xl font-bold ${playfair.className}`}>2. How We Use Information</h2>
+                       <h2 className={`text-2xl font-bold font-playfair`}>2. How We Use Information</h2>
                     </div>
                     <p className="text-stone-600 mb-4">We use your information solely to:</p>
                     <div className="grid md:grid-cols-2 gap-4">
                        {['Provide and operate services', 'Improve user experience', 'Analyze usage trends', 'Send account updates'].map((item, i) => (
                          <div key={i} className="flex items-center gap-3 p-3 bg-stone-50 rounded-xl border border-stone-100">
-                            <div className="w-2 h-2 bg-blue-400 rounded-full" />
-                            <span className="text-sm font-medium text-stone-700">{item}</span>
+                           <div className="w-2 h-2 bg-blue-400 rounded-full" />
+                           <span className="text-sm font-medium text-stone-700">{item}</span>
                          </div>
                        ))}
                     </div>
@@ -265,7 +294,7 @@ function PrivacyContent() {
                   <div className="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-4 mb-6 pb-6 border-b border-stone-100">
                        <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600"><Lock size={20} /></div>
-                       <h2 className={`text-2xl font-bold ${playfair.className}`}>3. Data Security</h2>
+                       <h2 className={`text-2xl font-bold font-playfair`}>3. Data Security</h2>
                     </div>
                     <p className="text-stone-600 leading-relaxed">
                        Your data security is our priority. We use industry-standard encryption to protect your personal information. Your password is <strong>hashed</strong> (one-way encrypted) and cannot be seen by anyone, including our team. We utilize secure HTTPS connections for all data transmission.
@@ -278,7 +307,7 @@ function PrivacyContent() {
                   <div className="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-4 mb-6 pb-6 border-b border-stone-100">
                        <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-600"><Server size={20} /></div>
-                       <h2 className={`text-2xl font-bold ${playfair.className}`}>4. Third-Party Services</h2>
+                       <h2 className={`text-2xl font-bold font-playfair`}>4. Third-Party Services</h2>
                     </div>
                     <p className="text-stone-600 mb-6">We rely on trusted third-party services to keep Cardify running smoothly:</p>
                     <div className="grid gap-4">
@@ -304,7 +333,7 @@ function PrivacyContent() {
                {/* Section 5 - UPDATED EMAIL */}
                <section id="contact" className="scroll-mt-32">
                   <div className="bg-[#1C1917] text-white p-10 rounded-[2rem] shadow-xl text-center">
-                     <h2 className={`text-3xl font-bold mb-4 ${playfair.className}`}>Have Questions?</h2>
+                     <h2 className={`text-3xl font-bold mb-4 font-playfair`}>Have Questions?</h2>
                      <p className="text-stone-400 mb-8 max-w-lg mx-auto">
                         If you have any questions about this Privacy Policy or how we handle your data, please do not hesitate to contact us.
                      </p>
@@ -319,18 +348,20 @@ function PrivacyContent() {
          </div>
       </div>
 
-      {/* --- FOOTER --- */}
+      {/* --- FOOTER (SAMA SEPERTI HOME) --- */}
       <footer className="w-full bg-[#1C1917] text-stone-400 py-12 border-t border-stone-800">
          <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-2">
-               <Gift size={20} className="text-white" />
-               <span className={`text-2xl font-bold text-white ${playfair.className} italic`}>Cardify.</span>
+               <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-[#1C1917]">
+                  <Gift size={16} className="text-amber-500" />
+               </div>
+               <span className={`text-2xl font-bold text-white font-playfair italic`}>Cardify.</span>
             </div>
             <p className="text-sm">© 2025 Cardify Inc. Built with passion in Jakarta.</p>
             <div className="flex gap-6 text-sm font-bold text-white">
-               <Link href="/" className="hover:text-amber-400 transition-colors">Home</Link>
-               <Link href="/about" className="hover:text-amber-400 transition-colors">About</Link>
-               <Link href="/#templates" className="hover:text-amber-400 transition-colors">Templates</Link>
+               <a href="/" className="hover:text-amber-400 transition-colors">Home</a>
+               <a href="/about" className="hover:text-amber-400 transition-colors">About</a>
+               <a href="/#templates" className="hover:text-amber-400 transition-colors">Templates</a>
             </div>
          </div>
       </footer>
