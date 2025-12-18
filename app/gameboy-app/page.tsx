@@ -114,12 +114,24 @@ const GameboyPreview = ({ data, songs }: { data: any, songs: any[] }) => {
     gameIntervalRef.current = setInterval(gameLoop, 150); // Kecepatan game
   };
 
-  const placeFood = () => {
-    foodRef.current = {
-      x: Math.floor(Math.random() * 20), // Grid size 20x20 estimasi
-      y: Math.floor(Math.random() * 20)
+const placeFood = () => {
+  if (!canvasRef.current) return;
+
+  const gridSize = 10;
+  const cols = canvasRef.current.width / gridSize;
+  const rows = canvasRef.current.height / gridSize;
+
+  let newFood: { x: any; y: any; };
+  do {
+    newFood = {
+      x: Math.floor(Math.random() * cols),
+      y: Math.floor(Math.random() * rows),
     };
-  };
+  } while (snakeRef.current.some(p => p.x === newFood.x && p.y === newFood.y));
+
+  foodRef.current = newFood;
+};
+
 
   const gameLoop = () => {
     if (!canvasRef.current) return;
