@@ -7,7 +7,8 @@ import {
   Instagram, MessageCircle, LogIn, Quote, UserPlus, 
   Flower2, Bird, Cloud, Music,
   User, LogOut, Settings, ChevronDown, Layout, CheckCircle2,
-  Newspaper, Stamp, Smartphone, Zap, Share2, Palette, Image as ImageIcon
+  Newspaper, Stamp, Smartphone, Zap, Share2, Palette, Image as ImageIcon,
+  Gamepad2
 } from "lucide-react";
 
 // --- WRAPPER SESSION (Mock) ---
@@ -190,7 +191,7 @@ const handleLogout = async () => {
             </div>
             
             {/* 2. Features */}
-            <a href="#features" className="hover:text-[#1C1917] transition-colors relative group">
+            <a href="/features" className="hover:text-[#1C1917] transition-colors relative group">
               Features
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 transition-all group-hover:w-full"></span>
             </a>
@@ -438,22 +439,30 @@ const handleLogout = async () => {
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                   
-                  {/* CARD 1: RETRO */}
-                  <a href="/templates/retro-gameboy" className="group cursor-pointer block h-full">
-                     <div className="relative aspect-[2/3] bg-white rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border border-stone-100 group-hover:-translate-y-2">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src="/retro-gameboy.png" alt="Retro Gameboy" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                        <div className="absolute top-5 right-5 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-stone-800 uppercase tracking-widest shadow-sm">Best Seller</div>
-                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
-                           <span className="bg-white text-stone-900 px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl border border-white/20 flex items-center gap-2">Use Template <ArrowRight size={14} /></span>
+                  {/* CARD 1: GAMEBOY APP (NEW) */}
+                  <a href="/gameboy-app" className="group cursor-pointer block h-full">
+                     <div className="relative aspect-[9/16] bg-stone-900 rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border border-stone-800 group-hover:-translate-y-2">
+                        <div className="absolute inset-0 bg-gradient-to-b from-purple-900 to-black opacity-80" />
+                        <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
+                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 z-10">
+                            <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mb-4 backdrop-blur-sm border border-white/20 group-hover:scale-110 transition-transform shadow-lg text-purple-400">
+                               <Gamepad2 size={32} />
+                            </div>
+                            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-[0.2em] mb-2">New Release</span>
+                            <h4 className={`text-white text-2xl font-medium font-playfair`}>Gameboy Journey</h4>
+                        </div>
+                        <div className="absolute top-5 right-5 bg-purple-500/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-white uppercase tracking-widest shadow-sm z-20">Hot</div>
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px] z-30">
+                           <span className="bg-white text-stone-900 px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl border border-white/20 flex items-center gap-2">
+                              Create Story <ArrowRight size={14} />
+                           </span>
                         </div>
                      </div>
                      <div className="px-1">
-                        <h3 className="text-xl font-medium mb-1 group-hover:text-stone-600 transition-colors font-serif">Retro 8-Bit</h3>
-                        <p className="text-stone-400 text-sm leading-relaxed font-light">Nostalgic console aesthetic.</p>
+                        <h3 className={`text-2xl font-medium mb-2 group-hover:text-purple-700 transition-colors font-playfair`}>Gameboy App</h3>
+                        <p className="text-stone-500 text-sm leading-relaxed">Interactive handheld story with 8-bit charm.</p>
                      </div>
                   </a>
-
                   {/* CARD 2: WEB STORY */}
                   <a href="/web-story" className="group cursor-pointer block h-full">
                      <div className="relative aspect-[9/16] bg-stone-900 rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border border-stone-800 group-hover:-translate-y-2">
@@ -553,8 +562,8 @@ const handleLogout = async () => {
                <div>
                   <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest">Product</h4>
                   <ul className="space-y-4 text-sm text-stone-500 font-medium">
-                     <li className="hover:text-white cursor-pointer transition-colors">Templates</li>
-                     <li className="hover:text-white cursor-pointer transition-colors">Showcase</li>
+                     <li><a href="/templates" className="hover:text-white cursor-pointer transition-colors">Templates</a></li>
+                     <li><a href="/showcase" className="hover:text-white cursor-pointer transition-colors">Showcase</a></li>
                   </ul>
                </div>
 

@@ -362,7 +362,7 @@ export default function WebStoryViewer() {
 
         try {
             await signInAnonymously(auth);
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'stories', idFromUrl);
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'web-stories', idFromUrl);
             const docSnap = await getDoc(docRef);
 
             if (docSnap.exists()) {

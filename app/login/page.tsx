@@ -304,9 +304,9 @@ const handleGithubLogin = async () => {
 
           <div className="text-center">
             <h1 className={`text-4xl font-bold mb-3 text-[#1a1a1a] ${playfair.className}`}>
-              Selamat Datang Kembali
+              Welcome Back
             </h1>
-            <p className="text-gray-500">Masuk untuk melanjutkan desain kartu Anda.</p>
+            <p className="text-gray-500">sign in to continue designing your cards.</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-5">
@@ -341,7 +341,7 @@ const handleGithubLogin = async () => {
             <div className="space-y-1.5">
               <div className="flex justify-between items-center ml-1">
                 <label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Password</label>
-                <a href="#" className="text-xs text-gray-400 hover:text-black transition-colors cursor-pointer">Lupa Password?</a>
+                <a href="#" className="text-xs text-gray-400 hover:text-black transition-colors cursor-pointer">forget password?</a>
               </div>
               <div className="relative group">
                 <Lock size={18} className={`absolute left-4 top-3.5 transition-colors ${errorMessage ? 'text-red-500' : 'text-gray-400 group-focus-within:text-black'}`} />
@@ -370,7 +370,7 @@ const handleGithubLogin = async () => {
                   Logging in...
                 </>
               ) : (
-                "Masuk Sekarang"
+                "Sign In"
               )}
             </button>
           </form> 
@@ -380,7 +380,7 @@ const handleGithubLogin = async () => {
               <div className="w-full border-t border-gray-100"></div>
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-4 text-gray-400 font-medium">Atau masuk dengan</span>
+              <span className="bg-white px-4 text-gray-400 font-medium">or sign in with</span>
             </div>
           </div>
 
@@ -415,7 +415,7 @@ const handleGithubLogin = async () => {
           </div>
 
           <p className="text-center text-sm text-gray-500 mt-8">
-            Belum punya akun? <Link href="/register" className="text-[#1a1a1a] font-bold hover:underline cursor-pointer transition-colors">Daftar Gratis</Link>
+            don't have an account? <Link href="/register" className="text-[#1a1a1a] font-bold hover:underline cursor-pointer transition-colors">Sign Up Free</Link>
           </p>
 
           <div className="absolute bottom-6 left-0 w-full text-center text-[10px] text-gray-400">

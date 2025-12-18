@@ -645,7 +645,7 @@ export default function WebStoryEditor() {
              return;
         }
         
-        const docRef = await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'stories'), payload);
+        const docRef = await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'web-stories'), payload);
         
         const url = `${window.location.origin}/s/${docRef.id}`;
         setPublishedUrl(url);

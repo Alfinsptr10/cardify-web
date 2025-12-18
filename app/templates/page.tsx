@@ -111,7 +111,16 @@ export default function TemplatesPage() {
       image: "/newspaper.png",
       tag: "Unique",
       color: "bg-slate-100 text-slate-600"
-    }
+    },
+   {
+      id: 6,
+      title: "Gameboy Journey",
+      category: "web-story",
+      description: "Relive the adventure with pixel art and chiptune music.",
+      image: "/gameboy-story.jpg",
+      tag: "Featured",
+      color: "bg-green-100 text-green-600"
+   }
   ];
 
   const filteredTemplates = activeTab === 'all' 
