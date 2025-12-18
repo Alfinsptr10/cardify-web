@@ -71,11 +71,18 @@ const GAMEBOY_COLORS = [
 // --- GAMEBOY COMPONENT (PREVIEW ONLY) ---
 const GameboyPreview = ({ data, songs }: { data: any, songs: any[] }) => {
   const [screenView, setScreenView] = useState<'intro' | 'menu'>('intro');
-  const [activePopup, setActivePopup] = useState<'none' | 'message' | 'music' | 'gallery'>('none');
+  const [activePopup, setActivePopup] = useState<'none' | 'message' | 'music' | 'gallery' | 'game'>('none');
   const [selectedMenuIndex, setSelectedMenuIndex] = useState(0); 
   const [photoIndex, setPhotoIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [snakeScore, setSnakeScore] = useState(0);
+  const [isGameOver, setIsGameOver] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const snakeRef = useRef<Array<{x: number, y: number}>>([{x: 5, y: 5}]);
+  const foodRef = useRef<{x: number, y: number}>({x: 10, y: 10});
+  const directionRef = useRef<string>("RIGHT");
+  const gameIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const currentSong = songs.find(s => s.title === data.music) || songs[0];
   const displayCover = data.musicCover || currentSong.cover;
@@ -95,6 +102,74 @@ const GameboyPreview = ({ data, songs }: { data: any, songs: any[] }) => {
     if (data.gallery.length > 0) setPhotoIndex(prev => (prev - 1 + data.gallery.length) % data.gallery.length);
   };
 
+  // --- GAME LOGIC ---
+  const startGame = () => {
+    setSnakeScore(0);
+    setIsGameOver(false);
+    snakeRef.current = [{x: 5, y: 5}];
+    directionRef.current = "RIGHT";
+    placeFood();
+    
+    if (gameIntervalRef.current) clearInterval(gameIntervalRef.current);
+    gameIntervalRef.current = setInterval(gameLoop, 150); // Kecepatan game
+  };
+
+  const placeFood = () => {
+    foodRef.current = {
+      x: Math.floor(Math.random() * 20), // Grid size 20x20 estimasi
+      y: Math.floor(Math.random() * 20)
+    };
+  };
+
+  const gameLoop = () => {
+    if (!canvasRef.current) return;
+    const ctx = canvasRef.current.getContext('2d');
+    if (!ctx) return;
+
+    // Game Constants
+    const gridSize = 10; // Ukuran kotak
+    const cols = canvasRef.current.width / gridSize;
+    const rows = canvasRef.current.height / gridSize;
+
+    // Logic: Move Head
+    let head = { ...snakeRef.current[0] };
+    if (directionRef.current === "UP") head.y -= 1;
+    if (directionRef.current === "DOWN") head.y += 1;
+    if (directionRef.current === "LEFT") head.x -= 1;
+    if (directionRef.current === "RIGHT") head.x += 1;
+
+    // Logic: Collision (Wall or Self)
+    if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows || snakeRef.current.some(s => s.x === head.x && s.y === head.y)) {
+        setIsGameOver(true);
+        if (gameIntervalRef.current) clearInterval(gameIntervalRef.current);
+        return;
+    }
+
+    // Logic: Eat Food
+    let newSnake = [head, ...snakeRef.current];
+    if (head.x === foodRef.current.x && head.y === foodRef.current.y) {
+        setSnakeScore(s => s + 10);
+        placeFood();
+    } else {
+        newSnake.pop();
+    }
+    snakeRef.current = newSnake;
+
+    // Render
+    ctx.fillStyle = "#0f380f"; // Background color (Dark Green LCD)
+    ctx.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+
+    // Draw Food
+    ctx.fillStyle = "#8bac0f"; // Food color (Light Green)
+    ctx.fillRect(foodRef.current.x * gridSize, foodRef.current.y * gridSize, gridSize - 1, gridSize - 1);
+
+    // Draw Snake
+    ctx.fillStyle = "#9bbc0f"; // Snake color (Lighter Green)
+    newSnake.forEach(part => {
+        ctx.fillRect(part.x * gridSize, part.y * gridSize, gridSize - 1, gridSize - 1);
+    });
+  };
+
   // Interactive Buttons
   const handleStart = () => {
     // Tombol Start bisa untuk masuk menu ATAU kembali ke intro jika sudah di menu
@@ -111,14 +186,22 @@ const GameboyPreview = ({ data, songs }: { data: any, songs: any[] }) => {
 
   const handleButtonA = () => {
      if (screenView === 'intro') {
-         // Tombol A TIDAK LAGI membuka menu dari intro. Hanya Start.
+         // Intro only Start works
          return; 
      } else if (screenView === 'menu' && activePopup === 'none') {
+         // Select menu
          if (selectedMenuIndex === 0) setActivePopup('message');
          else if (selectedMenuIndex === 1) setActivePopup('music');
          else if (selectedMenuIndex === 2) setActivePopup('gallery');
+         else if (selectedMenuIndex === 3) {
+             setActivePopup('game');
+             // Perlu delay sedikit agar canvas di-render dulu oleh React
+             setTimeout(startGame, 100); 
+         }
      } else if (activePopup === 'music') {
          setIsPlaying(!isPlaying);
+     } else if (activePopup === 'game' && isGameOver) {
+         startGame(); // Restart game
      }
   };
 
@@ -127,12 +210,18 @@ const GameboyPreview = ({ data, songs }: { data: any, songs: any[] }) => {
       if (screenView === 'intro') return;
 
       if (screenView === 'menu' && activePopup === 'none') {
-          if (dir === 'UP') setSelectedMenuIndex(prev => (prev > 0 ? prev - 1 : 2));
-          else if (dir === 'DOWN') setSelectedMenuIndex(prev => (prev < 2 ? prev + 1 : 0));
+          if (dir === 'UP') setSelectedMenuIndex(prev => (prev > 0 ? prev - 1 : 3));
+          else if (dir === 'DOWN') setSelectedMenuIndex(prev => (prev < 3 ? prev + 1 : 0));
       }
       if (activePopup === 'gallery') {
           if (dir === 'LEFT') prevPhoto();
           if (dir === 'RIGHT') nextPhoto();
+      }
+      if (activePopup === 'game' && !isGameOver) {
+          if (dir === "UP" && directionRef.current !== "DOWN") directionRef.current = "UP";
+          if (dir === "DOWN" && directionRef.current !== "UP") directionRef.current = "DOWN";
+          if (dir === "LEFT" && directionRef.current !== "RIGHT") directionRef.current = "LEFT";
+          if (dir === "RIGHT" && directionRef.current !== "LEFT") directionRef.current = "RIGHT";
       }
   };
 
@@ -183,6 +272,9 @@ const GameboyPreview = ({ data, songs }: { data: any, songs: any[] }) => {
                         </div>
                         <div className={`text-[8px] p-1.5 text-left flex items-center gap-2 transition-colors pixel-font ${selectedMenuIndex === 2 ? 'bg-[#8bac0f] text-[#0f380f]' : 'bg-[#306230] text-[#9bbc0f]'}`}>
                             {selectedMenuIndex === 2 && <span className="animate-pulse">▶</span>} <ImageIcon size={10} /> 3. GALLERY
+                        </div>
+                                                <div className={`text-[8px] p-1.5 text-left flex items-center gap-2 transition-colors pixel-font ${selectedMenuIndex === 3 ? 'bg-[#8bac0f] text-[#0f380f]' : 'bg-[#306230] text-[#9bbc0f]'}`}>
+                            {selectedMenuIndex === 3 && <span className="animate-pulse">▶</span>} <Gamepad2 size={10} /> 4. GAMES
                         </div>
                     </div>
                 </div>
@@ -266,6 +358,18 @@ const GameboyPreview = ({ data, songs }: { data: any, songs: any[] }) => {
                      <button onClick={() => setActivePopup('none')} className="mt-1 text-[8px] text-red-500 hover:underline pixel-font">CLOSE</button>
                 </div>
             )}
+                        {/* 6. GAME POPUP (NEW) */}
+            {activePopup === 'game' && (
+                <div className="absolute inset-0 bg-[#0f380f] z-20 flex flex-col items-center justify-center p-1">
+                    <div className="text-[#9bbc0f] text-[10px] mb-2 font-pixel">SNAKE GAME</div>
+                    <canvas ref={canvasRef} width={200} height={150} className="border-2 border-[#306230] bg-[#8bac0f]"></canvas>
+                    <div className="flex justify-between w-full px-4 mt-2 text-[8px] font-pixel text-[#9bbc0f]">
+                       <span>SCORE: {snakeScore}</span>
+                       <span className="text-[#306230]">{isGameOver ? "GAME OVER" : "PLAYING"}</span>
+                    </div>
+                    {isGameOver && <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-white font-pixel text-[10px] animate-pulse">PRESS A TO RESTART</div>}
+                </div>
+            )}
          </div>
       </div>
       <div className="relative h-[220px]">
@@ -319,8 +423,7 @@ export default function WebStoryEditor() {
      music: "Happy Birthday",
      musicCover: null as string | null,
      gallery: [
-       "https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=400",
-       "https://images.unsplash.com/photo-1530103862676-de3c9da59af7?auto=format&fit=crop&q=80&w=400"
+       "https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=400"
      ],
      color: 'white'
   });
@@ -330,7 +433,7 @@ export default function WebStoryEditor() {
   const handleMusicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if(file) {
-        if(file.size > 750 * 1024) return alert("Ukuran audio max 750KB untuk demo ini.");
+        if(file.size > 750 * 1024) return alert("Ukuran audio max 750KB");
         const reader = new FileReader();
         reader.onload = (event) => {
            const newSong = { title: file.name.substring(0, 20), artist: "Custom Upload", src: event.target?.result as string, cover: storyData.musicCover || "/retro-gameboy.png" };

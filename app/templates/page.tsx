@@ -69,6 +69,7 @@ export default function TemplatesPage() {
   const templates = [
     {
       id: 1,
+      href: "/templates/retro-gameboy",
       title: "Retro 8-Bit",
       category: "card-image",
       description: "Nostalgic console aesthetic for gamers.",
@@ -78,6 +79,7 @@ export default function TemplatesPage() {
     },
     {
       id: 2,
+      href: "/web-story",
       title: "Our Story",
       category: "web-story",
       description: "Interactive story with music and animations.",
@@ -87,6 +89,7 @@ export default function TemplatesPage() {
     },
     {
       id: 3,
+      href: "/templates/minimalist",
       title: "Modern Minimalist",
       category: "card-image",
       description: "Clean typography focused design.",
@@ -96,6 +99,7 @@ export default function TemplatesPage() {
     },
     {
       id: 4,
+      href: "/templates/postcard",
       title: "Classic Postcard",
       category: "card-image",
       description: "Warm vintage greeting style.",
@@ -105,6 +109,7 @@ export default function TemplatesPage() {
     },
     {
       id: 5,
+      href: "/templates/newspaper",
       title: "Vintage Press",
       category: "card-image",
       description: "Headline news aesthetic.",
@@ -114,6 +119,7 @@ export default function TemplatesPage() {
     },
    {
       id: 6,
+      href: "/gameboy-app",
       title: "Gameboy Journey",
       category: "web-story",
       description: "Relive the adventure with pixel art and chiptune music.",
@@ -306,7 +312,13 @@ export default function TemplatesPage() {
       <main className="max-w-7xl mx-auto px-6 pb-24">
          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredTemplates.map((template) => (
-               <a href={template.category === 'web-story' ? '/web-story' : '#'} key={template.id} className="group block h-full">
+<a
+  href={template.href}
+  key={template.id}
+  className="group block h-full"
+>
+
+
                   <div className="bg-white rounded-[2rem] border border-stone-100 overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-stone-200/50 transition-all duration-500 group-hover:-translate-y-2 h-full flex flex-col">
                      {/* Image Container */}
                      <div className="relative aspect-[4/3] bg-stone-100 overflow-hidden border-b border-stone-50">

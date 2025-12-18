@@ -66,17 +66,27 @@ const GAMEBOY_COLORS = [
   { id: 'purple', label: 'Atomic Purple', bg: 'bg-purple-500', border: 'border-purple-700', text: 'text-purple-200' },
   { id: 'teal', label: 'Teal', bg: 'bg-teal-400', border: 'border-teal-600', text: 'text-teal-800' },
   { id: 'yellow', label: 'Dandelion', bg: 'bg-yellow-400', border: 'border-yellow-600', text: 'text-yellow-800' },
-  { id: 'pink', label: 'Berry', bg: 'bg-rose-500', border: 'border-rose-700', text: 'text-rose-200' },
+  { id: 'pink', label: 'Berry', bg: 'bg-rose-400', border: 'border-rose-500', text: 'text-rose-200' },
 ];
 
 // --- INTERACTIVE GAMEBOY COMPONENT (VIEWER) ---
 const GameboyViewer = ({ data }: { data: any }) => {
   const [screenView, setScreenView] = useState<'intro' | 'menu'>('intro');
-  const [activePopup, setActivePopup] = useState<'none' | 'message' | 'music' | 'gallery'>('none');
+  const [activePopup, setActivePopup] = useState<'none' | 'message' | 'music' | 'gallery' | 'game'>('none');
   const [selectedMenuIndex, setSelectedMenuIndex] = useState(0); 
   const [photoIndex, setPhotoIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    // --- SNAKE GAME STATE ---
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [snakeScore, setSnakeScore] = useState(0);
+  const [isGameOver, setIsGameOver] = useState(false);
+  // Menggunakan Ref untuk game state agar tidak perlu re-render setiap frame
+  const snakeRef = useRef([{x: 5, y: 5}]);
+  const foodRef = useRef({x: 10, y: 10});
+  const directionRef = useRef("RIGHT");
+  const gameIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Merge default songs with custom uploaded songs from data
   const songs = [...(data.customSongs || []), ...SONGS_LIBRARY];
@@ -102,14 +112,86 @@ const GameboyViewer = ({ data }: { data: any }) => {
     if (data.gallery.length > 0) setPhotoIndex(prev => (prev - 1 + data.gallery.length) % data.gallery.length);
   };
 
+// --- GAME LOGIC ---
+  const startGame = () => {
+    setSnakeScore(0);
+    setIsGameOver(false);
+    snakeRef.current = [{x: 5, y: 5}];
+    directionRef.current = "RIGHT";
+    placeFood();
+    
+    if (gameIntervalRef.current) clearInterval(gameIntervalRef.current);
+    gameIntervalRef.current = setInterval(gameLoop, 150); // Kecepatan game
+  };
+
+  const placeFood = () => {
+    foodRef.current = {
+      x: Math.floor(Math.random() * 20), // Grid size 20x20 estimasi
+      y: Math.floor(Math.random() * 20)
+    };
+  };
+
+  const gameLoop = () => {
+    if (!canvasRef.current) return;
+    const ctx = canvasRef.current.getContext('2d');
+    if (!ctx) return;
+
+    // Game Constants
+    const gridSize = 10; // Ukuran kotak
+    const cols = canvasRef.current.width / gridSize;
+    const rows = canvasRef.current.height / gridSize;
+
+    // Logic: Move Head
+    let head = { ...snakeRef.current[0] };
+    if (directionRef.current === "UP") head.y -= 1;
+    if (directionRef.current === "DOWN") head.y += 1;
+    if (directionRef.current === "LEFT") head.x -= 1;
+    if (directionRef.current === "RIGHT") head.x += 1;
+
+    // Logic: Collision (Wall or Self)
+    if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows || snakeRef.current.some(s => s.x === head.x && s.y === head.y)) {
+        setIsGameOver(true);
+        if (gameIntervalRef.current) clearInterval(gameIntervalRef.current);
+        return;
+    }
+
+    // Logic: Eat Food
+    let newSnake = [head, ...snakeRef.current];
+    if (head.x === foodRef.current.x && head.y === foodRef.current.y) {
+        setSnakeScore(s => s + 10);
+        placeFood();
+    } else {
+        newSnake.pop();
+    }
+    snakeRef.current = newSnake;
+
+    // Render
+    ctx.fillStyle = "#0f380f"; // Background color (Dark Green LCD)
+    ctx.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+
+    // Draw Food
+    ctx.fillStyle = "#8bac0f"; // Food color (Light Green)
+    ctx.fillRect(foodRef.current.x * gridSize, foodRef.current.y * gridSize, gridSize - 1, gridSize - 1);
+
+    // Draw Snake
+    ctx.fillStyle = "#9bbc0f"; // Snake color (Lighter Green)
+    newSnake.forEach(part => {
+        ctx.fillRect(part.x * gridSize, part.y * gridSize, gridSize - 1, gridSize - 1);
+    });
+  };
+
   // --- BUTTON HANDLERS ---
   const handleStart = () => {
     setScreenView(prev => prev === 'intro' ? 'menu' : 'intro');
+    if (activePopup === 'game' && gameIntervalRef.current) {
+        clearInterval(gameIntervalRef.current);
+    }
   };
 
   const handleButtonB = () => {
     if (activePopup !== 'none') {
         setActivePopup('none');
+        if (gameIntervalRef.current) clearInterval(gameIntervalRef.current); // Stop game if exit
     } else if (screenView === 'menu') {
         setScreenView('intro');
     }
@@ -117,13 +199,22 @@ const GameboyViewer = ({ data }: { data: any }) => {
 
   const handleButtonA = () => {
      if (screenView === 'intro') {
+         // Intro only Start works
          return; 
      } else if (screenView === 'menu' && activePopup === 'none') {
+         // Select menu
          if (selectedMenuIndex === 0) setActivePopup('message');
          else if (selectedMenuIndex === 1) setActivePopup('music');
          else if (selectedMenuIndex === 2) setActivePopup('gallery');
+         else if (selectedMenuIndex === 3) {
+             setActivePopup('game');
+             // Perlu delay sedikit agar canvas di-render dulu oleh React
+             setTimeout(startGame, 100); 
+         }
      } else if (activePopup === 'music') {
          setIsPlaying(!isPlaying);
+     } else if (activePopup === 'game' && isGameOver) {
+         startGame(); // Restart game
      }
   };
 
@@ -131,12 +222,19 @@ const GameboyViewer = ({ data }: { data: any }) => {
       if (screenView === 'intro') return;
 
       if (screenView === 'menu' && activePopup === 'none') {
-          if (dir === 'UP') setSelectedMenuIndex(prev => (prev > 0 ? prev - 1 : 2));
-          else if (dir === 'DOWN') setSelectedMenuIndex(prev => (prev < 2 ? prev + 1 : 0));
+          if (dir === 'UP') setSelectedMenuIndex(prev => (prev > 0 ? prev - 1 : 3));
+          else if (dir === 'DOWN') setSelectedMenuIndex(prev => (prev < 3 ? prev + 1 : 0));
       }
       if (activePopup === 'gallery') {
           if (dir === 'LEFT') prevPhoto();
           if (dir === 'RIGHT') nextPhoto();
+      }
+       // Game Controls
+      if (activePopup === 'game' && !isGameOver) {
+          if (dir === "UP" && directionRef.current !== "DOWN") directionRef.current = "UP";
+          if (dir === "DOWN" && directionRef.current !== "UP") directionRef.current = "DOWN";
+          if (dir === "LEFT" && directionRef.current !== "RIGHT") directionRef.current = "LEFT";
+          if (dir === "RIGHT" && directionRef.current !== "LEFT") directionRef.current = "RIGHT";
       }
   };
 
@@ -194,6 +292,9 @@ const GameboyViewer = ({ data }: { data: any }) => {
                         </div>
                         <div className={`text-[8px] p-1.5 text-left flex items-center gap-2 transition-colors pixel-font ${selectedMenuIndex === 2 ? 'bg-[#8bac0f] text-[#0f380f]' : 'bg-[#306230] text-[#9bbc0f]'}`}>
                             {selectedMenuIndex === 2 && <span className="animate-pulse">▶</span>} <ImageIcon size={10} /> 3. GALLERY
+                        </div>
+                                                <div className={`text-[8px] p-1.5 text-left flex items-center gap-2 transition-colors pixel-font ${selectedMenuIndex === 3 ? 'bg-[#8bac0f] text-[#0f380f]' : 'bg-[#306230] text-[#9bbc0f]'}`}>
+                            {selectedMenuIndex === 3 && <span className="animate-pulse">▶</span>} <Gamepad2 size={10} /> 4. GAMES
                         </div>
                     </div>
                 </div>
@@ -284,7 +385,18 @@ const GameboyViewer = ({ data }: { data: any }) => {
                      <button onClick={() => setActivePopup('none')} className="mt-1 text-[8px] text-red-500 hover:underline pixel-font">CLOSE</button>
                 </div>
             )}
-
+                {/* 6. GAME POPUP (NEW) */}
+            {activePopup === 'game' && (
+                <div className="absolute inset-0 bg-[#0f380f] z-20 flex flex-col items-center justify-center p-1">
+                    <div className="text-[#9bbc0f] text-[10px] mb-2 font-pixel">SNAKE GAME</div>
+                    <canvas ref={canvasRef} width={200} height={150} className="border-2 border-[#306230] bg-[#8bac0f]"></canvas>
+                    <div className="flex justify-between w-full px-4 mt-2 text-[8px] font-pixel text-[#9bbc0f]">
+                       <span>SCORE: {snakeScore}</span>
+                       <span className="text-[#306230]">{isGameOver ? "GAME OVER" : "PLAYING"}</span>
+                    </div>
+                    {isGameOver && <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-white font-pixel text-[10px] animate-pulse">PRESS A TO RESTART</div>}
+                </div>
+            )}
          </div>
       </div>
 
