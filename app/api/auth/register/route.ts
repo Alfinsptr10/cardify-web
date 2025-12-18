@@ -1,45 +1,56 @@
 import { NextResponse } from "next/server";
-import { db } from "@/app/lib/firebase"; // Import koneksi database yang sudah kita buat
+import { db } from "@/app/lib/firebase";
 import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
 import bcrypt from "bcryptjs";
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const { name, email, password } = await request.json();
+    const { name, email, password } = await req.json();
 
-    // 1. Validasi Input: Pastikan semua data diisi
     if (!name || !email || !password) {
-      return NextResponse.json({ error: "Data tidak lengkap" }, { status: 400 });
+      return NextResponse.json(
+        { message: "Data tidak lengkap" },
+        { status: 400 }
+      );
     }
 
-    // 2. Cek apakah email sudah terdaftar di Firebase
-    const usersRef = collection(db, "users");
-    const q = query(usersRef, where("email", "==", email));
-    const querySnapshot = await getDocs(q);
+    // cek email sudah ada
+    const q = query(
+      collection(db, "users"),
+      where("email", "==", email)
+    );
+    const snapshot = await getDocs(q);
 
-    if (!querySnapshot.empty) {
-      return NextResponse.json({ error: "Email sudah terdaftar! Silakan login." }, { status: 400 });
+    if (!snapshot.empty) {
+      return NextResponse.json(
+        { message: "Email sudah terdaftar" },
+        { status: 409 }
+      );
     }
 
-    // 3. Hash Password (Acak password agar aman)
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 4. Simpan User Baru ke Firestore
-    const newUser = {
+    await addDoc(collection(db, "users"), {
       name,
       email,
-      password: hashedPassword, // Simpan password yang sudah diacak
-      createdAt: new Date().toISOString(),
-      role: "user",
-      image: null // Foto profil kosong dulu
-    };
+      password: hashedPassword,
+      provider: "credentials",
+      createdAt: new Date(),
+    });
 
-    await addDoc(usersRef, newUser);
-
-    return NextResponse.json({ message: "Pendaftaran berhasil", success: true }, { status: 201 });
+    // 🔥 WAJIB RETURN JSON
+    return NextResponse.json(
+      { message: "Register berhasil" },
+      { status: 201 }
+    );
 
   } catch (error) {
-    console.error("Register Error:", error);
-    return NextResponse.json({ error: "Terjadi kesalahan server" }, { status: 500 });
+    console.error("REGISTER ERROR:", error);
+
+    // 🔥 JANGAN KOSONG
+    return NextResponse.json(
+      { message: "Server error" },
+      { status: 500 }
+    );
   }
 }

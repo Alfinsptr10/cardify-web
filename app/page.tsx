@@ -1,5 +1,5 @@
 "use client";
-
+import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect, useRef } from "react";
 // MOCK IMPORTS REPLACEMENT
 import { 
@@ -21,12 +21,11 @@ export default function Home() {
 function HomeContent() {
   // State
   const [decorations, setDecorations] = useState<any[]>([]);
+  const { data: session, status } = useSession();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   
-  // State User Data (Simulasi Session)
-  const [userData, setUserData] = useState<{ name: string; email: string; image: string | null } | null>(null);
   
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
@@ -34,18 +33,6 @@ function HomeContent() {
   useEffect(() => {
     // Set Judul Halaman
     document.title = "Cardify - Share Feelings Beautifully";
-
-    // Cek Login Manual dari LocalStorage (Simulasi NextAuth)
-    if (typeof window !== "undefined") {
-      const isManualLogin = localStorage.getItem("isLoggedIn");
-      if (isManualLogin === "true") {
-        setUserData({
-          name: localStorage.getItem("userName") || "User", // Translated "Pengguna"
-          email: localStorage.getItem("userEmail") || "user@cardify.id", 
-          image: null, 
-        });
-      }
-    }
 
     // Generate Hiasan dengan WARNA 10% (ACCENT) & 30% (SECONDARY) yang LEMBUT
     const items = [];
@@ -110,28 +97,23 @@ function HomeContent() {
     setShowLogoutConfirm(true);
   };
 
-  const handleLogout = async () => {
-    // Simulasi Logout
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("userName");
-    localStorage.removeItem("userEmail");
-    
-    setUserData(null);
-    setShowLogoutConfirm(false);
-    window.location.reload();
-  };
+const handleLogout = async () => {
+  setShowLogoutConfirm(false);
+  await signOut({ callbackUrl: "/" });
+};
+
 
   return (
     // 60% DOMINANT COLOR: Stone-50 (Warm White)
-    <div className={`min-h-screen w-full bg-[#FAFAF9] text-[#1C1917] selection:bg-[#D97706] selection:text-white flex flex-col relative overflow-hidden font-dm-sans`}>
+    <div className={`min-h-screen w-full bg-[#FAFAF9] text-[#1C1917] selection:bg-[#D97706] selection:text-white flex flex-col relative overflow-hidden font-sans`}>
       
       {/* INJECT FONTS */}
       <style dangerouslySetInnerHTML={{__html: `
           @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Press+Start+2P&display=swap');
-          
           .font-dm-sans { font-family: 'DM Sans', sans-serif; }
           .font-playfair { font-family: 'Playfair Display', serif; }
           .font-press-start { font-family: 'Press Start 2P', cursive; }
+          .font-sans { font-family: 'DM Sans', sans-serif; }
       `}} />
 
       {/* --- BACKGROUND DECORATIONS (SUBTLE) --- */}
@@ -154,8 +136,6 @@ function HomeContent() {
         <div className="absolute top-0 left-0 w-[800px] h-[800px] bg-amber-100/30 rounded-full blur-[120px] -z-10 mix-blend-multiply" />
         <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-stone-200/40 rounded-full blur-[100px] -z-10 mix-blend-multiply" />
       </div>
-
-      {/* --- TOP ANNOUNCEMENT REMOVED --- */}
 
       {/* --- PREMIUM NAVBAR --- */}
       <nav className={`relative z-50 w-full transition-all duration-300 border-b ${scrolled ? "bg-[#FAFAF9]/90 backdrop-blur-xl border-stone-200 shadow-sm py-3" : "bg-transparent border-transparent py-5"}`}>
@@ -222,7 +202,7 @@ function HomeContent() {
             </a>
             
             {/* 4. Contact */}
-            <a href="mailto:cardify.official.id@gmail.com" className="hover:text-[#1C1917] transition-colors relative group">
+            <a href="/contact" className="hover:text-[#1C1917] transition-colors relative group">
               Contact
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 transition-all group-hover:w-full"></span>
             </a>
@@ -231,23 +211,32 @@ function HomeContent() {
           {/* Auth Actions */}
           <div className="flex items-center gap-4">
             
-            {userData ? (
+            {session ? (
               // --- LOGGED IN STATE ---
               <div className="relative" ref={profileMenuRef}>
                 <button 
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
                   className="flex items-center gap-3 pl-1 pr-4 py-1 rounded-full bg-white border border-stone-200 shadow-sm hover:shadow-md hover:border-amber-200 transition-all duration-300 group"
                 >
-                  {userData.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={userData.image} alt={userData.name} width={34} height={34} className="rounded-full border border-stone-100" />
-                  ) : (
+{session?.user?.image ? (
+  // eslint-disable-next-line @next/next/no-img-element
+  <img
+    src={session.user.image}
+    alt={session.user.name || "User"}
+    width={34}
+    height={34}
+    className="rounded-full border border-stone-100"
+  />
+) : (
+
                     <div className="w-[34px] h-[34px] bg-gradient-to-tr from-amber-100 to-orange-50 rounded-full flex items-center justify-center border border-white text-[#1C1917] shadow-inner">
                       <User size={16} />
                     </div>
                   )}
                   <div className="hidden sm:block text-left">
-                      <span className="text-xs font-bold text-stone-800 block max-w-[80px] truncate leading-tight">{userData.name}</span>
+                      <span className="text-xs font-bold text-stone-800 block max-w-[80px] truncate leading-tight">
+                       {session?.user?.name || "User"}
+                      </span>
                       <span className="text-[9px] text-stone-400 font-bold uppercase tracking-wider leading-none">Free Plan</span>
                   </div>
                   <ChevronDown size={14} className={`text-stone-400 transition-transform duration-300 group-hover:text-amber-600 ${showProfileMenu ? 'rotate-180' : ''}`} />
@@ -257,8 +246,8 @@ function HomeContent() {
                 {showProfileMenu && (
                   <div className="absolute top-full right-0 mt-3 w-72 bg-white rounded-2xl shadow-2xl border border-stone-100 p-2 overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right ring-1 ring-black/5">
                     <div className="p-4 bg-stone-50/50 rounded-xl mb-2 border border-stone-100">
-                      <p className="text-sm font-bold text-stone-900 truncate">{userData.name}</p>
-                      <p className="text-xs text-stone-500 truncate font-medium">{userData.email}</p>
+                      <p className="text-sm font-bold text-stone-900 truncate">{session?.user?.name}</p>
+                      <p className="text-xs text-stone-500 truncate font-medium">{session?.user?.email}</p>
                     </div>
                     <div className="flex flex-col gap-1">
                       <button className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-stone-50 hover:text-black rounded-xl transition-all font-medium group">
@@ -281,10 +270,10 @@ function HomeContent() {
             ) : (
               // --- LOGGED OUT STATE ---
               <div className="flex items-center gap-6">
-                <a href="#" className="hidden md:flex text-sm font-bold text-stone-600 hover:text-black transition-colors">
+                <a href="/login" className="hidden md:flex text-sm font-bold text-stone-600 hover:text-black transition-colors">
                    Log in
                 </a>
-                <a href="#" className="hidden md:flex text-sm font-bold text-stone-600 hover:text-black transition-colors">
+                <a href="/register" className="hidden md:flex text-sm font-bold text-stone-600 hover:text-black transition-colors">
                    Sign Up
                 </a>
               </div>
@@ -327,14 +316,27 @@ function HomeContent() {
                Choose a template, customize, and send to your loved ones.
              </p>
 
+             {/* UPDATED CTA BUTTONS LOGIC */}
              <div className="flex flex-wrap items-center gap-4 pt-4">
-                <a href={userData ? "/templates" : "/register"} className="px-8 py-4 rounded-full bg-[#1C1917] text-white font-bold tracking-wide hover:bg-black transition-all shadow-xl shadow-stone-200 hover:-translate-y-1 flex items-center gap-3">
-                   {userData ? <Sparkles size={20} className="text-amber-400" /> : <UserPlus size={20} className="text-amber-400" />}
-                   {userData ? "Create Card Now" : "Sign Up Free"}
+                <a 
+                   href={session ? "/templates" : "/register"} 
+                   className="px-8 py-4 rounded-full bg-[#1C1917] text-white font-bold tracking-wide hover:bg-black transition-all shadow-xl shadow-stone-200 hover:-translate-y-1 flex items-center gap-3"
+                >
+                   {session ? (
+                      // IF LOGGED IN: "Start Creating"
+                      <>
+                        <Sparkles size={20} className="text-amber-400" />
+                        Start Creating
+                      </>
+                   ) : (
+                      // IF LOGGED OUT: "Sign Up Free"
+                      <>
+                        <UserPlus size={20} className="text-amber-400" />
+                        Sign Up Free
+                      </>
+                   )}
                 </a>
              </div>
-             
-             {/* --- REMOVED HAPPY USERS SECTION --- */}
           </div>
 
           {/* Right: Visual Illustration */}
@@ -532,18 +534,16 @@ function HomeContent() {
 
       </main>
 
-      {/* --- PREMIUM FOOTER --- */}
-      {/* Changed bg from stone-100 to #1C1917 (Dark Theme) as requested for better contrast */}
-      <footer className="w-full bg-[#1C1917] border-t border-stone-800 pt-20 pb-10 relative z-20 text-stone-400">
+      {/* --- FOOTER (ORIGINAL LIGHT VERSION) --- */}
+      <footer className="relative isolate w-full bg-[#1C1917] text-stone-400 py-12 border-t border-stone-800 overflow-hidden">
          <div className="max-w-7xl mx-auto px-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
                <div className="md:col-span-1 space-y-4">
                   <div className="flex items-center gap-2">
-                     {/* Logo Icon Container - Darker Theme */}
                      <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-[#1C1917]">
                         <Gift size={16} className="text-amber-500" />
                      </div>
-                     <span className={`text-2xl font-bold font-playfair italic text-white`}>Cardify.</span>
+                     <span className={`text-2xl font-bold text-white font-playfair italic`}>Cardify.</span>
                   </div>
                   <p className="text-sm text-stone-500 leading-relaxed font-medium">
                      The modern way to celebrate. Creating digital moments that last forever.
@@ -561,10 +561,9 @@ function HomeContent() {
                <div>
                   <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest">Company</h4>
                   <ul className="space-y-4 text-sm text-stone-500 font-medium">
-                     {/* UPDATED: Link to /about */}
                      <li><a href="/about" className="hover:text-white cursor-pointer transition-colors">About</a></li>
-                     <li><a href="#" className="hover:text-white cursor-pointer transition-colors">Careers</a></li>
-                     <li><a href="#" className="hover:text-white cursor-pointer transition-colors">Blog</a></li>
+                     <li><a href="/careers" className="hover:text-white cursor-pointer transition-colors">Careers</a></li>
+                     <li><a href="/blog" className="hover:text-white cursor-pointer transition-colors">Blog</a></li>
                   </ul>
                </div>
 
@@ -585,8 +584,8 @@ function HomeContent() {
             <div className="border-t border-stone-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                <p className="text-xs text-stone-500 font-medium">© 2025 Cardify Inc. All rights reserved.</p>
                <div className="flex gap-8 text-xs text-stone-500 font-bold">
-                  <a href="privacy-policy" className="cursor-pointer hover:text-white transition-colors">Privacy Policy</a>
-                  <a href="terms" className="cursor-pointer hover:text-white transition-colors">Terms of Service</a>
+                  <a href="/privacy-policy" className="cursor-pointer hover:text-white transition-colors">Privacy Policy</a>
+                  <a href="/terms" className="cursor-pointer hover:text-white transition-colors">Terms of Service</a>
                </div>
             </div>
          </div>

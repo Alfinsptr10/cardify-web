@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SessionProvider } from "next-auth/react";
+import Providers from "./providers";
 import { Analytics } from "@vercel/analytics/next"; // <-- Import Analytics
 import "./globals.css";
 
@@ -20,16 +22,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-        <Analytics /> {/* <-- Tambahkan komponen Analytics di sini */}
+      <body>
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );

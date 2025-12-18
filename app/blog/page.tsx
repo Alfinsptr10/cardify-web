@@ -4,23 +4,86 @@ import { useState, useEffect, useRef } from "react";
 // MOCK IMPORTS REPLACEMENT: Use standard HTML/React components
 import { 
   ArrowRight, Gift, User, LogOut, Settings, ChevronDown, 
-  Scale, CheckCircle, AlertTriangle, FileText, Ban, Mail, Smartphone, Image as ImageIcon,
-  Menu, X, Instagram, MessageCircle
+  Search, Calendar, Clock, ArrowUpRight, Tag, BookOpen,
+  Instagram, MessageCircle, Mail, Smartphone, Image as ImageIcon
 } from "lucide-react";
 
+// --- FONT CONFIG (Manual CSS Injection used in render) ---
+const playfair = { className: "font-playfair" };
+const dmSans = { className: "font-dm-sans" };
+
+// --- MOCK DATA BLOG ---
+const BLOG_POSTS = [
+  {
+    id: 1,
+    title: "The Art of Digital Gifting in 2025",
+    excerpt: "Why digital cards are becoming more meaningful than physical ones in our hyper-connected world. Discover the psychology behind virtual gestures.",
+    category: "Lifestyle",
+    date: "Oct 12, 2025",
+    readTime: "5 min read",
+    image: "https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800",
+    slug: "art-of-digital-gifting",
+    featured: true
+  },
+  {
+    id: 2,
+    title: "5 Tips to Make Your Web Story Stand Out",
+    excerpt: "Learn how to use animations and music effectively to create immersive greeting experiences that leave a lasting impression.",
+    category: "Tutorial",
+    date: "Oct 08, 2025",
+    readTime: "8 min read",
+    image: "https://images.unsplash.com/photo-1626785774573-4b799314346d?auto=format&fit=crop&q=80&w=800",
+    slug: "web-story-tips",
+    featured: false
+  },
+  {
+    id: 3,
+    title: "Why Retro Design is Making a Comeback",
+    excerpt: "Exploring the nostalgia behind 8-bit art and why Gen Z loves the pixelated aesthetic in modern digital products.",
+    category: "Design",
+    date: "Sep 28, 2025",
+    readTime: "6 min read",
+    image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800",
+    slug: "retro-comeback",
+    featured: false
+  },
+  {
+     id: 4,
+     title: "Connecting Long Distance Relationships",
+     excerpt: "How Cardify helps bridge the gap between hearts separated by miles. Real stories from our community.",
+     category: "Stories",
+     date: "Sep 15, 2025",
+     readTime: "4 min read",
+     image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&q=80&w=800",
+     slug: "ldr-connection",
+     featured: false
+  },
+  {
+    id: 5,
+    title: "The Future of E-Cards is Interactive",
+    excerpt: "Static images are out. See how interactivity is changing the way we celebrate birthdays and anniversaries.",
+    category: "Tech",
+    date: "Sep 10, 2025",
+    readTime: "5 min read",
+    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=800",
+    slug: "interactive-future",
+    featured: false
+ }
+];
+
 // --- MAIN CONTENT ---
-export default function TermsPage() {
+export default function BlogPage() {
   // State
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [activeSection, setActiveSection] = useState("acceptance");
   const [userData, setUserData] = useState<{ name: string; email: string; image: string | null } | null>(null);
+  const [activeCategory, setActiveCategory] = useState("All");
   
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
-  // Efek Samping: Cek Login & Scroll
+  // Efek Samping: Auth Check & Scroll
   useEffect(() => {
-    document.title = "Terms of Service - Cardify";
+    document.title = "Blog - Cardify";
 
     // Check Manual Login
     if (typeof window !== "undefined") {
@@ -42,18 +105,6 @@ export default function TermsPage() {
 
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
-      
-      const sections = ['acceptance', 'usage', 'content', 'termination', 'disclaimer'];
-      for (const section of sections) {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          if (rect.top >= 0 && rect.top <= 300) {
-            setActiveSection(section);
-            break;
-          }
-        }
-      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -73,15 +124,9 @@ export default function TermsPage() {
     window.location.href = "/";
   };
 
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      const yOffset = -100;
-      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: 'smooth' });
-      setActiveSection(id);
-    }
-  };
+  const filteredPosts = activeCategory === "All" 
+    ? BLOG_POSTS 
+    : BLOG_POSTS.filter(post => post.category === activeCategory);
 
   return (
     <div className={`min-h-screen w-full bg-[#FAFAF9] text-[#1C1917] flex flex-col font-sans`}>
@@ -94,7 +139,7 @@ export default function TermsPage() {
           .font-sans { font-family: 'DM Sans', sans-serif; }
       `}} />
 
-      {/* --- NAVBAR (UPDATED: Match Home & Privacy) --- */}
+      {/* --- NAVBAR --- */}
       <nav className={`fixed z-50 w-full transition-all duration-300 border-b ${scrolled ? "bg-[#FAFAF9]/90 backdrop-blur-xl border-stone-200 shadow-sm py-3" : "bg-transparent border-transparent py-5"}`}>
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center relative">
           
@@ -106,9 +151,8 @@ export default function TermsPage() {
             <span className={`text-2xl font-bold tracking-tight font-playfair italic text-[#1C1917]`}>Cardify.</span>
           </a>
           
-          {/* Navigation Links - Centered */}
+          {/* Navigation Links */}
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-stone-600 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            
             {/* Templates Dropdown */}
             <div className="relative group h-full flex items-center cursor-pointer">
                 <a href="/templates" className="hover:text-[#1C1917] transition-colors relative py-2 flex items-center gap-1 text-[#1C1917]">
@@ -142,10 +186,10 @@ export default function TermsPage() {
                    </a>
                 </div>
             </div>
-            
-            <a href="/#features" className="hover:text-[#1C1917] transition-colors">Features</a>
+
+            <a href="/features" className="hover:text-[#1C1917] transition-colors">Features</a>
             <a href="/about" className="hover:text-[#1C1917] transition-colors">About</a>
-            <a href="mailto:cardify.official.id@gmail.com" className="hover:text-[#1C1917] transition-colors">Contact</a>
+            <a href="/contact" className="hover:text-[#1C1917] transition-colors">Contact</a>
           </div>
 
           {/* Auth Actions */}
@@ -154,7 +198,7 @@ export default function TermsPage() {
               <div className="relative" ref={profileMenuRef}>
                 <button onClick={() => setShowProfileMenu(!showProfileMenu)} className="flex items-center gap-3 pl-1 pr-4 py-1 rounded-full bg-white border border-stone-200 shadow-sm hover:shadow-md transition-all duration-300 group">
                   {userData.image ? (
-                    /* eslint-disable-next-line @next/next/no-img-element */
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img src={userData.image} alt={userData.name} width={34} height={34} className="rounded-full border border-stone-100" />
                   ) : (
                     <div className="w-[34px] h-[34px] bg-gradient-to-tr from-amber-100 to-orange-50 rounded-full flex items-center justify-center border border-white text-[#1C1917] shadow-inner"><User size={16} /></div>
@@ -182,8 +226,8 @@ export default function TermsPage() {
               </div>
             ) : (
               <div className="flex items-center gap-6">
-                <a href="/login" className="hidden md:flex text-sm font-bold text-stone-600 hover:text-black transition-colors">Log in</a>
-                <a href="/register" className="hidden md:flex text-sm font-bold text-stone-600 hover:text-black transition-colors">Sign Up</a>
+                <a href="/login" className="hidden md:flex text-sm font-bold text-stone-600 hover:text-black">Log in</a>
+                <a href="/register" className="hidden md:flex text-sm font-bold text-stone-600 hover:text-black">Sign Up</a>
               </div>
             )}
             <a href="/templates" className="px-6 py-2.5 rounded-full bg-[#1C1917] text-white text-sm font-bold hover:bg-black hover:scale-105 hover:shadow-xl hover:shadow-amber-900/10 transition-all flex items-center gap-2">
@@ -194,136 +238,147 @@ export default function TermsPage() {
       </nav>
 
       {/* --- HERO HEADER --- */}
-      <header className="pt-40 pb-20 px-6 relative z-10 bg-white border-b border-stone-100">
+      <header className="pt-40 pb-16 px-6 bg-white border-b border-stone-100 relative overflow-hidden">
+         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-amber-50/50 rounded-full blur-[120px] -z-10 pointer-events-none" />
+         
          <div className="max-w-4xl mx-auto text-center space-y-6">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-stone-50 rounded-2xl mb-2 text-stone-800 shadow-sm border border-stone-100">
-               <Scale size={32} />
-            </div>
-            <h1 className={`text-4xl md:text-6xl font-bold text-[#1C1917] font-playfair`}>Terms of Service</h1>
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-stone-50 border border-stone-200 text-[11px] font-bold text-stone-500 uppercase tracking-widest shadow-sm">
+                <BookOpen size={12} className="text-amber-500" />
+                Our Blog
+            </span>
+            <h1 className={`text-4xl md:text-6xl font-bold text-[#1C1917] leading-tight font-playfair`}>
+               Stories & Inspiration
+            </h1>
             <p className="text-lg text-stone-500 max-w-2xl mx-auto leading-relaxed">
-               Please read these terms and conditions carefully before using Cardify's services.
+               Tips, tutorials, and stories to help you express your feelings beautifully in the digital age.
             </p>
-            <p className="text-xs font-bold text-stone-400 uppercase tracking-widest pt-4">Last Updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+
+            {/* Search Bar */}
+            <div className="max-w-md mx-auto mt-8 relative">
+               <input 
+                 type="text" 
+                 placeholder="Search articles..." 
+                 className="w-full pl-12 pr-4 py-3.5 rounded-full border border-stone-200 bg-white text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-200 shadow-sm transition-all"
+               />
+               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" size={18} />
+            </div>
          </div>
       </header>
 
-      {/* --- MAIN CONTENT AREA --- */}
-      <div className="flex-grow bg-[#FAFAF9]">
-         <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 lg:grid-cols-12 gap-12">
+      {/* --- BLOG CONTENT --- */}
+      <div className="flex-grow bg-[#FAFAF9] py-16 px-6">
+         <div className="max-w-7xl mx-auto">
             
-            {/* SIDEBAR NAVIGATION */}
-            <aside className="hidden lg:block lg:col-span-3">
-               <div className="sticky top-32 space-y-1">
-                  <p className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-4 pl-4">On this page</p>
-                  {[
-                    { id: 'acceptance', label: '1. Acceptance of Terms' },
-                    { id: 'usage', label: '2. Acceptable Use' },
-                    { id: 'content', label: '3. User Content' },
-                    { id: 'termination', label: '4. Termination' },
-                    { id: 'disclaimer', label: '5. Disclaimer' },
-                  ].map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => scrollToSection(item.id)}
-                      className={`block w-full text-left px-4 py-2.5 text-sm font-medium rounded-lg transition-all ${
-                        activeSection === item.id 
-                          ? "bg-white text-amber-700 shadow-sm border border-stone-100" 
-                          : "text-stone-500 hover:text-stone-900 hover:bg-stone-100"
-                      }`}
-                    >
-                      {item.label}
-                    </button>
-                  ))}
-               </div>
-            </aside>
-
-            {/* CONTENT BODY */}
-            <div className="lg:col-span-8 lg:col-start-5 space-y-12">
-               
-               {/* Section 1 */}
-               <section id="acceptance" className="scroll-mt-32">
-                  <div className="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-4 mb-6 pb-6 border-b border-stone-100">
-                       <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center text-amber-600"><CheckCircle size={20} /></div>
-                       <h2 className={`text-2xl font-bold font-playfair`}>1. Acceptance of Terms</h2>
-                    </div>
-                    <p className="text-stone-600 leading-relaxed">
-                       By accessing or using <strong>Cardify</strong>, you agree to be bound by these Terms of Service. If you disagree with any part of the terms, then you may not access the service.
-                    </p>
-                  </div>
-               </section>
-
-               {/* Section 2 */}
-               <section id="usage" className="scroll-mt-32">
-                  <div className="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-4 mb-6 pb-6 border-b border-stone-100">
-                       <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600"><FileText size={20} /></div>
-                       <h2 className={`text-2xl font-bold font-playfair`}>2. Acceptable Use</h2>
-                    </div>
-                    <p className="text-stone-600 mb-4">You agree not to use the service to:</p>
-                    <ul className="list-none pl-0 space-y-3">
-                       <li className="flex items-start gap-3">
-                          <Ban size={18} className="text-red-500 mt-1 flex-shrink-0" />
-                          <span className="text-stone-600">Upload content that is illegal, harmful, or violates any third-party rights.</span>
-                       </li>
-                       <li className="flex items-start gap-3">
-                          <Ban size={18} className="text-red-500 mt-1 flex-shrink-0" />
-                          <span className="text-stone-600">Attempt to gain unauthorized access to our systems or user accounts.</span>
-                       </li>
-                       <li className="flex items-start gap-3">
-                          <Ban size={18} className="text-red-500 mt-1 flex-shrink-0" />
-                          <span className="text-stone-600">Use the service for spamming or any commercial solicitation without consent.</span>
-                       </li>
-                    </ul>
-                  </div>
-               </section>
-
-               {/* Section 3 */}
-               <section id="content" className="scroll-mt-32">
-                  <div className="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-4 mb-6 pb-6 border-b border-stone-100">
-                       <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600"><Settings size={20} /></div>
-                       <h2 className={`text-2xl font-bold font-playfair`}>3. User Content</h2>
-                    </div>
-                    <p className="text-stone-600 leading-relaxed">
-                       You retain ownership of any content (text, images) you upload to Cardify. However, by uploading, you grant us a license to use, store, and display your content solely for the purpose of providing the service to you (e.g., generating your card).
-                    </p>
-                  </div>
-               </section>
-
-               {/* Section 4 */}
-               <section id="termination" className="scroll-mt-32">
-                  <div className="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-4 mb-6 pb-6 border-b border-stone-100">
-                       <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600"><AlertTriangle size={20} /></div>
-                       <h2 className={`text-2xl font-bold font-playfair`}>4. Termination</h2>
-                    </div>
-                    <p className="text-stone-600 leading-relaxed">
-                       We may terminate or suspend your account immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms. Upon termination, your right to use the Service will cease immediately.
-                    </p>
-                  </div>
-               </section>
-
-               {/* Section 5 */}
-               <section id="disclaimer" className="scroll-mt-32">
-                  <div className="bg-[#1C1917] text-white p-10 rounded-[2rem] shadow-xl text-center">
-                     <h2 className={`text-3xl font-bold mb-4 font-playfair`}>5. Disclaimer</h2>
-                     <p className="text-stone-400 mb-8 max-w-lg mx-auto">
-                        The service is provided on an "AS IS" and "AS AVAILABLE" basis. Cardify makes no warranties, expressed or implied, regarding the reliability or availability of the service.
-                     </p>
-                     <a href="mailto:cardify.official.id@gmail.com" className="inline-flex items-center gap-3 px-8 py-4 bg-white text-black rounded-full font-bold hover:bg-amber-400 transition-all shadow-lg hover:shadow-amber-400/20 hover:-translate-y-1">
-                        <Mail size={20} />
-                        Contact Support
-                     </a>
-                  </div>
-               </section>
-
+            {/* Category Filter */}
+            <div className="flex flex-wrap justify-center gap-2 mb-12">
+               {['All', 'Lifestyle', 'Tutorial', 'Design', 'Stories', 'Tech'].map((cat) => (
+                  <button 
+                    key={cat}
+                    onClick={() => setActiveCategory(cat)}
+                    className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${
+                       activeCategory === cat 
+                         ? 'bg-[#1C1917] text-white shadow-md' 
+                         : 'bg-white text-stone-500 border border-stone-200 hover:bg-stone-50'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+               ))}
             </div>
+
+            {/* Featured Post (Only show if All or Lifestyle) */}
+            {activeCategory === 'All' && (
+              <div className="mb-16">
+                 <div className="group relative rounded-[2.5rem] overflow-hidden bg-white border border-stone-200 shadow-md hover:shadow-xl transition-all duration-500">
+                    <div className="grid md:grid-cols-2 gap-0 h-full">
+                       <div className="relative h-64 md:h-auto overflow-hidden">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img 
+                             src={BLOG_POSTS[0].image} 
+                             alt={BLOG_POSTS[0].title}
+                             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                          <div className="absolute top-6 left-6">
+                             <span className="px-3 py-1 bg-white/90 backdrop-blur rounded-full text-xs font-bold uppercase tracking-wider text-[#1C1917] shadow-sm">
+                               Featured
+                             </span>
+                          </div>
+                       </div>
+                       <div className="p-8 md:p-12 flex flex-col justify-center">
+                          <div className="flex items-center gap-3 text-xs font-bold text-amber-600 uppercase tracking-widest mb-4">
+                             <span className="flex items-center gap-1"><Tag size={12}/> {BLOG_POSTS[0].category}</span>
+                             <span className="w-1 h-1 rounded-full bg-stone-300"></span>
+                             <span>{BLOG_POSTS[0].date}</span>
+                          </div>
+                          <h2 className={`text-3xl md:text-4xl font-bold text-[#1C1917] mb-4 leading-tight group-hover:text-amber-700 transition-colors font-playfair`}>
+                             {BLOG_POSTS[0].title}
+                          </h2>
+                          <p className="text-stone-500 text-lg mb-8 leading-relaxed">
+                             {BLOG_POSTS[0].excerpt}
+                          </p>
+                          <div className="flex items-center gap-4">
+                             <button className="flex items-center gap-2 text-sm font-bold text-[#1C1917] border-b-2 border-[#1C1917] pb-1 hover:text-amber-600 hover:border-amber-600 transition-all">
+                                Read Article <ArrowUpRight size={16} />
+                             </button>
+                             <span className="flex items-center gap-1 text-xs text-stone-400 font-medium">
+                                <Clock size={12} /> {BLOG_POSTS[0].readTime}
+                             </span>
+                          </div>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+            )}
+
+            {/* Grid Posts */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+               {filteredPosts.filter(post => !post.featured || activeCategory !== 'All').map((post) => (
+                  <article key={post.id} className="group bg-white rounded-[2rem] border border-stone-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 flex flex-col">
+                     <div className="relative aspect-[4/3] overflow-hidden">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img 
+                           src={post.image} 
+                           alt={post.title}
+                           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-stone-800 uppercase tracking-widest shadow-sm">
+                           {post.category}
+                        </div>
+                     </div>
+                     <div className="p-6 flex flex-col flex-grow">
+                        <div className="flex items-center gap-2 text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-3">
+                           <Calendar size={12} />
+                           <span>{post.date}</span>
+                        </div>
+                        <h3 className={`text-xl font-bold text-[#1C1917] mb-3 leading-snug group-hover:text-amber-700 transition-colors font-playfair`}>
+                           {post.title}
+                        </h3>
+                        <p className="text-stone-500 text-sm leading-relaxed mb-6 flex-grow line-clamp-3">
+                           {post.excerpt}
+                        </p>
+                        <div className="flex items-center justify-between pt-4 border-t border-stone-100 mt-auto">
+                           <span className="flex items-center gap-1 text-xs text-stone-400 font-medium">
+                              <Clock size={12} /> {post.readTime}
+                           </span>
+                           <span className="text-sm font-bold text-[#1C1917] flex items-center gap-1 group-hover:translate-x-1 transition-transform cursor-pointer">
+                              Read <ArrowRight size={14} />
+                           </span>
+                        </div>
+                     </div>
+                  </article>
+               ))}
+            </div>
+
+            {filteredPosts.length === 0 && (
+               <div className="text-center py-20">
+                  <p className="text-stone-400 italic">No articles found in this category.</p>
+               </div>
+            )}
          </div>
       </div>
 
       {/* --- FOOTER (UPDATED: Match Home & Privacy) --- */}
-      <footer className="relative isolate w-full bg-[#1C1917] text-stone-400 py-12 border-t border-stone-800 overflow-hidden">
+      <footer className="w-full bg-[#1C1917] text-stone-400 py-12 border-t border-stone-800">
          <div className="max-w-7xl mx-auto px-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
                <div className="md:col-span-1 space-y-4">
@@ -351,7 +406,7 @@ export default function TermsPage() {
                   <ul className="space-y-4 text-sm text-stone-500 font-medium">
                      <li><a href="/about" className="hover:text-white cursor-pointer transition-colors">About</a></li>
                      <li><a href="/careers" className="hover:text-white cursor-pointer transition-colors">Careers</a></li>
-                     <li><a href="/blog" className="hover:text-white cursor-pointer transition-colors">Blog</a></li>
+                     <li><a href="/blog" className="text-white font-bold cursor-pointer transition-colors">Blog</a></li>
                   </ul>
                </div>
 
@@ -373,7 +428,7 @@ export default function TermsPage() {
                <p className="text-xs text-stone-500 font-medium">© 2025 Cardify Inc. All rights reserved.</p>
                <div className="flex gap-8 text-xs text-stone-500 font-bold">
                   <a href="/privacy-policy" className="cursor-pointer hover:text-white transition-colors">Privacy Policy</a>
-                  <a href="/terms" className="cursor-pointer text-white font-bold transition-colors">Terms of Service</a>
+                  <a href="/terms" className="cursor-pointer hover:text-white transition-colors">Terms of Service</a>
                </div>
             </div>
          </div>

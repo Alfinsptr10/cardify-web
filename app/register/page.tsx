@@ -62,20 +62,36 @@ export default function RegisterPage() {
   };
 
   // --- LOGIC MANUAL REGISTER ---
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+const handleRegister = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsLoading(true);
 
-    try {
-      // MOCK SUCCESS
-      await new Promise(resolve => setTimeout(resolve, 1500)); 
-      setShowSuccessModal(true); 
-    } catch (error: any) {
-      alert("Gagal mendaftar: " + error.message);
-    } finally {
-      setIsLoading(false);
+  try {
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Register gagal");
     }
-  };
+
+    // ✅ REGISTER BERHASIL
+    setShowSuccessModal(true);
+  } catch (error: any) {
+    alert("Gagal mendaftar: " + error.message);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   return (
     <div className={`min-h-screen w-full bg-[#FAFAF9] text-[#1C1917] flex items-center justify-center relative overflow-hidden p-6 font-sans`}>

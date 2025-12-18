@@ -238,52 +238,46 @@ export default function LoginPage() {
     }, 2000);
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setErrorMessage(""); 
+const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsLoading(true);
+  setErrorMessage("");
 
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+  try {
+    const res = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        triggerRejectAnimation();
-        setErrorMessage(data.error || "Email atau password salah.");
-        return;
-      }
-
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("userName", data.user.name);
-      localStorage.setItem("userEmail", data.user.email);
-      
-      window.location.href = "/";
-
-    } catch (error: any) {
-      console.error("Login failed:", error);
+    if (res?.error) {
       triggerRejectAnimation();
-      setErrorMessage("Terjadi kesalahan koneksi. Coba lagi.");
-    } finally {
-      setIsLoading(false);
+      setErrorMessage("Email atau password salah.");
+      return;
     }
-  };
 
-  const handleGoogleLogin = async () => {
-    setIsGoogleLoading(true);
-    localStorage.removeItem("isLoggedIn");
-    await signIn('google', { callbackUrl: '/' });
-  };
+    // sukses → redirect
+    window.location.href = "/";
 
-  const handleGithubLogin = async () => {
-    setIsGithubLoading(true);
-    localStorage.removeItem("isLoggedIn");
-    await signIn('github', { callbackUrl: '/' });
-  };
+  } catch (err) {
+    triggerRejectAnimation();
+    setErrorMessage("Terjadi kesalahan. Coba lagi.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+const handleGoogleLogin = async () => {
+  setIsGoogleLoading(true);
+  await signIn("google", { callbackUrl: "/" });
+};
+
+
+const handleGithubLogin = async () => {
+  setIsGithubLoading(true);
+  await signIn("github", { callbackUrl: "/" });
+};
+
 
   return (
     <div className={`min-h-screen w-full flex ${dmSans.className}`}>

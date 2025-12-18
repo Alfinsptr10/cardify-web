@@ -275,17 +275,58 @@ function AboutContent() {
       </section>
 
       {/* --- FOOTER --- */}
-      <footer className="w-full bg-[#1C1917] text-stone-400 py-12 border-t border-stone-800">
-         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-2">
-               <Gift size={20} className="text-white" />
-               <span className={`text-2xl font-bold text-white ${playfair.className} italic`}>Cardify.</span>
+      <footer className="relative isolate w-full bg-[#1C1917] text-stone-400 py-12 border-t border-stone-800 overflow-hidden">
+         <div className="max-w-7xl mx-auto px-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
+               <div className="md:col-span-1 space-y-4">
+                  <div className="flex items-center gap-2">
+                     <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-[#1C1917]">
+                        <Gift size={16} className="text-amber-500" />
+                     </div>
+                     <span className={`text-2xl font-bold text-white font-playfair italic`}>Cardify.</span>
+                  </div>
+                  <p className="text-sm text-stone-500 leading-relaxed font-medium">
+                     The modern way to celebrate. Creating digital moments that last forever.
+                  </p>
+               </div>
+               
+               <div>
+                  <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest">Product</h4>
+                  <ul className="space-y-4 text-sm text-stone-500 font-medium">
+                     <li><a href="/templates" className="hover:text-white cursor-pointer transition-colors">Templates</a></li>
+                     <li className="hover:text-white cursor-pointer transition-colors">Showcase</li>
+                  </ul>
+               </div>
+
+               <div>
+                  <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest">Company</h4>
+                  <ul className="space-y-4 text-sm text-stone-500 font-medium">
+                     <li><a href="/about" className="text-white font-bold cursor-pointer transition-colors">About</a></li>
+                     <li><a href="/careers" className="hover:text-white cursor-pointer transition-colors">Careers</a></li>
+                     <li><a href="/blog" className="hover:text-white cursor-pointer transition-colors">Blog</a></li>
+                  </ul>
+               </div>
+
+               <div>
+                  <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest">Connect</h4>
+                  <div className="flex flex-col gap-4">
+                     <a href="https://instagram.com/alfinnsptr" target="_blank" className="flex items-center gap-3 text-sm text-stone-500 hover:text-[#E1306C] transition-colors group">
+                        <div className="w-8 h-8 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center group-hover:border-[#E1306C] transition-colors"><Instagram size={16} /></div>
+                        <span className="font-medium">Instagram</span>
+                     </a>
+                     <a href="https://wa.me/6289501847804" target="_blank" className="flex items-center gap-3 text-sm text-stone-500 hover:text-[#25D366] transition-colors group">
+                        <div className="w-8 h-8 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center group-hover:border-[#25D366] transition-colors"><MessageCircle size={16} /></div>
+                        <span className="font-medium">WhatsApp</span>
+                     </a>
+                  </div>
+               </div>
             </div>
-            <p className="text-sm">© 2025 Cardify Inc. Built with passion in Jakarta.</p>
-            <div className="flex gap-6 text-sm font-bold text-white">
-               <Link href="/" className="hover:text-amber-400 transition-colors">Home</Link>
-               <Link href="/about" className="text-amber-400">About</Link>
-               <Link href="/templates" className="hover:text-amber-400 transition-colors">Templates</Link>
+            <div className="border-t border-stone-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+               <p className="text-xs text-stone-500 font-medium">© 2025 Cardify Inc. All rights reserved.</p>
+               <div className="flex gap-8 text-xs text-stone-500 font-bold">
+                  <a href="/privacy-policy" className="cursor-pointer hover:text-white transition-colors">Privacy Policy</a>
+                  <a href="/terms" className="cursor-pointer hover:text-white transition-colors">Terms of Service</a>
+               </div>
             </div>
          </div>
       </footer>

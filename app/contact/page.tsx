@@ -4,25 +4,28 @@ import { useState, useEffect, useRef } from "react";
 // MOCK IMPORTS REPLACEMENT: Use standard HTML/React components
 import { 
   ArrowRight, Gift, User, LogOut, Settings, ChevronDown, 
-  Scale, CheckCircle, AlertTriangle, FileText, Ban, Mail, Smartphone, Image as ImageIcon,
-  Menu, X, Instagram, MessageCircle
+  Mail, MapPin, Phone, Instagram, MessageCircle, Send, CheckCircle2, Loader2,
+  Smartphone, Image as ImageIcon, Menu, X
 } from "lucide-react";
 
 // --- MAIN CONTENT ---
-export default function TermsPage() {
+export default function ContactPage() {
   // State
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [activeSection, setActiveSection] = useState("acceptance");
   const [userData, setUserData] = useState<{ name: string; email: string; image: string | null } | null>(null);
+  
+  // Form State
+  const [formStatus, setFormStatus] = useState<'idle' | 'loading' | 'success'>('idle');
+  const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
   
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
-  // Efek Samping: Cek Login & Scroll
+  // Efek Samping: Auth Check & Scroll
   useEffect(() => {
-    document.title = "Terms of Service - Cardify";
+    document.title = "Contact Us - Cardify";
 
-    // Check Manual Login
+    // Check Manual Login from LocalStorage
     if (typeof window !== "undefined") {
       const isManualLogin = localStorage.getItem("isLoggedIn");
       if (isManualLogin === "true") {
@@ -42,18 +45,6 @@ export default function TermsPage() {
 
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
-      
-      const sections = ['acceptance', 'usage', 'content', 'termination', 'disclaimer'];
-      for (const section of sections) {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          if (rect.top >= 0 && rect.top <= 300) {
-            setActiveSection(section);
-            break;
-          }
-        }
-      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -73,14 +64,18 @@ export default function TermsPage() {
     window.location.href = "/";
   };
 
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      const yOffset = -100;
-      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: 'smooth' });
-      setActiveSection(id);
-    }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormStatus('loading');
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    setFormStatus('success');
+    setFormData({ name: "", email: "", subject: "", message: "" });
+    
+    // Reset success message after 3 seconds
+    setTimeout(() => setFormStatus('idle'), 3000);
   };
 
   return (
@@ -94,7 +89,7 @@ export default function TermsPage() {
           .font-sans { font-family: 'DM Sans', sans-serif; }
       `}} />
 
-      {/* --- NAVBAR (UPDATED: Match Home & Privacy) --- */}
+      {/* --- NAVBAR --- */}
       <nav className={`fixed z-50 w-full transition-all duration-300 border-b ${scrolled ? "bg-[#FAFAF9]/90 backdrop-blur-xl border-stone-200 shadow-sm py-3" : "bg-transparent border-transparent py-5"}`}>
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center relative">
           
@@ -106,9 +101,8 @@ export default function TermsPage() {
             <span className={`text-2xl font-bold tracking-tight font-playfair italic text-[#1C1917]`}>Cardify.</span>
           </a>
           
-          {/* Navigation Links - Centered */}
+          {/* Navigation Links */}
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-stone-600 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            
             {/* Templates Dropdown */}
             <div className="relative group h-full flex items-center cursor-pointer">
                 <a href="/templates" className="hover:text-[#1C1917] transition-colors relative py-2 flex items-center gap-1 text-[#1C1917]">
@@ -142,10 +136,10 @@ export default function TermsPage() {
                    </a>
                 </div>
             </div>
-            
-            <a href="/#features" className="hover:text-[#1C1917] transition-colors">Features</a>
+
+            <a href="/features" className="hover:text-[#1C1917] transition-colors">Features</a>
             <a href="/about" className="hover:text-[#1C1917] transition-colors">About</a>
-            <a href="mailto:cardify.official.id@gmail.com" className="hover:text-[#1C1917] transition-colors">Contact</a>
+            <a href="/contact" className="text-[#1C1917] font-bold">Contact</a>
           </div>
 
           {/* Auth Actions */}
@@ -182,8 +176,8 @@ export default function TermsPage() {
               </div>
             ) : (
               <div className="flex items-center gap-6">
-                <a href="/login" className="hidden md:flex text-sm font-bold text-stone-600 hover:text-black transition-colors">Log in</a>
-                <a href="/register" className="hidden md:flex text-sm font-bold text-stone-600 hover:text-black transition-colors">Sign Up</a>
+                <a href="/login" className="hidden md:flex text-sm font-bold text-stone-600 hover:text-black">Log in</a>
+                <a href="/register" className="hidden md:flex text-sm font-bold text-stone-600 hover:text-black">Sign Up</a>
               </div>
             )}
             <a href="/templates" className="px-6 py-2.5 rounded-full bg-[#1C1917] text-white text-sm font-bold hover:bg-black hover:scale-105 hover:shadow-xl hover:shadow-amber-900/10 transition-all flex items-center gap-2">
@@ -194,135 +188,153 @@ export default function TermsPage() {
       </nav>
 
       {/* --- HERO HEADER --- */}
-      <header className="pt-40 pb-20 px-6 relative z-10 bg-white border-b border-stone-100">
+      <header className="pt-40 pb-20 px-6 bg-white border-b border-stone-100 relative overflow-hidden">
+         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-amber-50/50 rounded-full blur-[100px] -z-10 pointer-events-none" />
+         
          <div className="max-w-4xl mx-auto text-center space-y-6">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-stone-50 rounded-2xl mb-2 text-stone-800 shadow-sm border border-stone-100">
-               <Scale size={32} />
-            </div>
-            <h1 className={`text-4xl md:text-6xl font-bold text-[#1C1917] font-playfair`}>Terms of Service</h1>
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-stone-50 border border-stone-200 text-[11px] font-bold text-stone-500 uppercase tracking-widest shadow-sm">
+                <Mail size={12} className="text-amber-500" />
+                Contact Us
+            </span>
+            <h1 className={`text-4xl md:text-6xl font-bold text-[#1C1917] leading-tight font-playfair`}>
+               We’d Love to Hear From You
+            </h1>
             <p className="text-lg text-stone-500 max-w-2xl mx-auto leading-relaxed">
-               Please read these terms and conditions carefully before using Cardify's services.
+               Whether you have a question about features, templates, pricing, or just want to share feedback, our team is ready to answer all your questions.
             </p>
-            <p className="text-xs font-bold text-stone-400 uppercase tracking-widest pt-4">Last Updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
          </div>
       </header>
 
-      {/* --- MAIN CONTENT AREA --- */}
-      <div className="flex-grow bg-[#FAFAF9]">
-         <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 lg:grid-cols-12 gap-12">
+      {/* --- MAIN CONTACT SECTION --- */}
+      <section className="py-24 px-6 bg-[#FAFAF9]">
+         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16">
             
-            {/* SIDEBAR NAVIGATION */}
-            <aside className="hidden lg:block lg:col-span-3">
-               <div className="sticky top-32 space-y-1">
-                  <p className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-4 pl-4">On this page</p>
-                  {[
-                    { id: 'acceptance', label: '1. Acceptance of Terms' },
-                    { id: 'usage', label: '2. Acceptable Use' },
-                    { id: 'content', label: '3. User Content' },
-                    { id: 'termination', label: '4. Termination' },
-                    { id: 'disclaimer', label: '5. Disclaimer' },
-                  ].map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => scrollToSection(item.id)}
-                      className={`block w-full text-left px-4 py-2.5 text-sm font-medium rounded-lg transition-all ${
-                        activeSection === item.id 
-                          ? "bg-white text-amber-700 shadow-sm border border-stone-100" 
-                          : "text-stone-500 hover:text-stone-900 hover:bg-stone-100"
-                      }`}
-                    >
-                      {item.label}
-                    </button>
-                  ))}
+            {/* LEFT: Contact Information */}
+            <div className="space-y-12">
+               <div>
+                  <h2 className={`text-3xl font-bold text-[#1C1917] mb-6 font-playfair`}>Get in Touch</h2>
+                  <p className="text-stone-500 leading-relaxed mb-8">
+                     Have a specific inquiry or just want to say hi? Feel free to reach out to us through any of the channels below. We try our best to respond within 24 hours.
+                  </p>
                </div>
-            </aside>
 
-            {/* CONTENT BODY */}
-            <div className="lg:col-span-8 lg:col-start-5 space-y-12">
-               
-               {/* Section 1 */}
-               <section id="acceptance" className="scroll-mt-32">
-                  <div className="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-4 mb-6 pb-6 border-b border-stone-100">
-                       <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center text-amber-600"><CheckCircle size={20} /></div>
-                       <h2 className={`text-2xl font-bold font-playfair`}>1. Acceptance of Terms</h2>
-                    </div>
-                    <p className="text-stone-600 leading-relaxed">
-                       By accessing or using <strong>Cardify</strong>, you agree to be bound by these Terms of Service. If you disagree with any part of the terms, then you may not access the service.
-                    </p>
+               <div className="space-y-6">
+                  <div className="flex items-start gap-4 p-6 bg-white rounded-2xl border border-stone-100 shadow-sm hover:border-amber-200 transition-colors">
+                     <div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center text-amber-600 flex-shrink-0">
+                        <Mail size={24} />
+                     </div>
+                     <div>
+                        <h3 className="font-bold text-[#1C1917] text-lg mb-1">Email</h3>
+                        <p className="text-stone-500 text-sm mb-2">For general inquiries and support.</p>
+                        <a href="mailto:hello@cardify.id" className="text-amber-600 font-bold hover:underline">hello@cardify.id</a>
+                     </div>
                   </div>
-               </section>
 
-               {/* Section 2 */}
-               <section id="usage" className="scroll-mt-32">
-                  <div className="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-4 mb-6 pb-6 border-b border-stone-100">
-                       <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600"><FileText size={20} /></div>
-                       <h2 className={`text-2xl font-bold font-playfair`}>2. Acceptable Use</h2>
-                    </div>
-                    <p className="text-stone-600 mb-4">You agree not to use the service to:</p>
-                    <ul className="list-none pl-0 space-y-3">
-                       <li className="flex items-start gap-3">
-                          <Ban size={18} className="text-red-500 mt-1 flex-shrink-0" />
-                          <span className="text-stone-600">Upload content that is illegal, harmful, or violates any third-party rights.</span>
-                       </li>
-                       <li className="flex items-start gap-3">
-                          <Ban size={18} className="text-red-500 mt-1 flex-shrink-0" />
-                          <span className="text-stone-600">Attempt to gain unauthorized access to our systems or user accounts.</span>
-                       </li>
-                       <li className="flex items-start gap-3">
-                          <Ban size={18} className="text-red-500 mt-1 flex-shrink-0" />
-                          <span className="text-stone-600">Use the service for spamming or any commercial solicitation without consent.</span>
-                       </li>
-                    </ul>
+                  <div className="flex items-start gap-4 p-6 bg-white rounded-2xl border border-stone-100 shadow-sm hover:border-amber-200 transition-colors">
+                     <div className="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center text-rose-600 flex-shrink-0">
+                        <Instagram size={24} />
+                     </div>
+                     <div>
+                        <h3 className="font-bold text-[#1C1917] text-lg mb-1">Social Media</h3>
+                        <p className="text-stone-500 text-sm mb-2">Follow our journey and updates.</p>
+                        <a href="https://instagram.com/alfinnsptr" target="_blank" className="text-rose-600 font-bold hover:underline">@CardifyOfficial</a>
+                     </div>
                   </div>
-               </section>
 
-               {/* Section 3 */}
-               <section id="content" className="scroll-mt-32">
-                  <div className="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-4 mb-6 pb-6 border-b border-stone-100">
-                       <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600"><Settings size={20} /></div>
-                       <h2 className={`text-2xl font-bold font-playfair`}>3. User Content</h2>
-                    </div>
-                    <p className="text-stone-600 leading-relaxed">
-                       You retain ownership of any content (text, images) you upload to Cardify. However, by uploading, you grant us a license to use, store, and display your content solely for the purpose of providing the service to you (e.g., generating your card).
-                    </p>
+                  <div className="flex items-start gap-4 p-6 bg-white rounded-2xl border border-stone-100 shadow-sm hover:border-amber-200 transition-colors">
+                     <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600 flex-shrink-0">
+                        <MessageCircle size={24} />
+                     </div>
+                     <div>
+                        <h3 className="font-bold text-[#1C1917] text-lg mb-1">WhatsApp</h3>
+                        <p className="text-stone-500 text-sm mb-2">Direct chat support.</p>
+                        <a href="https://wa.me/6289501847804" target="_blank" className="text-green-600 font-bold hover:underline">+62 895-0184-7804</a>
+                     </div>
                   </div>
-               </section>
-
-               {/* Section 4 */}
-               <section id="termination" className="scroll-mt-32">
-                  <div className="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-4 mb-6 pb-6 border-b border-stone-100">
-                       <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600"><AlertTriangle size={20} /></div>
-                       <h2 className={`text-2xl font-bold font-playfair`}>4. Termination</h2>
-                    </div>
-                    <p className="text-stone-600 leading-relaxed">
-                       We may terminate or suspend your account immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms. Upon termination, your right to use the Service will cease immediately.
-                    </p>
-                  </div>
-               </section>
-
-               {/* Section 5 */}
-               <section id="disclaimer" className="scroll-mt-32">
-                  <div className="bg-[#1C1917] text-white p-10 rounded-[2rem] shadow-xl text-center">
-                     <h2 className={`text-3xl font-bold mb-4 font-playfair`}>5. Disclaimer</h2>
-                     <p className="text-stone-400 mb-8 max-w-lg mx-auto">
-                        The service is provided on an "AS IS" and "AS AVAILABLE" basis. Cardify makes no warranties, expressed or implied, regarding the reliability or availability of the service.
-                     </p>
-                     <a href="mailto:cardify.official.id@gmail.com" className="inline-flex items-center gap-3 px-8 py-4 bg-white text-black rounded-full font-bold hover:bg-amber-400 transition-all shadow-lg hover:shadow-amber-400/20 hover:-translate-y-1">
-                        <Mail size={20} />
-                        Contact Support
-                     </a>
-                  </div>
-               </section>
-
+               </div>
             </div>
-         </div>
-      </div>
 
-      {/* --- FOOTER (UPDATED: Match Home & Privacy) --- */}
+            {/* RIGHT: Contact Form */}
+            <div className="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-xl border border-stone-100 relative overflow-hidden">
+               {/* Decor blob */}
+               <div className="absolute top-0 right-0 w-64 h-64 bg-amber-50 rounded-full blur-3xl opacity-50 -z-10 translate-x-1/2 -translate-y-1/2" />
+
+               <h2 className={`text-2xl font-bold text-[#1C1917] mb-6 font-playfair`}>Send us a Message</h2>
+               
+               <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-6">
+                     <div className="space-y-2">
+                        <label className="text-xs font-bold text-stone-500 uppercase tracking-wider ml-1">Name</label>
+                        <input 
+                           type="text" 
+                           required 
+                           placeholder="Your Name"
+                           className="w-full bg-[#FAFAF9] border border-stone-200 rounded-xl py-3 px-4 text-sm outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-50 transition-all placeholder:text-stone-400"
+                           value={formData.name}
+                           onChange={(e) => setFormData({...formData, name: e.target.value})}
+                        />
+                     </div>
+                     <div className="space-y-2">
+                        <label className="text-xs font-bold text-stone-500 uppercase tracking-wider ml-1">Email</label>
+                        <input 
+                           type="email" 
+                           required 
+                           placeholder="hello@example.com"
+                           className="w-full bg-[#FAFAF9] border border-stone-200 rounded-xl py-3 px-4 text-sm outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-50 transition-all placeholder:text-stone-400"
+                           value={formData.email}
+                           onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        />
+                     </div>
+                  </div>
+
+                  <div className="space-y-2">
+                     <label className="text-xs font-bold text-stone-500 uppercase tracking-wider ml-1">Subject</label>
+                     <input 
+                        type="text" 
+                        required 
+                        placeholder="What is this regarding?"
+                        className="w-full bg-[#FAFAF9] border border-stone-200 rounded-xl py-3 px-4 text-sm outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-50 transition-all placeholder:text-stone-400"
+                        value={formData.subject}
+                        onChange={(e) => setFormData({...formData, subject: e.target.value})}
+                     />
+                  </div>
+
+                  <div className="space-y-2">
+                     <label className="text-xs font-bold text-stone-500 uppercase tracking-wider ml-1">Message</label>
+                     <textarea 
+                        required 
+                        rows={5}
+                        placeholder="Tell us more about your inquiry..."
+                        className="w-full bg-[#FAFAF9] border border-stone-200 rounded-xl py-3 px-4 text-sm outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-50 transition-all placeholder:text-stone-400 resize-none"
+                        value={formData.message}
+                        onChange={(e) => setFormData({...formData, message: e.target.value})}
+                     />
+                  </div>
+
+                  <button 
+                     type="submit" 
+                     disabled={formStatus === 'loading' || formStatus === 'success'}
+                     className={`w-full py-4 rounded-xl font-bold text-sm shadow-lg transition-all flex items-center justify-center gap-2 ${
+                        formStatus === 'success' 
+                           ? 'bg-green-600 text-white cursor-default' 
+                           : 'bg-[#1C1917] text-white hover:bg-black hover:shadow-xl hover:-translate-y-0.5'
+                     }`}
+                  >
+                     {formStatus === 'loading' ? (
+                        <><Loader2 size={18} className="animate-spin" /> Sending...</>
+                     ) : formStatus === 'success' ? (
+                        <><CheckCircle2 size={18} /> Message Sent!</>
+                     ) : (
+                        <><Send size={18} /> Send Message</>
+                     )}
+                  </button>
+               </form>
+            </div>
+
+         </div>
+      </section>
+
+      {/* --- FOOTER --- */}
       <footer className="relative isolate w-full bg-[#1C1917] text-stone-400 py-12 border-t border-stone-800 overflow-hidden">
          <div className="max-w-7xl mx-auto px-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
@@ -373,7 +385,7 @@ export default function TermsPage() {
                <p className="text-xs text-stone-500 font-medium">© 2025 Cardify Inc. All rights reserved.</p>
                <div className="flex gap-8 text-xs text-stone-500 font-bold">
                   <a href="/privacy-policy" className="cursor-pointer hover:text-white transition-colors">Privacy Policy</a>
-                  <a href="/terms" className="cursor-pointer text-white font-bold transition-colors">Terms of Service</a>
+                  <a href="/terms" className="cursor-pointer hover:text-white transition-colors">Terms of Service</a>
                </div>
             </div>
          </div>
