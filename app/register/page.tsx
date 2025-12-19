@@ -4,14 +4,17 @@ import { useState, useEffect } from "react";
 // MOCK IMPORTS: Use standard HTML/React components
 import { 
   ArrowLeft, Mail, Lock, User, Loader2, 
-  Flower2, Bird, Gift, Heart, Sparkles, Cloud, Music, CheckCircle, X
+  Flower2, Bird, Gift, Heart, Sparkles, Cloud, Music, CheckCircle, X, AlertCircle
 } from "lucide-react";
 
 // --- MAIN CONTENT ---
 export default function RegisterPage() {
   // State
   const [isLoading, setIsLoading] = useState(false);
+  
+  // State untuk Modal Sukses & Error
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false); // <--- State Baru
 
   const [formData, setFormData] = useState({
     name: "",
@@ -21,13 +24,12 @@ export default function RegisterPage() {
 
   const [decorations, setDecorations] = useState<any[]>([]);
 
-  // Efek Samping: Dekorasi Background yang Lebih Elegan
+  // Efek Samping: Dekorasi Background
   useEffect(() => {
     document.title = "Register - Cardify";
     
     const items: any[] = [];
     const types = ['flower', 'bird', 'gift', 'heart', 'sparkle', 'cloud', 'music'];
-    // Palette warna yang lebih profesional (Gold/Stone/Neutral)
     const colors = [
       'text-amber-400/20', 'text-stone-300/30', 'text-orange-200/20', 'text-yellow-500/10', 'text-stone-400/20'
     ];
@@ -38,10 +40,10 @@ export default function RegisterPage() {
         type: types[Math.floor(Math.random() * types.length)],
         top: Math.random() * 100,
         left: Math.random() * 100,
-        size: 20 + Math.random() * 30, // Variasi ukuran
+        size: 20 + Math.random() * 30,
         rotation: Math.random() * 360,
         delay: Math.random() * 8,
-        duration: 10 + Math.random() * 20, // Durasi animasi lebih lambat & elegan
+        duration: 10 + Math.random() * 20,
         color: colors[Math.floor(Math.random() * colors.length)],
       });
     }
@@ -61,37 +63,46 @@ export default function RegisterPage() {
     }
   };
 
-  // --- LOGIC MANUAL REGISTER ---
-const handleRegister = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setIsLoading(true);
+  // --- LOGIC REGISTER DENGAN PENGECEKAN EMAIL ---
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setShowErrorModal(false); // Reset error modal sebelum request baru
 
-  try {
-    const res = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-      }),
-    });
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) {
-      throw new Error(data.message || "Register gagal");
+      if (!res.ok) {
+        // Cek apakah errornya karena email sudah terdaftar
+        // Sesuaikan kondisi ini dengan respon API kamu. 
+        // Biasanya status 409 (Conflict) atau pesan berisi "exist" / "registered"
+        if (res.status === 409 || data.message?.toLowerCase().includes("already") || data.message?.toLowerCase().includes("exist")) {
+             setShowErrorModal(true); // <--- Munculkan Modal Error
+        } else {
+             throw new Error(data.message || "Register failed");
+        }
+        return; // Berhenti di sini, jangan lanjut ke sukses
+      }
+
+      // ✅ REGISTER BERHASIL
+      setShowSuccessModal(true);
+      
+    } catch (error: any) {
+      alert("Failed to register: " + error.message);
+    } finally {
+      setIsLoading(false);
     }
-
-    // ✅ REGISTER BERHASIL
-    setShowSuccessModal(true);
-  } catch (error: any) {
-    alert("Gagal mendaftar: " + error.message);
-  } finally {
-    setIsLoading(false);
-  }
-};
-
+  };
 
   return (
     <div className={`min-h-screen w-full bg-[#FAFAF9] text-[#1C1917] flex items-center justify-center relative overflow-hidden p-6 font-sans`}>
@@ -104,7 +115,7 @@ const handleRegister = async (e: React.FormEvent) => {
           .font-sans { font-family: 'DM Sans', sans-serif; }
       `}} />
 
-      {/* Background Decorations (Lebih Halus) */}
+      {/* Background Decorations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {decorations.map((item) => (
           <div
@@ -120,7 +131,6 @@ const handleRegister = async (e: React.FormEvent) => {
             {renderIcon(item.type, item.size)}
           </div>
         ))}
-        {/* Soft Gradients */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-amber-100/40 rounded-full blur-[100px] -z-10" />
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-stone-200/40 rounded-full blur-[100px] -z-10" />
       </div>
@@ -204,8 +214,6 @@ const handleRegister = async (e: React.FormEvent) => {
             </button>
           </form>
 
-          {/* Social login divider removed */}
-
           <p className="text-center text-xs text-stone-400 mt-8 font-medium">
             Already have an account? <a href="/login" className="text-amber-600 font-bold hover:underline cursor-pointer transition-colors">Log in</a>
           </p>
@@ -217,23 +225,54 @@ const handleRegister = async (e: React.FormEvent) => {
       {showSuccessModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1C1917]/60 backdrop-blur-md p-4 animate-in fade-in duration-300">
            <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm p-8 text-center transform scale-100 animate-in zoom-in-95 duration-300 relative border-t-4 border-green-500">
-              
-              <button onClick={() => setShowSuccessModal(false)} className="absolute top-4 right-4 p-2 text-stone-300 hover:text-stone-600 transition-colors rounded-full hover:bg-stone-50">
-                 <X size={18} />
-              </button>
+             
+             <button onClick={() => setShowSuccessModal(false)} className="absolute top-4 right-4 p-2 text-stone-300 hover:text-stone-600 transition-colors rounded-full hover:bg-stone-50">
+                <X size={18} />
+             </button>
 
-              <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 text-green-500 shadow-sm border border-green-100 animate-in zoom-in duration-500 delay-100">
-                 <CheckCircle size={40} strokeWidth={2.5} />
-              </div>
-              
-              <h3 className={`text-2xl font-bold text-[#1C1917] mb-2 font-playfair`}>Welcome Aboard!</h3>
-              <p className="text-sm text-stone-500 mb-8 leading-relaxed px-4 font-medium">
+             <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 text-green-500 shadow-sm border border-green-100 animate-in zoom-in duration-500 delay-100">
+                <CheckCircle size={40} strokeWidth={2.5} />
+             </div>
+             
+             <h3 className={`text-2xl font-bold text-[#1C1917] mb-2 font-playfair`}>Welcome Aboard!</h3>
+             <p className="text-sm text-stone-500 mb-8 leading-relaxed px-4 font-medium">
                  Your account has been successfully created. You're ready to start crafting memories.
-              </p>
-              
-              <a href="/login" className="block w-full py-3.5 rounded-xl bg-[#1C1917] text-white font-bold hover:bg-black transition-all shadow-lg active:scale-[0.98]">
+             </p>
+             
+             <a href="/login" className="block w-full py-3.5 rounded-xl bg-[#1C1917] text-white font-bold hover:bg-black transition-all shadow-lg active:scale-[0.98]">
                  Continue to Login
-              </a>
+             </a>
+           </div>
+        </div>
+      )}
+
+      {/* --- ERROR MODAL POPUP (EMAIL SUDAH ADA) --- */}
+      {showErrorModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1C1917]/60 backdrop-blur-md p-4 animate-in fade-in duration-300">
+           <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm p-8 text-center transform scale-100 animate-in zoom-in-95 duration-300 relative border-t-4 border-red-500">
+             
+             <button onClick={() => setShowErrorModal(false)} className="absolute top-4 right-4 p-2 text-stone-300 hover:text-stone-600 transition-colors rounded-full hover:bg-stone-50">
+                <X size={18} />
+             </button>
+
+             {/* Icon Error Merah */}
+             <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6 text-red-500 shadow-sm border border-red-100 animate-in zoom-in duration-500 delay-100">
+                <AlertCircle size={40} strokeWidth={2.5} />
+             </div>
+             
+             <h3 className={`text-2xl font-bold text-[#1C1917] mb-2 font-playfair`}>Account Exists</h3>
+             <p className="text-sm text-stone-500 mb-8 leading-relaxed px-4 font-medium">
+                 The email <span className="font-bold text-stone-800">{formData.email}</span> is already registered. Would you like to log in instead?
+             </p>
+             
+             <div className="flex flex-col gap-3">
+                 <a href="/login" className="block w-full py-3.5 rounded-xl bg-[#1C1917] text-white font-bold hover:bg-black transition-all shadow-lg active:scale-[0.98]">
+                     Go to Login
+                 </a>
+                 <button onClick={() => setShowErrorModal(false)} className="block w-full py-3.5 rounded-xl bg-stone-100 text-stone-600 font-bold hover:bg-stone-200 transition-all">
+                     Try Different Email
+                 </button>
+             </div>
            </div>
         </div>
       )}

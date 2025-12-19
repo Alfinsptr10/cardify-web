@@ -459,7 +459,7 @@ const handleLogout = async () => {
                         </div>
                      </div>
                      <div className="px-1">
-                        <h3 className={`text-2xl font-medium mb-2 group-hover:text-purple-700 transition-colors font-playfair`}>Gameboy App</h3>
+                        <h3 className={`text-2xl font-medium mb-2 group-hover:text-purple-700 transition-colors font-playfair`}>Gameboy Journey</h3>
                         <p className="text-stone-500 text-sm leading-relaxed">Interactive handheld story with 8-bit charm.</p>
                      </div>
                   </a>

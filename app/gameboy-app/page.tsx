@@ -1,25 +1,36 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, ChangeEvent } from "react";
+import { uploadToCloudinary } from "@/app/lib/cloudinary";
 import { 
   ArrowLeft, Save, Music, Image as ImageIcon, MessageSquare, 
   Play, Pause, Plus, Trash2, Link as LinkIcon, Check,
   Heart, Cake, ChevronLeft, ChevronRight, X, SkipBack, SkipForward, Gamepad2,
-  ArrowUp, ArrowDown, ArrowRight as IconArrowRight, ArrowLeft as IconArrowLeft, Disc, Upload, Palette, Loader2
+  ArrowUp, ArrowDown, ArrowRight as IconArrowRight, ArrowLeft as IconArrowLeft, Disc, Upload, Palette, Loader2, Sparkles
 } from "lucide-react";
-// REMOVED: import Link from "next/link"; -> Diganti dengan <a> agar kompatibel
+
+type Song = {
+  id: string;
+  title: string;
+  artist: string;
+  src: string;
+  cover: string;
+};
+
 
 // --- FIREBASE IMPORTS ---
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, signInAnonymously } from "firebase/auth";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
 
 // --- FIREBASE CONFIG ---
 const manualConfig = {
-  apiKey: "AIzaSyDdm9H9HcpHEcxLaqsmNqcJ41aOExkU2hk",             
+  apiKey: "AIzaSyDdm9H9HcpHEcxLaqsmNqcJ41aOExkU2hk",              
   authDomain: "web-story-51112.firebaseapp.com",         
-  projectId: "web-story-51112",          
-  storageBucket: "web-story-51112.firebasestorage.app",
+  projectId: "web-story-51112",       
+  storageBucket: "web-story-51112.appspot.com",
   messagingSenderId: "61476471738",
   appId: "1:61476471738:web:2ce7c42a9b08e9fb0f9383"
 };
@@ -43,21 +54,30 @@ const appId = typeof __app_id !== 'undefined' ? __app_id : 'cardify-app';
 let app: any = null;
 let auth: any = null;
 let db: any = null;
+let storage: any = null;
 
 if (firebaseConfig && firebaseConfig.apiKey) {
   try {
     app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
     auth = getAuth(app);
     db = getFirestore(app);
+    storage = getStorage(app);
   } catch (e) {
     console.error("Firebase Init Error:", e);
   }
 }
 
 // --- DATA & CONFIG ---
-const SONGS_LIBRARY = [
-  { title: "Happy Birthday", artist: "Traditional", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", cover: "/cat.jpg" },
+const SONGS_LIBRARY: Song[] = [
+  {
+    id: "default-happy",
+    title: "Happy Birthday",
+    artist: "Traditional",
+    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    cover: "/cat.jpg",
+  },
 ];
+
 
 const GAMEBOY_COLORS = [
   { id: 'white', label: 'Classic White', bg: 'bg-white', border: 'border-gray-200', text: 'text-gray-400' },
@@ -84,7 +104,7 @@ const GameboyPreview = ({ data, songs }: { data: any, songs: any[] }) => {
   const directionRef = useRef<string>("RIGHT");
   const gameIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const currentSong = songs.find(s => s.title === data.music) || songs[0];
+  const currentSong = songs.find(s => s.id === data.music) || songs[0];
   const displayCover = data.musicCover || currentSong.cover;
   const activeColor = GAMEBOY_COLORS.find(c => c.id === data.color) || GAMEBOY_COLORS[0];
 
@@ -241,8 +261,8 @@ const placeFood = () => {
     <div className={`relative ${activeColor.bg} rounded-[2rem] w-[340px] h-[600px] p-5 flex flex-col shadow-2xl border-4 ${activeColor.border} transform scale-90 sm:scale-100 origin-top select-none sticky top-10 transition-colors duration-300`}>
       <div className="flex justify-between items-center mb-3 px-1">
         <div className="flex flex-col items-center">
-             <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_5px_red]"></div>
-             <span className={`text-[6px] font-bold ${activeColor.text} mt-0.5 font-sans`}>BATTERY</span>
+              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_5px_red]"></div>
+              <span className={`text-[6px] font-bold ${activeColor.text} mt-0.5 font-sans`}>BATTERY</span>
         </div>
         <div className={`font-serif font-bold text-xs ${activeColor.text} italic opacity-80`}>CARDIFY</div>
       </div>
@@ -356,18 +376,18 @@ const placeFood = () => {
 
             {activePopup === 'gallery' && (
                 <div className="absolute inset-0 bg-white z-20 flex flex-col items-center justify-center p-2">
-                     {data.gallery.length > 0 ? (
-                         <>
-                            <div className="w-full h-[140px] bg-gray-100 mb-2 border border-black relative">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={data.gallery[photoIndex]} className="w-full h-full object-cover" alt="Gallery" />
-                                <button onClick={prevPhoto} className="absolute left-1 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white p-1 rounded-full"><ChevronLeft size={12}/></button>
-                                <button onClick={nextPhoto} className="absolute right-1 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white p-1 rounded-full"><ChevronRight size={12}/></button>
-                            </div>
-                            <div className="text-[8px] font-bold pixel-font">PHOTO {photoIndex + 1}/{data.gallery.length}</div>
-                         </>
-                     ) : <div className="text-[8px] text-gray-500 pixel-font">NO PHOTOS ADDED</div>}
-                     <button onClick={() => setActivePopup('none')} className="mt-1 text-[8px] text-red-500 hover:underline pixel-font">CLOSE</button>
+                      {data.gallery.length > 0 ? (
+                          <>
+                             <div className="w-full h-[140px] bg-gray-100 mb-2 border border-black relative">
+                                 {/* eslint-disable-next-line @next/next/no-img-element */}
+                                 <img src={data.gallery[photoIndex]} className="w-full h-full object-cover" alt="Gallery" />
+                                 <button onClick={prevPhoto} className="absolute left-1 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white p-1 rounded-full"><ChevronLeft size={12}/></button>
+                                 <button onClick={nextPhoto} className="absolute right-1 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white p-1 rounded-full"><ChevronRight size={12}/></button>
+                             </div>
+                             <div className="text-[8px] font-bold pixel-font">PHOTO {photoIndex + 1}/{data.gallery.length}</div>
+                          </>
+                      ) : <div className="text-[8px] text-gray-500 pixel-font">NO PHOTOS ADDED</div>}
+                      <button onClick={() => setActivePopup('none')} className="mt-1 text-[8px] text-red-500 hover:underline pixel-font">CLOSE</button>
                 </div>
             )}
                         {/* 6. GAME POPUP (NEW) */}
@@ -427,12 +447,13 @@ export default function WebStoryEditor() {
   const [generatedLink, setGeneratedLink] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [songs, setSongs] = useState(SONGS_LIBRARY); 
+  const [isUploading, setIsUploading] = useState(false);
   const [storyData, setStoryData] = useState({
      title: "HAPPY BIRTHDAY",
      subtitle: "PRESS START BUTTON",
-     message: "Selamat ulang tahun! Semoga panjang umur dan sehat selalu.",
-     sender: "Temanmu",
-     music: "Happy Birthday",
+     message: "Happy birthday! May you have a long and healthy life. Wishing you all the best on your special day!",
+     sender: "Your friend",
+     music: "default-happy",
      musicCover: null as string | null,
      gallery: [
        "https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=400"
@@ -440,39 +461,119 @@ export default function WebStoryEditor() {
      color: 'white'
   });
 
+  // --- STATE BARU UNTUK UPLOAD MUSIK & COVER SEKALIGUS ---
+  const [tempAudioFile, setTempAudioFile] = useState<File | null>(null);
+  const [tempCoverFile, setTempCoverFile] = useState<File | null>(null);
+  const [tempSongTitle, setTempSongTitle] = useState("");
+
   const handleChange = (field: string, value: any) => setStoryData(prev => ({ ...prev, [field]: value }));
+
+  // --- FUNGSI BARU: HANDLE UPLOAD SEKALIGUS ---
+  const handleCombinedUpload = async () => {
+    if (!tempAudioFile) {
+      alert("Mohon pilih file lagu terlebih dahulu.");
+      return;
+    }
+
+    // Validasi Ukuran
+    if (tempAudioFile.size > 10 * 1024 * 1024) return alert("Ukuran lagu max 10MB");
+    if (tempCoverFile && tempCoverFile.size > 5 * 1024 * 1024) return alert("Ukuran cover max 5MB");
+
+    setIsUploading(true);
+
+    try {
+      // 1. Upload Audio
+      const audioUrl = await uploadToCloudinary(tempAudioFile, "music");
+      
+      // 2. Upload Cover (jika ada, jika tidak pakai default)
+      let coverUrl = storyData.musicCover || "/cat.jpg"; // Default fallback
+      if (tempCoverFile) {
+        coverUrl = await uploadToCloudinary(tempCoverFile, "covers");
+      }
+
+      // 3. Buat Object Lagu Baru
+      const newSong: Song = {
+        id: crypto.randomUUID(),
+        title: tempSongTitle || tempAudioFile.name.replace(/\.[^/.]+$/, "").substring(0, 20), // Pakai nama file jika judul kosong
+        artist: "Custom Upload",
+        src: audioUrl,
+        cover: coverUrl
+      };
+
+      // 4. Update State
+      setSongs(prev => [newSong, ...prev]); // Masukkan ke list
+      
+      // 5. Langsung Pilih Lagu & Cover Tersebut
+      setStoryData(prev => ({
+        ...prev,
+        music: newSong.id,
+        musicCover: coverUrl 
+      }));
+
+      // 6. Reset Form
+      setTempAudioFile(null);
+      setTempCoverFile(null);
+      setTempSongTitle("");
+
+    } catch (error) {
+      console.error("Upload Error:", error);
+      alert("Gagal mengupload file. Coba lagi.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+
+  const uploadToStorage = async (file: File, folder: string): Promise<string> => {
+      if (!storage) throw new Error("Storage not initialized");
+      const storageRef = ref(storage, `uploads/${folder}/${Date.now()}_${file.name}`);
+      await uploadBytes(storageRef, file);
+      return await getDownloadURL(storageRef);
+  };
   
-  const handleMusicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    // ---------------------------------------------
+    // LOGIKA BARU: CEK LIMIT MAX 3 FOTO
+    // ---------------------------------------------
+    if (storyData.gallery.length >= 3) {
+        alert("Maksimal hanya boleh upload 3 foto di galeri!");
+        e.target.value = ""; // Reset input agar user bisa pilih file lagi nanti jika sudah menghapus
+        return;
+    }
+
     const file = e.target.files?.[0];
-    if(file) {
-        if(file.size > 750 * 1024) return alert("Ukuran audio max 750KB");
-        const reader = new FileReader();
-        reader.onload = (event) => {
-           const newSong = { title: file.name.substring(0, 20), artist: "Custom Upload", src: event.target?.result as string, cover: storyData.musicCover || "/retro-gameboy.png" };
-           setSongs([newSong, ...songs]);
-           handleChange('music', newSong.title);
-        };
-        reader.readAsDataURL(file);
+    if (!file) return;
+
+    if (!["image/jpeg", "image/png"].includes(file.type)) {
+      alert("Foto harus JPG atau PNG");
+      e.target.value = "";
+      return;
+    }
+
+    if (file.size > 20 * 1024 * 1024) {
+      alert("Ukuran foto max 20MB");
+      e.target.value = "";
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const url = await uploadToCloudinary(file, "gallery");
+
+      setStoryData(prev => ({
+        ...prev,
+        gallery: [...prev.gallery, url]
+      }));
+    } catch (err) {
+      console.error(err);
+      alert("Gagal upload foto");
+    } finally {
+      setIsUploading(false);
+      e.target.value = "";
     }
   };
-  const handleCoverUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if(file) {
-        if(file.size > 500 * 1024) return alert("Ukuran cover max 500KB.");
-        const reader = new FileReader();
-        reader.onload = (event) => handleChange('musicCover', event.target?.result as string);
-        reader.readAsDataURL(file);
-    }
-  };
-  const handleGalleryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if(file) {
-        if(file.size > 500 * 1024) return alert("Ukuran foto max 500KB.");
-        const reader = new FileReader();
-        reader.onload = (ev) => setStoryData(prev => ({...prev, gallery: [...prev.gallery, ev.target?.result as string]}));
-        reader.readAsDataURL(file);
-    }
-  };
+
+  
   const handleRemovePhoto = (index: number) => setStoryData(prev => ({...prev, gallery: prev.gallery.filter((_, i) => i !== index)}));
 
   // --- FIREBASE SAVE ---
@@ -496,7 +597,7 @@ export default function WebStoryEditor() {
             sender: storyData.sender || "",
             music: storyData.music || "",
             musicCover: storyData.musicCover || null,
-            gallery: (storyData.gallery || []).filter(item => typeof item === 'string' && item.length > 0),
+            gallery: storyData.gallery,
             color: storyData.color || "white",
             customSongs: songs
                 .filter(s => s.artist === "Custom Upload")
@@ -526,97 +627,248 @@ export default function WebStoryEditor() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAF9] flex flex-col md:flex-row text-[#1C1917] font-sans">
+    <div className="h-screen overflow-hidden bg-[#FAFAF9] flex flex-col md:flex-row text-[#1C1917] font-sans">
        <style dangerouslySetInnerHTML={{__html: `
           @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
           .pixel-font { font-family: 'Press Start 2P', cursive; }
           .font-pixel { font-family: 'Press Start 2P', cursive; }
           .animate-spin-slow { animation: spin 3s linear infinite; }
           @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+          /* Custom Scrollbar for modern feel */
+          ::-webkit-scrollbar { width: 6px; }
+          ::-webkit-scrollbar-track { background: transparent; }
+          ::-webkit-scrollbar-thumb { background: #e5e5e5; border-radius: 3px; }
+          ::-webkit-scrollbar-thumb { background: #d4d4d4; }
       `}} />
 
-       {/* --- LEFT PANEL: EDITOR (AUTO HEIGHT) --- */}
-       <div className="w-full md:w-1/3 p-6 md:p-8 bg-[#FAFAF9] border-r border-stone-200">
-          <div className="max-w-md mx-auto">
+       {/* --- LEFT PANEL: EDITOR (SCROLLABLE INDEPENDENTLY) --- */}
+       <div className="w-full md:w-1/3 h-full overflow-y-auto bg-white border-r border-stone-200 shadow-xl z-20 relative">
+          <div className="p-6 md:p-8 max-w-lg mx-auto min-h-full flex flex-col">
               {/* REPLACED Link with <a> */}
-              <a href="/" className="inline-flex items-center gap-2 text-xs font-bold text-stone-400 hover:text-stone-900 uppercase tracking-widest mb-8">
-                 <ArrowLeft size={14} /> Back to Dashboard
+              <a href="/" className="inline-flex items-center gap-2 text-[10px] font-bold text-stone-400 hover:text-stone-900 uppercase tracking-widest mb-8 transition-colors group">
+                 <ArrowLeft size={12} className="group-hover:-translate-x-1 transition-transform" /> Back to Dashboard
               </a>
               
-              <h1 className="text-2xl font-bold mb-2">Create Web Story</h1>
-              <p className="text-stone-500 mb-6 text-sm">Customize your retro gameboy card content.</p>
+              <div className="flex items-center gap-3 mb-2">
+                 <div className="p-2 bg-amber-100 rounded-lg text-amber-600">
+                    <Gamepad2 size={20} />
+                 </div>
+                 <h1 className="text-lg font-bold pixel-font text-stone-800 leading-tight">CARTRIDGE EDITOR</h1>
+              </div>
+              <p className="text-stone-500 mb-8 text-xs font-medium pl-12">Craft your digital retro story.</p>
 
-              {/* TABS */}
-              <div className="flex gap-2 mb-6 border-b border-stone-200 pb-1 overflow-x-auto">
+              {/* TABS (SEGMENTED CONTROL STYLE) */}
+              <div className="flex p-1 bg-stone-100 rounded-xl mb-8 sticky top-0 z-10 shadow-sm backdrop-blur-sm bg-stone-100/90">
                  {['message', 'design', 'music', 'gallery'].map((tab) => (
-                    <button key={tab} onClick={() => setActiveTab(tab as any)} className={`pb-2 px-3 text-sm font-bold transition-all capitalize whitespace-nowrap ${activeTab === tab ? 'text-amber-600 border-b-2 border-amber-500' : 'text-stone-400'}`}>{tab}</button>
+                    <button 
+                        key={tab} 
+                        onClick={() => setActiveTab(tab as any)} 
+                        className={`flex-1 py-2 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all duration-200 ${activeTab === tab ? 'bg-white text-amber-600 shadow-sm scale-100' : 'text-stone-400 hover:text-stone-600'}`}
+                    >
+                        {tab}
+                    </button>
                  ))}
               </div>
 
               {/* FORM CONTENT */}
-              <div className="space-y-6">
+              <div className="space-y-6 flex-1">
                  {activeTab === 'message' && (
-                     <div className="space-y-4 animate-in fade-in duration-300">
-                        <div><label className="block text-xs font-bold text-stone-500 uppercase mb-2">Title</label><input type="text" value={storyData.title} onChange={(e) => handleChange('title', e.target.value)} className="w-full bg-white border border-stone-200 rounded-lg p-3 text-sm outline-none" placeholder="e.g. HAPPY BIRTHDAY" /></div>
-                        <div><label className="block text-xs font-bold text-stone-500 uppercase mb-2">Subtitle</label><input type="text" value={storyData.subtitle} onChange={(e) => handleChange('subtitle', e.target.value)} className="w-full bg-white border border-stone-200 rounded-lg p-3 text-sm outline-none" placeholder="e.g. PRESS START" /></div>
-                        <div><label className="block text-xs font-bold text-stone-500 uppercase mb-2">Message</label><textarea rows={6} value={storyData.message} onChange={(e) => handleChange('message', e.target.value)} className="w-full bg-white border border-stone-200 rounded-lg p-3 text-sm outline-none" placeholder="Message..." /></div>
-                        <div><label className="block text-xs font-bold text-stone-500 uppercase mb-2">Sender</label><input type="text" value={storyData.sender} onChange={(e) => handleChange('sender', e.target.value)} className="w-full bg-white border border-stone-200 rounded-lg p-3 text-sm outline-none" placeholder="From..." /></div>
+                     <div className="space-y-5 animate-in slide-in-from-left-2 duration-300">
+                        <div className="group">
+                            <label className="block text-[10px] font-bold text-stone-400 uppercase mb-1.5 ml-1">Title (Max 15 chars)</label>
+                            <input type="text" value={storyData.title} onChange={(e) => handleChange('title', e.target.value)} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all font-medium text-stone-700" placeholder="e.g. HAPPY BIRTHDAY" maxLength={20} />
+                        </div>
+                        <div className="group">
+                            <label className="block text-[10px] font-bold text-stone-400 uppercase mb-1.5 ml-1">Subtitle</label>
+                            <input type="text" value={storyData.subtitle} onChange={(e) => handleChange('subtitle', e.target.value)} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all font-medium text-stone-700" placeholder="e.g. PRESS START" maxLength={25} />
+                        </div>
+                        <div className="group">
+                            <label className="block text-[10px] font-bold text-stone-400 uppercase mb-1.5 ml-1">Message Body</label>
+                            <textarea rows={6} value={storyData.message} onChange={(e) => handleChange('message', e.target.value)} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all font-medium text-stone-700 resize-none leading-relaxed" placeholder="Write your heartfelt message here..." />
+                        </div>
+                        <div className="group">
+                            <label className="block text-[10px] font-bold text-stone-400 uppercase mb-1.5 ml-1">Sender Name</label>
+                            <input type="text" value={storyData.sender} onChange={(e) => handleChange('sender', e.target.value)} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all font-medium text-stone-700" placeholder="e.g. Your Bestie" />
+                        </div>
                      </div>
                  )}
                  {activeTab === 'design' && (
-                     <div className="space-y-4 animate-in fade-in duration-300">
-                        <label className="block text-xs font-bold text-stone-500 uppercase mb-2">Color Theme</label>
-                        <div className="grid grid-cols-2 gap-3">
-                           {GAMEBOY_COLORS.map((color) => (
-                              <div key={color.id} onClick={() => handleChange('color', color.id)} className={`cursor-pointer rounded-xl p-3 flex items-center gap-3 border transition-all ${storyData.color === color.id ? 'border-amber-400 bg-amber-50' : 'border-stone-200 bg-white hover:border-stone-300'}`}>
-                                 <div className={`w-8 h-8 rounded-full shadow-sm border ${color.bg} ${color.border}`}></div>
-                                 <span className="text-xs font-medium text-stone-700">{color.label}</span>
-                              </div>
-                           ))}
+                     <div className="space-y-6 animate-in slide-in-from-left-2 duration-300">
+                        <div>
+                            <label className="block text-[10px] font-bold text-stone-400 uppercase mb-3 ml-1">Select Console Color</label>
+                            <div className="grid grid-cols-2 gap-3">
+                            {GAMEBOY_COLORS.map((color) => (
+                                <div key={color.id} onClick={() => handleChange('color', color.id)} className={`cursor-pointer rounded-xl p-3 flex items-center gap-3 border-2 transition-all hover:scale-[1.02] active:scale-[0.98] ${storyData.color === color.id ? 'border-amber-400 bg-amber-50/50 shadow-md ring-2 ring-amber-100' : 'border-transparent bg-stone-50 hover:bg-white hover:border-stone-200'}`}>
+                                    <div className={`w-8 h-8 rounded-full shadow-inner border ${color.bg} ${color.border}`}></div>
+                                    <span className={`text-xs font-bold ${storyData.color === color.id ? 'text-stone-800' : 'text-stone-500'}`}>{color.label}</span>
+                                </div>
+                            ))}
+                            </div>
                         </div>
                      </div>
                  )}
                  {activeTab === 'music' && (
-                     <div className="space-y-4 animate-in fade-in duration-300">
-                        <label className="flex flex-col items-center justify-center gap-2 w-full p-6 border-2 border-dashed border-stone-300 rounded-xl cursor-pointer hover:bg-stone-50 hover:border-amber-400 transition-all group"><Upload size={20} className="text-stone-500 group-hover:text-amber-600" /><div className="text-center"><span className="text-xs font-bold text-stone-600 uppercase block">Upload Song</span><span className="text-[10px] text-stone-400">Max 750KB</span></div><input type="file" accept="audio/*" className="hidden" onChange={handleMusicUpload} /></label>
-                        <div><label className="block text-xs font-bold text-stone-500 uppercase mb-2">Cover Art</label><div className="flex gap-4 items-center"><div className="w-16 h-16 bg-stone-100 rounded-lg border border-stone-200 overflow-hidden flex-shrink-0">{storyData.musicCover ? <img src={storyData.musicCover} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-stone-400"><ImageIcon size={20} /></div>}</div><label className="cursor-pointer bg-white border border-stone-200 hover:bg-stone-50 px-4 py-2 rounded-lg text-xs font-bold text-stone-600 transition-colors">Upload Cover<input type="file" accept="image/*" className="hidden" onChange={handleCoverUpload} /></label></div></div>
-                        <div className="space-y-2 max-h-[200px] overflow-y-auto pr-1 mt-4">
-                           {songs.map((song) => (<div key={song.title} onClick={() => handleChange('music', song.title)} className={`p-3 rounded-xl border cursor-pointer flex items-center justify-between transition-all ${storyData.music === song.title ? 'bg-amber-50 border-amber-200' : 'bg-white border-stone-200'}`}><div className="flex items-center gap-3 overflow-hidden"><div className="w-8 h-8 bg-stone-100 rounded-full flex-shrink-0 overflow-hidden"><img src={song.cover} className="w-full h-full object-cover" onError={(e) => e.currentTarget.style.display = 'none'} /></div><span className="text-xs font-bold text-stone-800 truncate">{song.title}</span></div>{storyData.music === song.title && <Check size={16} className="text-amber-500" />}</div>))}
+                    <div className="space-y-6 animate-in slide-in-from-left-2 duration-300">
+                        
+                        {/* INPUT UPLOAD BARU */}
+                        <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.1)] space-y-4 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-3 opacity-10"><Music size={60} /></div>
+                            <div className="flex items-center gap-2 mb-2 border-b border-stone-100 pb-3 relative z-10">
+                                <div className="p-1.5 bg-amber-100 rounded-md text-amber-600"><Upload size={14} /></div>
+                                <span className="text-xs font-bold text-stone-700 uppercase tracking-wide">Upload Custom Track</span>
+                            </div>
+
+                            {/* Input Judul */}
+                            <div className="relative z-10">
+                                <label className="block text-[10px] font-bold text-stone-400 uppercase mb-1.5 ml-1">Track Title (Optional)</label>
+                                <input 
+                                    type="text" 
+                                    value={tempSongTitle}
+                                    onChange={(e) => setTempSongTitle(e.target.value)}
+                                    placeholder="e.g. Our Favorite Song"
+                                    className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2.5 text-xs focus:bg-white focus:ring-2 focus:ring-amber-100 focus:border-amber-400 outline-none transition-all font-medium"
+                                />
+                            </div>
+
+                            <div className="flex gap-3 relative z-10">
+                                {/* Input File Audio */}
+                                <div className="flex-1">
+                                    <label className="block text-[10px] font-bold text-stone-400 uppercase mb-1.5 ml-1">Audio File</label>
+                                    <label className={`flex flex-col items-center justify-center gap-2 w-full h-28 border-2 border-dashed rounded-xl cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] ${tempAudioFile ? 'bg-green-50 border-green-400' : 'bg-stone-50 border-stone-300 hover:bg-white hover:border-amber-400'}`}>
+                                        <Music size={24} className={tempAudioFile ? "text-green-600" : "text-stone-400"} />
+                                        <span className="text-[10px] text-center px-2 truncate w-full font-bold text-stone-500">
+                                            {tempAudioFile ? tempAudioFile.name : "Select MP3"}
+                                        </span>
+                                        <input type="file" accept="audio/*" className="hidden" onChange={(e) => setTempAudioFile(e.target.files?.[0] || null)} />
+                                    </label>
+                                </div>
+
+                                {/* Input File Cover */}
+                                <div className="w-28">
+                                    <label className="block text-[10px] font-bold text-stone-400 uppercase mb-1.5 ml-1">Cover Art</label>
+                                    <label className={`flex flex-col items-center justify-center gap-2 w-full h-28 border-2 border-dashed rounded-xl cursor-pointer transition-all overflow-hidden relative hover:scale-[1.02] active:scale-[0.98] ${tempCoverFile ? 'border-green-400' : 'bg-stone-50 border-stone-300 hover:bg-white hover:border-amber-400'}`}>
+                                        {tempCoverFile ? (
+                                            <img src={URL.createObjectURL(tempCoverFile)} className="absolute inset-0 w-full h-full object-cover opacity-80" alt="preview" />
+                                        ) : (
+                                            <>
+                                                <ImageIcon size={24} className="text-stone-400" />
+                                                <span className="text-[9px] font-bold text-stone-500">Image</span>
+                                            </>
+                                        )}
+                                        <input type="file" accept="image/*" className="hidden" onChange={(e) => setTempCoverFile(e.target.files?.[0] || null)} />
+                                    </label>
+                                </div>
+                            </div>
+
+                            {/* Tombol Eksekusi */}
+                            <button 
+                                onClick={handleCombinedUpload} 
+                                disabled={isUploading || !tempAudioFile}
+                                className="w-full py-3 bg-stone-800 text-white rounded-xl text-xs font-bold hover:bg-black disabled:bg-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg relative z-10"
+                            >
+                                {isUploading ? <Loader2 className="animate-spin" size={14}/> : <Plus size={14}/>}
+                                {isUploading ? "Uploading..." : "Add to Library"}
+                            </button>
                         </div>
-                     </div>
+
+                        {/* LIST LAGU */}
+                        <div>
+                            <label className="block text-[10px] font-bold text-stone-400 uppercase mb-3 ml-1">Your Library</label>
+                            <div className="space-y-2.5">
+                                {songs.map((song) => (
+                                    <div 
+                                        key={song.id} 
+                                        onClick={() => handleChange('music', song.id)} 
+                                        className={`p-2.5 rounded-xl border cursor-pointer flex items-center justify-between transition-all group ${storyData.music === song.id ? 'bg-white border-amber-400 shadow-md ring-1 ring-amber-100' : 'bg-white border-stone-100 hover:border-stone-300 hover:shadow-sm'}`}
+                                    >
+                                        <div className="flex items-center gap-3 overflow-hidden">
+                                            <div className="w-10 h-10 bg-stone-100 rounded-lg flex-shrink-0 overflow-hidden border border-stone-100 shadow-inner">
+                                                <img src={song.cover} className="w-full h-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')} alt="cover" />
+                                            </div>
+                                            <div className="flex flex-col overflow-hidden">
+                                                <span className={`text-xs font-bold truncate ${storyData.music === song.id ? 'text-stone-800' : 'text-stone-600'}`}>{song.title}</span>
+                                                <span className="text-[10px] text-stone-400 truncate font-medium">{song.artist}</span>
+                                            </div>
+                                        </div>
+                                        {storyData.music === song.id && (
+                                            <div className="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center text-white shadow-sm animate-in zoom-in duration-200">
+                                                <Check size={12} strokeWidth={3} />
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                    </div>
                  )}
+
                  {activeTab === 'gallery' && (
-                     <div className="space-y-4 animate-in fade-in duration-300">
-                         <label className="flex flex-col items-center justify-center gap-2 w-full p-6 border-2 border-dashed border-stone-300 rounded-xl cursor-pointer hover:bg-stone-50 hover:border-amber-400 transition-all group"><Upload size={20} className="text-stone-500 group-hover:text-amber-600" /><div className="text-center"><span className="text-xs font-bold text-stone-600 uppercase block">Upload Photo</span><span className="text-[10px] text-stone-400">Max 500KB</span></div><input type="file" accept="image/*" className="hidden" onChange={handleGalleryUpload} /></label>
-                        <div className="grid grid-cols-2 gap-3 mt-4">
-                           {storyData.gallery.map((img, idx) => (<div key={idx} className="relative group aspect-square rounded-xl overflow-hidden border border-stone-200 bg-stone-100 shadow-sm"><img src={img} className="w-full h-full object-cover" /><button onClick={() => handleRemovePhoto(idx)} className="absolute top-2 right-2 bg-red-500/80 hover:bg-red-600 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={12} /></button></div>))}
+                     <div className="space-y-6 animate-in slide-in-from-left-2 duration-300">
+                         <label className={`flex flex-col items-center justify-center gap-3 w-full p-8 border-2 border-dashed rounded-2xl cursor-pointer transition-all group bg-stone-50 ${storyData.gallery.length >= 3 ? 'border-red-200 opacity-50 cursor-not-allowed' : 'border-stone-300 hover:bg-white hover:border-amber-400 hover:scale-[1.01]'}`}>
+                            <div className="p-3 bg-stone-200 rounded-full text-stone-500 group-hover:bg-amber-100 group-hover:text-amber-600 transition-colors">
+                                <Upload size={24} />
+                            </div>
+                            <div className="text-center">
+                                <span className="text-sm font-bold text-stone-600 block group-hover:text-stone-800">
+                                    {storyData.gallery.length >= 3 ? "Gallery Full (3/3)" : "Click to Upload Photo"}
+                                </span>
+                                <span className="text-[10px] text-stone-400 font-medium">
+                                    {storyData.gallery.length >= 3 ? "Delete a photo to add more" : "JPG/PNG • Max 20MB • Limit 3"}
+                                </span>
+                            </div>
+                            <input type="file" accept="image/png, image/jpeg" className="hidden" onChange={handleGalleryUpload} disabled={storyData.gallery.length >= 3} />
+                         </label>
+                        
+                        <div>
+                            <label className="block text-[10px] font-bold text-stone-400 uppercase mb-3 ml-1">Gallery Preview ({storyData.gallery.length}/3)</label>
+                            <div className="grid grid-cols-2 gap-3">
+                            {storyData.gallery.map((img, idx) => (
+                                <div key={idx} className="relative group aspect-square rounded-2xl overflow-hidden border-2 border-white shadow-md bg-stone-100">
+                                    <img src={img} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
+                                        <button onClick={() => handleRemovePhoto(idx)} className="bg-white text-red-500 p-2 rounded-full shadow-lg hover:bg-red-50 transition-colors transform hover:scale-110"><Trash2 size={16} /></button>
+                                    </div>
+                                </div>
+                            ))}
+                            </div>
                         </div>
                      </div>
                  )}
               </div>
-              <div className="mt-8 pt-6 border-t border-stone-200">
+
+              {/* ACTION FOOTER */}
+              <div className="mt-8 pt-6 border-t border-stone-100 sticky bottom-0 bg-white/95 backdrop-blur-sm z-20 pb-2">
                   {!generatedLink ? (
-                      <button onClick={handlePublish} disabled={isSaving} className="w-full py-4 bg-[#1C1917] text-white rounded-xl font-bold text-sm hover:bg-black transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-70">{isSaving ? <><Loader2 className="animate-spin" size={16}/> Saving...</> : "Publish & Generate Link"} {!isSaving && <Save size={16} />}</button>
+                      <button onClick={handlePublish} disabled={isSaving} className="w-full py-4 bg-gradient-to-r from-stone-800 to-stone-900 text-white rounded-xl font-bold text-sm hover:from-black hover:to-black transition-all shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed transform hover:-translate-y-0.5 active:translate-y-0">
+                        {isSaving ? <><Loader2 className="animate-spin" size={16}/> Saving...</> : "Publish & Generate Link"} 
+                        {!isSaving && <Sparkles size={16} className="text-amber-300" />}
+                      </button>
                   ) : (
-                      <div className="bg-green-50 border border-green-200 rounded-xl p-4 animate-in slide-in-from-bottom duration-300">
-                         <div className="flex items-center gap-2 text-green-700 font-bold text-sm mb-2"><Check size={16} /> Link Generated!</div>
-                         <div className="flex gap-2"><input readOnly value={generatedLink} className="flex-1 bg-white border border-green-200 rounded-lg px-3 py-2 text-xs text-stone-600" /><button onClick={() => navigator.clipboard.writeText(generatedLink)} className="p-2 bg-white border border-green-200 rounded-lg text-green-600 hover:bg-green-100"><LinkIcon size={16} /></button></div>
-                         <a href={generatedLink} target="_blank" className="block text-center mt-3 text-xs font-bold text-green-700 underline">Open Viewer</a>
-                         <button onClick={() => setGeneratedLink("")} className="block w-full text-center mt-4 text-[10px] text-stone-400 hover:text-stone-600">Create New Story</button>
+                      <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-5 animate-in slide-in-from-bottom duration-300 shadow-lg">
+                         <div className="flex items-center gap-2 text-emerald-700 font-bold text-sm mb-3"><Check size={18} className="text-emerald-500" /> Story Published!</div>
+                         <div className="flex gap-2 mb-3">
+                            <input readOnly value={generatedLink} className="flex-1 bg-white border border-emerald-200 rounded-xl px-3 py-2 text-xs text-stone-600 font-medium select-all" />
+                            <button onClick={() => navigator.clipboard.writeText(generatedLink)} className="p-2.5 bg-white border border-emerald-200 rounded-xl text-emerald-600 hover:bg-emerald-100 transition-colors"><LinkIcon size={16} /></button>
+                         </div>
+                         <div className="flex gap-2">
+                             <a href={generatedLink} target="_blank" className="flex-1 py-2 text-center text-xs font-bold text-white bg-emerald-500 rounded-lg hover:bg-emerald-600 transition-colors shadow-sm">View Story</a>
+                             <button onClick={() => setGeneratedLink("")} className="flex-1 py-2 text-center text-xs font-bold text-emerald-600 bg-white border border-emerald-200 rounded-lg hover:bg-emerald-50 transition-colors">New Story</button>
+                         </div>
                       </div>
                   )}
               </div>
           </div>
        </div>
 
-       {/* --- RIGHT PANEL: PREVIEW (AUTO HEIGHT) --- */}
-       <div className="w-full md:w-2/3 bg-[#e0f2fe] flex items-center justify-center p-8 relative overflow-hidden min-h-screen">
-           <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
-           <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-blue-400/20 rounded-full blur-3xl" />
-           <div className="relative z-10 flex flex-col items-center sticky top-10">
-               <span className="mb-6 px-4 py-1.5 bg-white/60 backdrop-blur rounded-full text-xs font-bold text-sky-700 uppercase tracking-widest border border-white shadow-sm">Interactive Preview</span>
+       {/* --- RIGHT PANEL: PREVIEW (SCROLLABLE INDEPENDENTLY) --- */}
+       <div className="w-full md:w-2/3 h-full overflow-y-auto bg-[#e0f2fe] flex items-center justify-center p-8 relative">
+           <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] fixed" />
+           <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-blue-400/20 rounded-full blur-3xl fixed" />
+           <div className="relative z-10 flex flex-col items-center my-auto min-h-[700px] justify-center -mt-30">
+               <span className="mb-6 px-4 py-1.5 bg-white/60 backdrop-blur rounded-full text-[10px] font-bold text-sky-700 uppercase tracking-widest border border-white shadow-sm ring-1 ring-white/50">Interactive Preview</span>
                <GameboyPreview data={storyData} songs={songs} />
-               <p className="mt-6 text-[10px] text-stone-400 font-medium tracking-wider uppercase text-center max-w-xs">Use D-Pad to Navigate • A to Select • B to Back</p>
+               <p className="mt-8 text-[10px] text-stone-400 font-bold tracking-widest uppercase text-center max-w-xs bg-white/40 px-4 py-2 rounded-full backdrop-blur-sm border border-white/20">D-Pad: Navigate • A: Select • B: Back</p>
            </div>
        </div>
     </div>
