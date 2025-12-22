@@ -126,6 +126,16 @@ export default function TemplatesPage() {
       image: "/gameboy-story.jpg",
       tag: "Featured",
       color: "bg-green-100 text-green-600"
+   },
+   {
+      id: 7,
+      href: "/scrapbook",
+      title: "Scrapbook Memories",
+      category: "web-story",
+      description: "A nostalgic scrapbook with interactive elements.",
+      image: "/scrapbook-story.jpg",
+      tag: "Creative",
+      color: "bg-pink-100 text-pink-600"
    }
   ];
 
