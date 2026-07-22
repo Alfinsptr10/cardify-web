@@ -255,9 +255,9 @@ export default function TemplatesPage() {
                 </div>
             </div>
             
-            <a href="/#features" className="hover:text-[#1C1917] transition-colors">Features</a>
+            <a href="/features" className="hover:text-[#1C1917] transition-colors">Features</a>
             <a href="/about" className="hover:text-[#1C1917] transition-colors">About</a>
-            <a href="mailto:cardify.official.id@gmail.com" className="hover:text-[#1C1917] transition-colors">Contact</a>
+            <a href="/contact" className="hover:text-[#1C1917] transition-colors">Contact</a>
           </div>
 
           {/* Auth Actions */}

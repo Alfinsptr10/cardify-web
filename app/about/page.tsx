@@ -8,7 +8,8 @@ import { useRouter } from "next/navigation";
 import { motion, type Variants } from "framer-motion";
 import { 
   ArrowRight, Sparkles, Gift, Heart, User, LogOut, Settings, ChevronDown, 
-  Users, Globe, ShieldCheck, Zap, Mail, MapPin, Instagram, MessageCircle
+  Users, Globe, ShieldCheck, Zap, Mail, MapPin, Instagram, MessageCircle,
+  Smartphone, Image as ImageIcon
 } from "lucide-react";
 
 // --- REUSABLE MOTION VARIANTS (sama seperti homepage & templates) ---
@@ -152,10 +153,43 @@ function AboutContent() {
           
           {/* Navigation Links */}
           <div className="hidden md:flex items-center gap-8 text-sm font-bold uppercase tracking-wide text-stone-600 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            <Link href="/#templates" className="hover:text-[#1C1917] transition-colors">Collections</Link>
+            
+            {/* Templates Dropdown */}
+            <div className="relative group h-full flex items-center cursor-pointer">
+                <Link href="/templates" className="hover:text-[#1C1917] transition-colors relative py-2 flex items-center gap-1">
+                  Templates
+                  <ChevronDown size={14} className="opacity-50 group-hover:opacity-100 transition-transform duration-300 group-hover:rotate-180 text-[#D9A400]" />
+                </Link>
+                
+                {/* Dropdown Menu */}
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-72 bg-white rounded-2xl shadow-xl border-2 border-[#1C1917] p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top translate-y-2 group-hover:translate-y-0 z-50 normal-case">
+                   <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-2 px-2">Create New</p>
+
+                   <Link href="/web-story" className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#F3B8CC]/20 transition-colors group/item relative z-10 mb-1">
+                      <div className="w-10 h-10 rounded-full bg-[#F3B8CC] flex-shrink-0 flex items-center justify-center text-[#1C1917] border-2 border-[#1C1917] shadow-sm">
+                         <Smartphone size={18} />
+                      </div>
+                      <div>
+                         <p className="text-sm font-bold text-stone-800">Web Story</p>
+                         <p className="text-[10px] text-stone-500 font-medium leading-tight mt-0.5 normal-case">Interactive, Music, Animations</p>
+                      </div>
+                   </Link>
+
+                   <Link href="/templates?filter=card-image" className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#F6C445]/20 transition-colors group/item relative z-10">
+                      <div className="w-10 h-10 rounded-full bg-[#F6C445] flex-shrink-0 flex items-center justify-center text-[#1C1917] border-2 border-[#1C1917] shadow-sm">
+                         <ImageIcon size={18} />
+                      </div>
+                      <div>
+                         <p className="text-sm font-bold text-stone-800">Card Image</p>
+                         <p className="text-[10px] text-stone-500 font-medium leading-tight mt-0.5 normal-case">Static, Printable, Classic</p>
+                      </div>
+                   </Link>
+                </div>
+            </div>
+
+            <Link href="/features" className="hover:text-[#1C1917] transition-colors">Features</Link>
             <Link href="/about" className="text-[#1C1917]">About</Link>
-            <Link href="/#features" className="hover:text-[#1C1917] transition-colors">Features</Link>
-            <Link href="/#pricing" className="hover:text-[#1C1917] transition-colors">Pricing</Link>
+            <Link href="/contact" className="hover:text-[#1C1917] transition-colors">Contact</Link>
           </div>
 
           {/* Auth Actions */}
@@ -206,7 +240,7 @@ function AboutContent() {
                 <Link href="/register" className="hidden md:flex text-sm font-bold uppercase tracking-wide text-stone-600 hover:text-black transition-colors">Sign Up</Link>
               </div>
             )}
-            <Link href="/#templates" className="px-5 py-2.5 rounded-full bg-[#1C1917] text-[#FDFBF3] text-sm font-bold hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_#F6C445] transition-all flex items-center gap-2 border-2 border-[#1C1917]">
+            <Link href="/templates" className="px-5 py-2.5 rounded-full bg-[#1C1917] text-[#FDFBF3] text-sm font-bold hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_#F6C445] transition-all flex items-center gap-2 border-2 border-[#1C1917]">
               Start Creating <ArrowRight size={16} strokeWidth={2.5} className="text-[#F6C445]" />
             </Link>
           </div>
