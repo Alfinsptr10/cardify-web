@@ -41,6 +41,14 @@ const frame = useMemo(
 );
 console.log(frame);
 
+if (!frame) {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      Frame tidak ditemukan.
+    </div>
+  );
+}
+
 const initialPhotos = useMemo(() => {
   if (typeof window === "undefined") return [];
 
