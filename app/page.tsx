@@ -1,6 +1,8 @@
 "use client";
 import { useSession, signOut } from "next-auth/react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, type MouseEvent } from "react";
+import image from "next/image";
+import { motion, useMotionValue, useSpring, useTransform, type Variants } from "framer-motion";
 // MOCK IMPORTS REPLACEMENT
 import { 
   ArrowRight, Sparkles, Gift, Heart, Phone, Star, PenTool, Play, 
@@ -10,6 +12,22 @@ import {
   Newspaper, Stamp, Smartphone, Zap, Share2, Palette, Image as ImageIcon,
   Gamepad2
 } from "lucide-react";
+
+// --- REUSABLE MOTION VARIANTS ---
+const fadeUp = {
+  hidden: { opacity: 0, y: 28 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+};
+
+const staggerContainer = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
+};
+
+const staggerItem = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } },
+};
 
 // --- WRAPPER SESSION (Mock) ---
 export default function Home() {
@@ -26,6 +44,43 @@ function HomeContent() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
+
+  // Mouse parallax buat hero — murni visual, tidak menyentuh state/logic lain
+  const heroMouseX = useMotionValue(0);
+  const heroMouseY = useMotionValue(0);
+  const heroSpringX = useSpring(heroMouseX, { stiffness: 120, damping: 20, mass: 0.5 });
+  const heroSpringY = useSpring(heroMouseY, { stiffness: 120, damping: 20, mass: 0.5 });
+
+  const handleHeroMouseMove = (e: MouseEvent<HTMLElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const relX = (e.clientX - rect.left) / rect.width - 0.5; // -0.5 .. 0.5
+    const relY = (e.clientY - rect.top) / rect.height - 0.5;
+    heroMouseX.set(relX);
+    heroMouseY.set(relY);
+  };
+
+  const handleHeroMouseLeave = () => {
+    heroMouseX.set(0);
+    heroMouseY.set(0);
+  };
+
+  // Layer depth: elemen beda kedalaman gerak beda jauh (parallax)
+  const phoneX = useTransform(heroSpringX, (v) => v * 18);
+  const phoneY = useTransform(heroSpringY, (v) => v * 18);
+  const badgeFarX = useTransform(heroSpringX, (v) => v * 34);
+  const badgeFarY = useTransform(heroSpringY, (v) => v * 34);
+  const badgeNearX = useTransform(heroSpringX, (v) => v * -22);
+  const badgeNearY = useTransform(heroSpringY, (v) => v * -22);
+
+  // Konten FAQ — copy statis, tidak terhubung ke logic/route manapun
+  const faqs = [
+    { q: "Is Cardify free to use?", a: "Yes — most templates are free. Premium templates and export options come with paid plans." },
+    { q: "Can I add my own photos?", a: "Absolutely. Every template lets you drop in your own photos, or snap a new one with Photobooth." },
+    { q: "How do I share my card?", a: "Send it as a link, download it as an image, or print it as a real postcard — whichever fits the moment." },
+    { q: "Does it work on mobile?", a: "Yes, Cardify is fully responsive and works great on phones, tablets, and desktop." },
+    { q: "Can I collaborate with someone?", a: "You can share the editing link with a friend so you can put a card together, together." },
+  ];
   
   
   const profileMenuRef = useRef<HTMLDivElement>(null);
@@ -105,17 +160,41 @@ const handleLogout = async () => {
 
 
   return (
-    // 60% DOMINANT COLOR: Stone-50 (Warm White)
-    <div className={`min-h-screen w-full bg-[#FAFAF9] text-[#1C1917] selection:bg-[#D97706] selection:text-white flex flex-col relative overflow-hidden font-sans`}>
+    // CARDIFY DESIGN TOKENS — Cream paper base, ink text, marigold/mint/sky/lilac/sage as section "pages"
+    <div className={`min-h-screen w-full bg-[#FDFBF3] text-[#1C1917] selection:bg-[#F6C445] selection:text-[#1C1917] flex flex-col relative overflow-hidden font-sans`}>
       
       {/* INJECT FONTS */}
       <style dangerouslySetInnerHTML={{__html: `
-          @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Press+Start+2P&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Boldonse&family=DM+Sans:opsz,wght@9..40,400;500;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,900;1,400;1,600;1,700&family=Press+Start+2P&display=swap');
+          .font-display { font-family: 'Archivo Black', 'DM Sans', sans-serif; }
+          .font-boldonse { font-family: 'Boldonse', 'Archivo Black', sans-serif; }
           .font-dm-sans { font-family: 'DM Sans', sans-serif; }
           .font-playfair { font-family: 'Playfair Display', serif; }
           .font-press-start { font-family: 'Press Start 2P', cursive; }
           .font-sans { font-family: 'DM Sans', sans-serif; }
       `}} />
+
+      {/* --- ANNOUNCEMENT TICKER --- */}
+      <div className="relative z-[60] w-full bg-[#1C1917] text-[#FDFBF3] overflow-hidden py-2.5 select-none">
+        <motion.div
+          className="flex whitespace-nowrap w-max"
+          animate={{ x: ["0%", "-50%"] }}
+          transition={{ duration: 26, repeat: Infinity, ease: "linear" }}
+        >
+          {[...Array(2)].map((_, i) => (
+            <div key={i} className="flex items-center gap-8 px-4 text-[11px] font-bold uppercase tracking-widest">
+              <span className="flex items-center gap-2"><Sparkles size={12} className="text-[#F6C445]" /> New — Photobooth is live, snap &amp; send in seconds</span>
+              <span className="text-stone-600">•</span>
+              <span>Free templates every week</span>
+              <span className="text-stone-600">•</span>
+              <span>Ships worldwide as a shareable link</span>
+              <span className="text-stone-600">•</span>
+              <span className="flex items-center gap-2"><Heart size={12} className="text-[#F3B8CC] fill-[#F3B8CC]" /> Made with love for Gen Z &amp; couples</span>
+              <span className="text-stone-600">•</span>
+            </div>
+          ))}
+        </motion.div>
+      </div>
 
       {/* --- BACKGROUND DECORATIONS (SUBTLE) --- */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
@@ -138,26 +217,29 @@ const handleLogout = async () => {
         <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-stone-200/40 rounded-full blur-[100px] -z-10 mix-blend-multiply" />
       </div>
 
-      {/* --- PREMIUM NAVBAR --- */}
-      <nav className={`relative z-50 w-full transition-all duration-300 border-b ${scrolled ? "bg-[#FAFAF9]/90 backdrop-blur-xl border-stone-200 shadow-sm py-3" : "bg-transparent border-transparent py-5"}`}>
+      {/* --- NAVBAR --- */}
+      <nav className={`relative z-50 w-full transition-all duration-300 border-b ${scrolled ? "bg-[#FDFBF3]/90 backdrop-blur-xl border-stone-200 shadow-sm py-3" : "bg-transparent border-transparent py-5"}`}>
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center relative">
           
           {/* Logo Brand */}
           <div className="flex items-center gap-2.5 cursor-pointer group" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <div className="w-9 h-9 bg-[#1C1917] rounded-xl flex items-center justify-center text-white shadow-lg group-hover:rotate-12 transition-transform duration-300">
-               <Gift size={18} strokeWidth={2.5} className="text-amber-400" />
+            <div className="w-9 h-9 bg-[#1C1917] rounded-xl flex items-center justify-center text-[#F6C445] shadow-[3px_3px_0_0_#F6C445] group-hover:rotate-12 group-hover:shadow-[4px_4px_0_0_#F6C445] transition-all duration-300">
+               <Gift size={18} strokeWidth={2.5} />
             </div>
-            <span className={`text-2xl font-bold tracking-tight font-playfair italic text-[#1C1917]`}>Cardify.</span>
+            <div className="flex flex-col leading-none">
+              <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400">A card with a story</span>
+              <span className={`text-xl font-bold tracking-tight font-playfair italic text-[#1C1917]`}>cardify</span>
+            </div>
           </div>
           
           {/* Navigation Links - Centered */}
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-stone-600 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-full">
+          <div className="hidden md:flex items-center gap-8 text-sm font-bold uppercase tracking-wide text-stone-600 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-full">
             
             {/* 1. Templates Dropdown */}
             <div className="relative group h-full flex items-center cursor-pointer">
-                <a href="/templates" className="hover:text-[#1C1917] transition-colors relative py-2 flex items-center gap-1 group-hover:text-amber-600">
+                <a href="/templates" className="hover:text-[#1C1917] transition-colors relative py-2 flex items-center gap-1 group-hover:text-[#D9A400]">
                   Templates
-                  <ChevronDown size={14} className="opacity-50 group-hover:opacity-100 transition-transform duration-300 group-hover:rotate-180 text-amber-600" />
+                  <ChevronDown size={14} className="opacity-50 group-hover:opacity-100 transition-transform duration-300 group-hover:rotate-180 text-[#D9A400]" />
                 </a>
                 
                 {/* Dropdown Menu */}
@@ -193,19 +275,19 @@ const handleLogout = async () => {
             {/* 2. Features */}
             <a href="/features" className="hover:text-[#1C1917] transition-colors relative group">
               Features
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 transition-all group-hover:w-full"></span>
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#F6C445] transition-all group-hover:w-full"></span>
             </a>
 
             {/* 3. About */}
             <a href="/about" className="hover:text-[#1C1917] transition-colors relative group">
               About
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 transition-all group-hover:w-full"></span>
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#F6C445] transition-all group-hover:w-full"></span>
             </a>
             
             {/* 4. Contact */}
             <a href="/contact" className="hover:text-[#1C1917] transition-colors relative group">
               Contact
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 transition-all group-hover:w-full"></span>
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#F6C445] transition-all group-hover:w-full"></span>
             </a>
           </div>
 
@@ -271,227 +353,388 @@ const handleLogout = async () => {
             ) : (
               // --- LOGGED OUT STATE ---
               <div className="flex items-center gap-6">
-                <a href="/login" className="hidden md:flex text-sm font-bold text-stone-600 hover:text-black transition-colors">
+                <a href="/login" className="hidden md:flex text-sm font-bold uppercase tracking-wide text-stone-600 hover:text-black transition-colors">
                    Log in
                 </a>
-                <a href="/register" className="hidden md:flex text-sm font-bold text-stone-600 hover:text-black transition-colors">
+                <a href="/register" className="hidden md:flex text-sm font-bold uppercase tracking-wide text-stone-600 hover:text-black transition-colors">
                    Sign Up
                 </a>
               </div>
             )}
 
             {/* CTA Button */}
-            <a href="/templates" className="px-6 py-2.5 rounded-full bg-[#1C1917] text-white text-sm font-bold hover:bg-black hover:scale-105 hover:shadow-xl hover:shadow-amber-900/10 transition-all flex items-center gap-2">
+            <a href="/templates" className="px-5 py-2.5 rounded-full bg-[#1C1917] text-[#FDFBF3] text-sm font-bold hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_#F6C445] transition-all flex items-center gap-2 border-2 border-[#1C1917]">
               Start Creating
-              <ArrowRight size={16} strokeWidth={2.5} className="text-amber-400" />
+              <ArrowRight size={16} strokeWidth={2.5} className="text-[#F6C445]" />
             </a>
           </div>
         </div>
       </nav>
 
-      {/* --- HERO SECTION --- */}
+      {/* --- HERO SECTION (Marigold paper) --- */}
       <main className="flex-grow relative z-10">
-        <section className="max-w-7xl mx-auto px-6 pt-16 pb-24 md:pt-24 md:pb-32 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          
-          {/* Left: Text Content */}
-          <div className="lg:col-span-7 flex flex-col items-start text-left space-y-8 animate-in slide-in-from-bottom-5 duration-1000">
-             {/* Badge */}
-             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-stone-200 bg-white/60 backdrop-blur-sm text-xs font-bold text-stone-600 uppercase tracking-widest shadow-sm hover:shadow-md transition-all cursor-default">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-                </span>
-                No. #1 Card Generator
-             </div>
+        <section
+          className="relative bg-[#F6C445] overflow-hidden border-t-3 border-[#111111]"
+          onMouseMove={handleHeroMouseMove}
+          onMouseLeave={handleHeroMouseLeave}
+        >
+          <div className="max-w-7xl mx-auto px-6 pt-16 pb-24 md:pt-20 md:pb-28 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+            
+            {/* Left: Text Content */}
+            <motion.div
+               className="lg:col-span-7 flex flex-col items-start text-left space-y-6"
+               variants={staggerContainer}
+               initial="hidden"
+               animate="show"
+            >
+               {/* Badge — "FOR YOU": DM Sans, font-black, uppercase, tracking-widest, text-xs */}
+               <motion.div variants={staggerItem} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1C1917] text-[#F6C445] text-xs font-black uppercase tracking-widest shadow-sm -rotate-2 font-sans">
+                  <Sparkles size={12} />
+                  For You
+               </motion.div>
 
-             <h1 className={`text-5xl md:text-7xl font-medium leading-[1.1] text-[#1C1917] font-playfair`}>
-               Express Feelings, <br />
-               <span className="italic text-stone-500 relative inline-block mt-2">
-                 Beyond Distance.
-                 <svg className="absolute -bottom-2 left-0 w-full h-3 text-amber-300 -z-10" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="8" fill="none" opacity="0.6" /></svg>
-               </span>
-             </h1>
-             
-             <p className="text-lg md:text-xl text-stone-500 leading-relaxed max-w-lg font-light">
-               Create personal and aesthetic digital greeting cards in seconds. 
-               Choose a template, customize, and send to your loved ones.
-             </p>
+               <motion.h1
+                  variants={staggerItem}
+                  className="text-[18vw] md:text-[7rem] lg:text-[9rem] text-[#111111] font-boldonse font-black uppercase"
+                  style={{ lineHeight: 0.85, letterSpacing: "-0.03em" }}
+               >
+                 Greet-
+                 <br />
+                 ings
+               </motion.h1>
 
-             {/* UPDATED CTA BUTTONS LOGIC */}
-             <div className="flex flex-wrap items-center gap-4 pt-4">
-                <a 
-                   href={session ? "/templates" : "/register"} 
-                   className="px-8 py-4 rounded-full bg-[#1C1917] text-white font-bold tracking-wide hover:bg-black transition-all shadow-xl shadow-stone-200 hover:-translate-y-1 flex items-center gap-3"
-                >
-                   {session ? (
-                      // IF LOGGED IN: "Start Creating"
-                      <>
-                        <Sparkles size={20} className="text-amber-400" />
-                        Start Creating
-                      </>
-                   ) : (
-                      // IF LOGGED OUT: "Sign Up Free"
-                      <>
-                        <UserPlus size={20} className="text-amber-400" />
-                        Sign Up Free
-                      </>
-                   )}
-                </a>
-             </div>
+               {/* Emotion chips */}
+               <motion.div variants={staggerItem} className="flex flex-wrap gap-2">
+                  <span className="px-4 py-1.5 rounded-full bg-[#F3B8CC] text-[#1C1917] text-xs font-black uppercase tracking-widest border-2 border-[#1C1917] rotate-[-2deg] font-sans">Happy</span>
+                  <span className="px-4 py-1.5 rounded-full bg-[#BFE0F5] text-[#1C1917] text-xs font-black uppercase tracking-widest border-2 border-[#1C1917] rotate-[1deg] font-sans">Thank You</span>
+                  <span className="px-4 py-1.5 rounded-full bg-[#FDFBF3] text-[#1C1917] text-xs font-black uppercase tracking-widest border-2 border-[#1C1917] rotate-[-1deg] font-sans">Miss You</span>
+               </motion.div>
+               
+               <motion.p variants={staggerItem} className="text-lg md:text-xl text-[#1C1917]/70 leading-relaxed max-w-lg font-medium">
+                 Cardify makes beautiful, personal, aesthetic digital greeting cards. Choose a template, add photos, share the memory — in seconds.
+               </motion.p>
+
+               {/* UPDATED CTA BUTTONS LOGIC (unchanged) */}
+               <motion.div variants={staggerItem} className="flex flex-wrap items-center gap-4 pt-2">
+                  <motion.a 
+                     href={session ? "/templates" : "/register"} 
+                     whileHover={{ y: -4, boxShadow: "6px 6px 0 0 rgba(28,25,23,0.3)" }}
+                     whileTap={{ scale: 0.97 }}
+                     className="px-8 py-4 rounded-full bg-[#1C1917] text-[#FDFBF3] font-bold tracking-wide shadow-[4px_4px_0_0_rgba(28,25,23,0.2)] flex items-center gap-3 border-2 border-[#1C1917]"
+                  >
+                     {session ? (
+                        // IF LOGGED IN: "Start Creating"
+                        <>
+                          <Sparkles size={20} className="text-[#F6C445]" />
+                          Start Creating
+                        </>
+                     ) : (
+                        // IF LOGGED OUT: "Sign Up Free"
+                        <>
+                          <UserPlus size={20} className="text-[#F6C445]" />
+                          Sign Up Free
+                        </>
+                     )}
+                  </motion.a>
+                  <motion.button
+                     type="button"
+                     whileHover={{ y: -4 }}
+                     whileTap={{ scale: 0.97 }}
+                     onClick={() => document.getElementById('what-is-cardify')?.scrollIntoView({ behavior: 'smooth' })}
+                     className="px-6 py-4 rounded-full bg-transparent text-[#1C1917] font-bold tracking-wide border-2 border-[#1C1917]/20 hover:border-[#1C1917] transition-colors flex items-center gap-2"
+                  >
+                     What is Cardify?
+                     <ChevronDown size={16} />
+                  </motion.button>
+               </motion.div>
+            </motion.div>
+
+            {/* Right: Visual Illustration */}
+            <motion.div
+               className="lg:col-span-5 relative h-[480px] md:h-[560px] flex items-center justify-center"
+               initial={{ opacity: 0, scale: 0.85 }}
+               animate={{ opacity: 1, scale: 1 }}
+               transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+            >
+               <motion.div style={{ x: phoneX, y: phoneY }}>
+                 <motion.div
+                    className="relative z-10 w-72 md:w-80 aspect-[9/16] bg-[#FDFBF3] rounded-[2.5rem] shadow-2xl border-[8px] border-[#1C1917] overflow-hidden"
+                    animate={{ rotate: [-4, -1, -4], y: [0, -10, 0] }}
+                    transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                    whileHover={{ rotate: 0, scale: 1.05 }}
+                 >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img 
+                       src="/gameboy-greetings.png" 
+                       alt="App Preview"
+                       className="w-full h-full object-cover"
+                    />
+                    
+                    {/* Dynamic Island style element */}
+                    <div className="absolute top-6 left-1/2 -translate-x-1/2 w-24 h-7 bg-black rounded-full flex items-center justify-center gap-2 px-3 shadow-lg">
+                       <div className="w-1.5 h-1.5 rounded-full bg-stone-800"></div>
+                       <div className="w-10 h-1.5 rounded-full bg-stone-800/50"></div>
+                    </div>
+                 </motion.div>
+               </motion.div>
+
+               {/* Floating Badges — parallax depth layers: "far" drifts more, "near" drifts opposite */}
+               <motion.div
+                  style={{ x: badgeFarX, y: badgeFarY }}
+                  className="absolute top-4 -right-2 md:-right-6 z-20"
+               >
+                 <motion.div
+                    className="w-16 h-16 rounded-full bg-[#1C1917] text-[#F6C445] flex flex-col items-center justify-center shadow-xl text-[9px] font-bold uppercase leading-tight text-center rotate-6 border-2 border-[#FDFBF3]"
+                    animate={{ y: [0, -10, 0] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                 >
+                    Find Your<br/>Card
+                 </motion.div>
+               </motion.div>
+               <motion.div
+                  style={{ x: badgeFarX, y: badgeFarY }}
+                  className="absolute top-1/3 -right-4 md:-right-10 z-20"
+               >
+                 <motion.div
+                    className="bg-[#FDFBF3] backdrop-blur px-4 py-2 rounded-full shadow-xl border-2 border-[#1C1917] text-[10px] font-bold uppercase tracking-wide"
+                    animate={{ y: [0, -8, 0] }}
+                    transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                 >
+                    ✦ 12,340 sent today
+                 </motion.div>
+               </motion.div>
+               <motion.div
+                  style={{ x: badgeNearX, y: badgeNearY }}
+                  className="absolute bottom-1/3 -left-4 md:-left-10 z-20"
+               >
+                 <motion.div
+                    className="bg-[#FDFBF3] backdrop-blur px-4 py-2 rounded-full shadow-xl border-2 border-[#1C1917] text-[10px] font-bold uppercase tracking-wide"
+                    animate={{ y: [0, 8, 0] }}
+                    transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
+                 >
+                    ♦ 200+ Templates
+                 </motion.div>
+               </motion.div>
+               <motion.div
+                  style={{ x: badgeNearX, y: badgeNearY }}
+                  className="absolute bottom-6 -left-2 md:-left-6 z-20"
+               >
+                 <motion.div
+                    className="bg-white/90 backdrop-blur p-3 rounded-2xl shadow-xl border-2 border-[#1C1917] flex items-center gap-2"
+                    animate={{ y: [0, -8, 0] }}
+                    transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
+                 >
+                    <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 border border-green-200"><CheckCircle2 size={16} /></div>
+                    <div>
+                       <p className="text-[10px] font-bold text-stone-900">Message Sent!</p>
+                       <p className="text-[9px] text-stone-500 font-medium">Just now to Sarah</p>
+                    </div>
+                 </motion.div>
+               </motion.div>
+            </motion.div>
           </div>
 
-          {/* Right: Visual Illustration */}
-          <div className="lg:col-span-5 relative h-[500px] md:h-[600px] flex items-center justify-center animate-in zoom-in duration-1000 delay-200">
-             <div className="relative z-10 w-80 md:w-96 aspect-[9/16] bg-white rounded-[2.5rem] shadow-2xl border-[8px] border-white overflow-hidden transform rotate-[-6deg] hover:rotate-0 transition-all duration-700 hover:scale-105 ring-1 ring-stone-100">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img 
-                   src="/retro-gameboy-2.png" 
-                   alt="App Preview"
-                   className="object-contain bg-stone-50 w-full h-full"
-                />
-                
-                {/* Dynamic Island style element */}
-                <div className="absolute top-6 left-1/2 -translate-x-1/2 w-24 h-7 bg-black rounded-full flex items-center justify-center gap-2 px-3 shadow-lg">
-                   <div className="w-1.5 h-1.5 rounded-full bg-stone-800"></div>
-                   <div className="w-10 h-1.5 rounded-full bg-stone-800/50"></div>
-                </div>
-             </div>
-
-             {/* Background Blobs */}
-             <div className="absolute top-10 right-0 w-72 h-72 bg-amber-100 rounded-full blur-3xl opacity-40 mix-blend-multiply animate-pulse" />
-             <div className="absolute bottom-10 left-10 w-72 h-72 bg-stone-200 rounded-full blur-3xl opacity-40 mix-blend-multiply animate-pulse delay-1000" />
-             
-             {/* Floating Badges */}
-             <div className="absolute top-1/4 -right-4 md:-right-8 z-20 bg-white/90 backdrop-blur p-4 rounded-2xl shadow-xl animate-bounce duration-[4000ms] border border-white/50">
-                <Heart className="text-rose-500 fill-rose-500 drop-shadow-md" size={32} />
-             </div>
-             <div className="absolute bottom-1/4 -left-4 md:-left-8 z-20 bg-white/90 backdrop-blur px-5 py-3 rounded-2xl shadow-xl animate-bounce duration-[5000ms] border border-white/50 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 border border-green-200"><CheckCircle2 size={20} /></div>
-                <div>
-                   <p className="text-xs font-bold text-stone-900">Message Sent!</p>
-                   <p className="text-[10px] text-stone-500 font-medium">Just now to Sarah</p>
-                </div>
-             </div>
-          </div>
+          {/* Decorative bottom scallop edge */}
+          <svg className="absolute bottom-0 left-0 w-full h-6 text-[#FDFBF3]" viewBox="0 0 400 20" preserveAspectRatio="none">
+            <path d="M0 20 Q 10 0 20 20 T 40 20 T 60 20 T 80 20 T 100 20 T 120 20 T 140 20 T 160 20 T 180 20 T 200 20 T 220 20 T 240 20 T 260 20 T 280 20 T 300 20 T 320 20 T 340 20 T 360 20 T 380 20 T 400 20 V20 H0 Z" fill="currentColor" />
+          </svg>
         </section>
 
-        {/* --- FEATURES SECTION --- */}
-        <section id="features" className="py-24 bg-white relative overflow-hidden scroll-mt-24 border-t border-stone-100">
+        <div id="what-is-cardify" className="scroll-mt-24" />
+
+        {/* --- WHAT'S NEW (Mint paper) --- */}
+<section className="py-24 bg-[#B8E3C9] overflow-hidden border-t-3 border-[#111111]">
+   <div className="max-w-7xl mx-auto px-6">
+      <div className="text-center mb-14 max-w-2xl mx-auto">
+         <span className="text-[11px] font-black text-[#1C1917]/50 uppercase tracking-[0.3em] mb-3 block font-sans">— A gift with a story —</span>
+         <motion.h2
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="text-6xl md:text-7xl text-[#111111] font-boldonse font-black italic"
+            style={{ letterSpacing: "-0.02em" }}
+         >
+            What's new?
+         </motion.h2>
+         <p className="mt-3 text-[14px] font-bold font-sans text-[#1C1917]/60">最新ニュース &amp; トピックス</p>
+      </div>
+      <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}>
+         {[
+            { 
+              tag: "New", 
+              title: "Photobooth has arrived — Capture every smile with aesthetic frames inspired by vintage memories.", 
+              image: "/photobooth-arrived.png", 
+              bg: "bg-[#F6C445]", 
+              icon: <ImageIcon size={28} /> 
+            },
+            { tag: "Frames", title: "Discover your favorite style — Choose from postcard, film strip, retro game, magazine, and more.", image: "/frames.png", icon: <ImageIcon size={28} /> },
+            { tag: "Create", title: "Make every greeting personal — Customize cards with photos, colors, and heartfelt messages.", image: "/create.png", icon: <ImageIcon size={28} /> },
+            { tag: "Share", title: "Download & share instantly — Save high-quality images for social media or print them as keepsakes.", bg: "bg-[#D8C9F2]", icon: <Newspaper size={28} /> },
+         ].map((item) => (
+            <div key={item.title} className="p-6 rounded-[1.75rem] bg-white border-2 border-[#1C1917] hover:-translate-y-1.5 hover:shadow-[5px_5px_0_0_#1C1917] transition-all duration-300">
+               {/* Kondisi jika item memiliki properti image */}
+               {item.image ? (
+                  <div className="w-full aspect-square rounded-2xl overflow-hidden mb-5 border-2 border-[#1C1917] relative">
+                     {/* eslint-disable-next-line @next/next/no-img-element */}
+                     <img 
+                        src={item.image} 
+                        alt={item.title} 
+                        className="w-full h-full object-cover"
+                     />
+                  </div>
+               ) : (
+                  <div className={`w-full aspect-square rounded-2xl ${item.bg} flex items-center justify-center mb-5 text-[#1C1917] border-2 border-[#1C1917]`}>
+                     {item.icon}
+                  </div>
+               )}
+               <span className="text-[10px] font-bold text-stone-400 uppercase tracking-widest">{item.tag}</span>
+               <p className="text-sm font-bold text-stone-800 leading-snug mt-1">{item.title}</p>
+            </div>
+         ))}
+      </motion.div>
+   </div>
+</section>
+
+        {/* --- FEATURES SECTION (Lilac paper) --- */}
+        <section id="features" className="py-24 bg-[#D8C9F2] relative overflow-hidden scroll-mt-24 border-t-3 border-[#111111]">
             <div className="max-w-7xl mx-auto px-6 relative z-10">
                 <div className="text-center mb-16 max-w-2xl mx-auto">
-                    <span className="text-xs font-bold text-amber-500 uppercase tracking-[0.2em] mb-3 block">Why Choose Us</span>
-                    <h2 className={`text-3xl md:text-4xl font-medium text-[#1C1917] font-playfair mb-6`}>Features that Sparkle</h2>
-                    <p className="text-stone-500 text-lg font-light leading-relaxed">
-                        We provide the best tools to make your special moments even more memorable and unforgettable.
-                    </p>
+                    <span className="text-xs font-bold text-[#1C1917]/50 uppercase tracking-[0.3em] mb-3 block">— Why Cardify —</span>
+                    <motion.h2 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="text-6xl md:text-7xl text-[#111111] font-boldonse font-black italic" style={{ letterSpacing: "-0.02em" }}>Features that sparkle</motion.h2>
+                    <p className="mt-3 text-[14px] font-bold font-sans text-[#1C1917]/60">きらめく機能</p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut", delay: 0.15 }}>
                     {/* Feature 1 */}
-                    <div className="group p-8 rounded-3xl bg-[#FAFAF9] border border-stone-100 hover:border-amber-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                        <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mb-6 group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300 shadow-sm">
-                            <Zap size={28} />
+                    <div className="group p-7 rounded-[1.75rem] bg-[#FDFBF3] border-2 border-[#1C1917] hover:-translate-y-1.5 hover:shadow-[5px_5px_0_0_#1C1917] transition-all duration-300">
+                        <div className="w-14 h-14 rounded-2xl bg-[#F6C445] text-[#1C1917] flex items-center justify-center mb-6 shadow-sm">
+                            <Zap size={26} />
                         </div>
-                        <h3 className="text-xl font-bold text-stone-800 mb-3">Instant & Easy</h3>
-                        <p className="text-stone-500 leading-relaxed font-light">No design skills needed. Just choose a template, fill in the message, and send in seconds.</p>
+                        <h3 className="text-lg font-bold text-stone-800 mb-2">Instant & Easy</h3>
+                        <p className="text-stone-500 text-sm leading-relaxed">No design skills needed. Fill in the blanks, hit send.</p>
                     </div>
 
-                    {/* Feature 2 */}
-                    <div className="group p-8 rounded-3xl bg-[#FAFAF9] border border-stone-100 hover:border-rose-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                        <div className="w-14 h-14 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mb-6 group-hover:bg-rose-500 group-hover:text-white transition-colors duration-300 shadow-sm">
-                            <Smartphone size={28} />
+                    {/* Feature 2 — NEW: Photobooth */}
+                    <div className="group p-7 rounded-[1.75rem] bg-[#FDFBF3] border-2 border-[#1C1917] hover:-translate-y-1.5 hover:shadow-[5px_5px_0_0_#1C1917] transition-all duration-300">
+                        <div className="w-14 h-14 rounded-2xl bg-[#F3B8CC] text-[#1C1917] flex items-center justify-center mb-6 shadow-sm">
+                            <ImageIcon size={26} />
                         </div>
-                        <h3 className="text-xl font-bold text-stone-800 mb-3">Interactive Web Story</h3>
-                        <p className="text-stone-500 leading-relaxed font-light">More than just an image. Create interactive stories with background music and stunning animations.</p>
+                        <h3 className="text-lg font-bold text-stone-800 mb-2">Photobooth</h3>
+                        <p className="text-stone-500 text-sm leading-relaxed">Snap a picture inside the app and tape it onto any card.</p>
                     </div>
 
-                    {/* Feature 3 */}
-                    <div className="group p-8 rounded-3xl bg-[#FAFAF9] border border-stone-100 hover:border-sky-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                        <div className="w-14 h-14 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center mb-6 group-hover:bg-sky-500 group-hover:text-white transition-colors duration-300 shadow-sm">
-                            <Palette size={28} />
+                    {/* Feature 3 (was "Interactive Web Story") */}
+                    <div className="group p-7 rounded-[1.75rem] bg-[#FDFBF3] border-2 border-[#1C1917] hover:-translate-y-1.5 hover:shadow-[5px_5px_0_0_#1C1917] transition-all duration-300">
+                        <div className="w-14 h-14 rounded-2xl bg-[#BFE0F5] text-[#1C1917] flex items-center justify-center mb-6 shadow-sm">
+                            <Smartphone size={26} />
                         </div>
-                        <h3 className="text-xl font-bold text-stone-800 mb-3">Unique Templates</h3>
-                        <p className="text-stone-500 leading-relaxed font-light">A variety of aesthetic templates ranging from Retro, Minimalist, to Classic Postcard.</p>
+                        <h3 className="text-lg font-bold text-stone-800 mb-2">Interactive Web Story</h3>
+                        <p className="text-stone-500 text-sm leading-relaxed">Add music, animations, and page-turn stories to any greeting.</p>
                     </div>
-                </div>
+
+                    {/* Feature 4 (was "Unique Templates") */}
+                    <div className="group p-7 rounded-[1.75rem] bg-[#FDFBF3] border-2 border-[#1C1917] hover:-translate-y-1.5 hover:shadow-[5px_5px_0_0_#1C1917] transition-all duration-300">
+                        <div className="w-14 h-14 rounded-2xl bg-[#A9D6BC] text-[#1C1917] flex items-center justify-center mb-6 shadow-sm">
+                            <Palette size={26} />
+                        </div>
+                        <h3 className="text-lg font-bold text-stone-800 mb-2">Unique Templates</h3>
+                        <p className="text-stone-500 text-sm leading-relaxed">From Retro, Minimalist, to Classic Postcard — 200+ styles.</p>
+                    </div>
+                </motion.div>
             </div>
-            
-            {/* Background Decoration for Features */}
-            <div className="absolute -left-20 top-1/2 -translate-y-1/2 w-64 h-64 bg-stone-50 rounded-full blur-3xl opacity-50 -z-10" />
-            <div className="absolute -right-20 top-0 w-96 h-96 bg-amber-50 rounded-full blur-3xl opacity-30 -z-10" />
         </section>
 
-        {/* --- TEMPLATE GALLERY SECTION (PREVIEW ONLY) --- */}
-        <section className="bg-[#FAFAF9] py-32 border-t border-stone-200/60 scroll-mt-20">
+        {/* --- HOW IT WORKS (Cream paper) --- */}
+        <section className="py-24 bg-[#FDFBF3] relative overflow-hidden border-t-3 border-[#111111]">
+            <div className="max-w-7xl mx-auto px-6">
+                <div className="text-center mb-16 max-w-2xl mx-auto">
+                    <span className="text-xs font-bold text-stone-400 uppercase tracking-[0.3em] mb-3 block">— How it works —</span>
+                    <motion.h2 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="text-6xl md:text-7xl text-[#111111] font-boldonse font-black italic" style={{ letterSpacing: "-0.02em" }}>Three little steps</motion.h2>
+                    <p className="mt-3 text-[14px] font-bold font-sans text-[#1C1917]/60">かんたん3ステップ</p>
+                </div>
+                <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-6" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut", delay: 0.15 }}>
+                    {[
+                       { n: "01", title: "Choose a template", desc: "Pick from 200+ curated designs, from retro to hand-drawn.", bg: "bg-[#F6C445]" },
+                       { n: "02", title: "Customize", desc: "Add your message, photos, music, stickers — even snap a Photobooth pic.", bg: "bg-[#F3B8CC]" },
+                       { n: "03", title: "Share", desc: "Send as a link, download as an image, or print a real postcard.", bg: "bg-[#A9D6BC]" },
+                    ].map((step) => (
+                       <div key={step.n} className="relative p-8 rounded-[1.75rem] bg-white border-2 border-[#1C1917] shadow-[5px_5px_0_0_#1C1917]">
+                          <span className={`absolute -top-4 -right-4 w-10 h-10 rounded-full ${step.bg} border-2 border-[#1C1917] flex items-center justify-center text-xs font-bold`}>{step.n}</span>
+                          <h3 className="text-2xl font-bold text-[#1C1917] mb-2 font-playfair">{step.title}</h3>
+                          <p className="text-stone-500 text-sm leading-relaxed">{step.desc}</p>
+                       </div>
+                    ))}
+                </motion.div>
+            </div>
+        </section>
+
+        {/* --- TEMPLATE GALLERY SECTION (Sky paper) --- */}
+        <section className="bg-[#BFE0F5] py-24 scroll-mt-20 border-t-3 border-[#111111]">
            <div className="max-w-7xl mx-auto px-6">
               <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
                   <div className="max-w-xl">
-                    <span className="text-xs font-bold text-stone-400 uppercase tracking-[0.2em] block mb-3">Our Collections</span>
-                    <h2 className={`text-4xl md:text-5xl font-medium text-[#1C1917] font-playfair`}>
+                    <span className="text-xs font-bold text-[#1C1917]/50 uppercase tracking-[0.3em] block mb-3">— Our Collections —</span>
+                    <motion.h2 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="text-6xl md:text-7xl text-[#111111] font-boldonse font-black italic" style={{ letterSpacing: "-0.02em" }}>
                        Find Your Style
-                    </h2>
+                    </motion.h2>
+                    <p className="mt-3 text-[14px] font-bold font-sans text-[#1C1917]/60">お気に入りを見つけよう</p>
                   </div>
                   {/* CHANGED: Link to /templates */}
-                  <a href="/templates" className="flex items-center gap-2 text-sm font-bold text-stone-600 hover:text-black transition-colors group">
+                  <a href="/templates" className="flex items-center gap-2 text-sm font-bold text-[#1C1917] bg-[#FDFBF3] border-2 border-[#1C1917] px-5 py-2.5 rounded-full hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_#1C1917] transition-all group">
                       View All Templates <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                   </a>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut", delay: 0.15 }}>
                   
-                  {/* CARD 1: GAMEBOY APP (NEW) */}
+                  {/* CARD 1: GAMEBOY APP (MENGGUNAKAN GAMBAR gameboy-journey.png) */}
                   <a href="/gameboy-app" className="group cursor-pointer block h-full">
-                     <div className="relative aspect-[9/16] bg-stone-900 rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border border-stone-800 group-hover:-translate-y-2">
-                        <div className="absolute inset-0 bg-gradient-to-b from-purple-900 to-black opacity-80" />
-                        <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
-                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 z-10">
-                            <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mb-4 backdrop-blur-sm border border-white/20 group-hover:scale-110 transition-transform shadow-lg text-purple-400">
-                               <Gamepad2 size={32} />
-                            </div>
-                            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-[0.2em] mb-2">New Release</span>
-                            <h4 className={`text-white text-2xl font-medium font-playfair`}>Gameboy Journey</h4>
-                        </div>
-                        <div className="absolute top-5 right-5 bg-purple-500/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-white uppercase tracking-widest shadow-sm z-20">Hot</div>
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px] z-30">
+                     <div className="relative aspect-[9/16] bg-stone-900 rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border-2 border-[#1C1917] group-hover:-translate-y-2">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img 
+                           src="/gameboy-journey.png" 
+                           alt="Gameboy Journey" 
+                           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                        />
+                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px] z-30">
                            <span className="bg-white text-stone-900 px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl border border-white/20 flex items-center gap-2">
                               Create Story <ArrowRight size={14} />
                            </span>
                         </div>
+                        <div className="absolute top-5 right-5 bg-purple-500/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-white uppercase tracking-widest shadow-sm z-20">Hot</div>
                      </div>
                      <div className="px-1">
                         <h3 className={`text-2xl font-medium mb-2 group-hover:text-purple-700 transition-colors font-playfair`}>Gameboy Journey</h3>
-                        <p className="text-stone-500 text-sm leading-relaxed">Interactive handheld story with 8-bit charm.</p>
+                        <p className="text-stone-600 text-sm leading-relaxed">Interactive handheld story with 8-bit charm.</p>
                      </div>
                   </a>
                   {/* CARD 2: WEB STORY */}
                   <a href="/web-story" className="group cursor-pointer block h-full">
-                     <div className="relative aspect-[9/16] bg-stone-900 rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border border-stone-800 group-hover:-translate-y-2">
-                        <div className="absolute inset-0 bg-gradient-to-b from-stone-800 to-black opacity-80" />
-                        <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
-                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 z-10">
-                            <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mb-4 backdrop-blur-sm border border-white/20 group-hover:scale-110 transition-transform shadow-lg text-sky-300">
-                               <Smartphone size={32} />
-                            </div>
-                            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-[0.2em] mb-2">Interactive</span>
-                            <h4 className={`text-white text-2xl font-medium font-playfair`}>Web Story</h4>
-                        </div>
-                        <div className="absolute top-5 right-5 bg-sky-500/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-white uppercase tracking-widest shadow-sm z-20">New</div>
+                     <div className="relative aspect-[9/16] bg-stone-900 rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border-2 border-[#1C1917] group-hover:-translate-y-2">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img 
+                           src="/web-story.png" 
+                           alt="Web Story" 
+                           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                        />
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px] z-30">
                            <span className="bg-white text-stone-900 px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl border border-white/20 flex items-center gap-2">
                               Create Story <ArrowRight size={14} />
                            </span>
                         </div>
+                         <div className="absolute top-5 right-5 bg-sky-500/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-white uppercase tracking-widest shadow-sm z-20">New</div>
                      </div>
                      <div className="px-1">
                         <h3 className={`text-2xl font-medium mb-2 group-hover:text-amber-700 transition-colors font-playfair`}>Web Story</h3>
-                        <p className="text-stone-500 text-sm leading-relaxed">Interactive story with music.</p>
+                        <p className="text-stone-600 text-sm leading-relaxed">Interactive story with music.</p>
                      </div>
                   </a>
 
                   {/* CENTER COLUMN GROUP */}
                   <div className="flex flex-col gap-8">
                       <a href="/templates/minimalist" className="group cursor-pointer block">
-                         <div className="relative aspect-[3/2] bg-white rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border border-stone-100 group-hover:-translate-y-2 flex items-center justify-center">
+                         <div className="relative aspect-[3/2] bg-white rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border-2 border-[#1C1917] group-hover:-translate-y-2 flex items-center justify-center">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src="/minimalist.png" alt="Minimalist" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                             <div className="absolute top-5 right-5 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-stone-800 uppercase tracking-widest shadow-sm">Popular</div>
@@ -501,12 +744,12 @@ const handleLogout = async () => {
                          </div>
                          <div className="px-1">
                             <h3 className="text-xl font-medium mb-1 group-hover:text-stone-600 transition-colors font-serif">Modern Minimalist</h3>
-                            <p className="text-stone-400 text-sm leading-relaxed font-light">Clean typography focus.</p>
+                            <p className="text-stone-600 text-sm leading-relaxed font-light">Clean typography focus.</p>
                          </div>
                       </a>
 
                       <a href="/templates/postcard" className="group cursor-pointer block">
-                         <div className="relative aspect-[3/2] bg-white rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border border-stone-100 group-hover:-translate-y-2 flex items-center justify-center">
+                         <div className="relative aspect-[3/2] bg-white rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border-2 border-[#1C1917] group-hover:-translate-y-2 flex items-center justify-center">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src="/postcard.png" alt="Classic Postcard" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                             <div className="absolute top-5 right-5 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-stone-800 uppercase tracking-widest shadow-sm z-10">Classic</div>
@@ -516,14 +759,14 @@ const handleLogout = async () => {
                          </div>
                          <div className="px-1">
                             <h3 className="text-xl font-medium mb-1 group-hover:text-stone-600 transition-colors font-serif">Classic Postcard</h3>
-                            <p className="text-stone-400 text-sm leading-relaxed font-light">Warm greetings, old style.</p>
+                            <p className="text-stone-600 text-sm leading-relaxed font-light">Warm greetings, old style.</p>
                          </div>
                       </a>
                   </div>
 
                   {/* CARD 5: NEWSPAPER */}
                   <a href="/templates/newspaper" className="group cursor-pointer block h-full">
-                     <div className="relative aspect-[2/3] bg-white rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border border-stone-100 group-hover:-translate-y-2 flex items-center justify-center">
+                     <div className="relative aspect-[2/3] bg-white rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border-2 border-[#1C1917] group-hover:-translate-y-2 flex items-center justify-center">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src="/newspaper.png" alt="Vintage Newspaper" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                         <div className="absolute top-5 right-5 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-stone-800 uppercase tracking-widest shadow-sm">New</div>
@@ -533,34 +776,119 @@ const handleLogout = async () => {
                      </div>
                      <div className="px-1">
                         <h3 className="text-xl font-medium mb-1 group-hover:text-stone-600 transition-colors font-serif">Vintage Press</h3>
-                        <p className="text-stone-400 text-sm leading-relaxed font-light">Headline news aesthetic.</p>
+                        <p className="text-stone-600 text-sm leading-relaxed font-light">Headline news aesthetic.</p>
                      </div>
                   </a>
 
+              </motion.div>
+           </div>
+        </section>
+
+        {/* --- TESTIMONIALS (Cream paper) --- */}
+        <section className="py-24 bg-[#FDFBF3] overflow-hidden border-t-3 border-[#111111]">
+           <div className="max-w-7xl mx-auto px-6">
+              <div className="text-center mb-14 max-w-2xl mx-auto">
+                 <span className="text-xs font-bold text-stone-400 uppercase tracking-[0.3em] mb-3 block">— Fan Mail —</span>
+                 <motion.h2 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="text-6xl md:text-7xl text-[#111111] font-boldonse font-black italic" style={{ letterSpacing: "-0.02em" }}>Loved by detail people</motion.h2>
+                 <p className="mt-3 text-[14px] font-bold font-sans text-[#1C1917]/60">こだわり派に愛される</p>
               </div>
+              <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}>
+                 {[
+                    { quote: "Made my best friend cry — the good kind.", name: "Amelia R.", role: "Student", bg: "bg-[#F3B8CC]" },
+                    { quote: "Finally a card maker that looks designed on purpose.", name: "Jonas P.", role: "Designer", bg: "bg-[#BFE0F5]" },
+                    { quote: "Every thank-you I sent came out feeling like a little studio piece.", name: "Priya K.", role: "Newlywed", bg: "bg-[#F6C445]" },
+                 ].map((t) => (
+                    <div key={t.name} className="p-7 rounded-[1.75rem] bg-white border-2 border-[#1C1917] hover:-translate-y-1 transition-transform">
+                       <div className="flex items-center gap-1 mb-4 text-[#F6C445]">
+                          {Array.from({ length: 5 }).map((_, i) => <Star key={i} size={14} fill="currentColor" />)}
+                       </div>
+                       <p className="text-stone-700 font-medium leading-relaxed mb-6">"{t.quote}"</p>
+                       <div className="flex items-center gap-3">
+                          <div className={`w-9 h-9 rounded-full ${t.bg} border-2 border-[#1C1917] flex items-center justify-center text-xs font-bold`}>{t.name[0]}</div>
+                          <div>
+                             <p className="text-sm font-bold text-stone-900 leading-none">{t.name}</p>
+                             <p className="text-[11px] text-stone-500">{t.role}</p>
+                          </div>
+                       </div>
+                    </div>
+                 ))}
+              </motion.div>
+           </div>
+        </section>
+
+        {/* --- FAQ (Sage paper) --- */}
+        <section className="py-24 bg-[#A9D6BC] overflow-hidden border-t-3 border-[#111111]">
+           <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12">
+              <div className="lg:col-span-4">
+                 <span className="text-xs font-bold text-[#1C1917]/50 uppercase tracking-[0.3em] mb-3 block">— FAQ —</span>
+                 <motion.h2 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="text-6xl md:text-7xl text-[#111111] font-boldonse font-black italic" style={{ letterSpacing: "-0.02em" }}>Little answers</motion.h2>
+                 <p className="mt-3 mb-4 text-[14px] font-bold font-sans text-[#1C1917]/60">ちょっとした疑問に</p>
+                 <p className="text-[#1C1917]/70 leading-relaxed">Still curious? Message us on Instagram and we'll reply with a card.</p>
+              </div>
+              <div className="lg:col-span-8 flex flex-col gap-3">
+                 {faqs.map((faq, i) => (
+                    <div key={faq.q} className="rounded-2xl border-2 border-[#1C1917] bg-[#FDFBF3] overflow-hidden">
+                       <button
+                          type="button"
+                          onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                          className="w-full flex items-center justify-between gap-4 px-6 py-4 text-left font-bold text-[#1C1917]"
+                       >
+                          {faq.q}
+                          <ChevronDown size={18} className={`flex-shrink-0 transition-transform duration-300 ${openFaq === i ? "rotate-180" : ""}`} />
+                       </button>
+                       {openFaq === i && (
+                          <div className="px-6 pb-5 text-sm text-stone-600 leading-relaxed">
+                             {faq.a}
+                          </div>
+                       )}
+                    </div>
+                 ))}
+              </div>
+           </div>
+        </section>
+
+        {/* --- FINAL CTA (Ink paper) --- */}
+        <section className="py-20 px-4 border-t-3 border-[#111111]">
+           <div className="max-w-6xl mx-auto relative bg-[#1C1917] rounded-[2.5rem] px-8 md:px-16 py-16 md:py-20 text-center overflow-hidden">
+              <div className="absolute top-6 left-8 text-[#F6C445] rotate-[-12deg]"><Sparkles size={28} /></div>
+              <div className="absolute bottom-8 right-10 w-14 h-14 rounded-full bg-[#F3B8CC] flex items-center justify-center rotate-6">
+                 <Heart size={22} className="text-[#1C1917] fill-[#1C1917]" />
+              </div>
+              <span className="text-xs font-bold text-stone-400 uppercase tracking-[0.3em] mb-4 block">— Ready when you are —</span>
+              <motion.h2 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="text-4xl md:text-6xl font-bold text-white font-playfair leading-tight mb-10">
+                 Make someone's day <br />
+                 in <span className="italic text-[#F6C445]">two minutes.</span>
+              </motion.h2>
+              <a
+                 href={session ? "/templates" : "/register"}
+                 className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-[#F6C445] text-[#1C1917] font-bold hover:-translate-y-1 hover:shadow-[4px_4px_0_0_rgba(255,255,255,0.3)] transition-all"
+              >
+                 Start Creating — It's Free
+                 <ArrowRight size={16} strokeWidth={2.5} />
+              </a>
            </div>
         </section>
 
       </main>
 
-      {/* --- FOOTER (ORIGINAL LIGHT VERSION) --- */}
-      <footer className="relative isolate w-full bg-[#1C1917] text-stone-400 py-12 border-t border-stone-800 overflow-hidden">
+      {/* --- FOOTER (konsisten dengan halaman lain: Ink dark) --- */}
+      <footer className="relative isolate w-full bg-[#1C1917] text-stone-400 py-16 border-t-4 border-[#111111] overflow-hidden">
          <div className="max-w-7xl mx-auto px-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
                <div className="md:col-span-1 space-y-4">
                   <div className="flex items-center gap-2">
-                     <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-[#1C1917]">
-                        <Gift size={16} className="text-amber-500" />
+                     <div className="w-9 h-9 bg-[#F6C445] rounded-xl flex items-center justify-center text-[#1C1917] shadow-[3px_3px_0_0_#F6C445]">
+                        <Gift size={18} strokeWidth={2.5} />
                      </div>
-                     <span className={`text-2xl font-bold text-white font-playfair italic`}>Cardify.</span>
+                     <span className="text-2xl font-bold text-white font-playfair italic">cardify</span>
                   </div>
                   <p className="text-sm text-stone-500 leading-relaxed font-medium">
-                     The modern way to celebrate. Creating digital moments that last forever.
+                     The modern way to <span className="font-boldonse text-stone-300">celebrate</span>. Digital moments that last forever.
                   </p>
                </div>
                
                <div>
-                  <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest">Product</h4>
+                  <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest font-boldonse">Product</h4>
                   <ul className="space-y-4 text-sm text-stone-500 font-medium">
                      <li><a href="/templates" className="hover:text-white cursor-pointer transition-colors">Templates</a></li>
                      <li><a href="/showcase" className="hover:text-white cursor-pointer transition-colors">Showcase</a></li>
@@ -568,7 +896,7 @@ const handleLogout = async () => {
                </div>
 
                <div>
-                  <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest">Company</h4>
+                  <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest font-boldonse">Company</h4>
                   <ul className="space-y-4 text-sm text-stone-500 font-medium">
                      <li><a href="/about" className="hover:text-white cursor-pointer transition-colors">About</a></li>
                      <li><a href="/careers" className="hover:text-white cursor-pointer transition-colors">Careers</a></li>
@@ -577,7 +905,7 @@ const handleLogout = async () => {
                </div>
 
                <div>
-                  <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest">Connect</h4>
+                  <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest font-boldonse">Connect</h4>
                   <div className="flex flex-col gap-4">
                      <a href="https://instagram.com/alfinnsptr" target="_blank" className="flex items-center gap-3 text-sm text-stone-500 hover:text-[#E1306C] transition-colors group">
                         <div className="w-8 h-8 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center group-hover:border-[#E1306C] transition-colors"><Instagram size={16} /></div>
@@ -590,6 +918,7 @@ const handleLogout = async () => {
                   </div>
                </div>
             </div>
+            
             <div className="border-t border-stone-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                <p className="text-xs text-stone-500 font-medium">© 2025 Cardify Inc. All rights reserved.</p>
                <div className="flex gap-8 text-xs text-stone-500 font-bold">
@@ -622,7 +951,6 @@ const handleLogout = async () => {
           </div>
         </div>
       )}
-
     </div>
   );
 }

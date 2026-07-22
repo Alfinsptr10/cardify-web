@@ -105,13 +105,14 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className={`min-h-screen w-full bg-[#FAFAF9] text-[#1C1917] flex items-center justify-center relative overflow-hidden p-6 font-sans`}>
+    <div className={`min-h-screen w-full bg-[#FDFBF3] text-[#1C1917] flex items-center justify-center relative overflow-hidden p-6 font-sans`}>
       
       {/* INJECT FONTS */}
       <style dangerouslySetInnerHTML={{__html: `
-          @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Boldonse&family=DM+Sans:opsz,wght@9..40,400;500;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
           .font-dm-sans { font-family: 'DM Sans', sans-serif; }
           .font-playfair { font-family: 'Playfair Display', serif; }
+          .font-boldonse { font-family: 'Boldonse', 'Archivo Black', sans-serif; }
           .font-sans { font-family: 'DM Sans', sans-serif; }
       `}} />
 
@@ -131,12 +132,12 @@ export default function RegisterPage() {
             {renderIcon(item.type, item.size)}
           </div>
         ))}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-amber-100/40 rounded-full blur-[100px] -z-10" />
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-stone-200/40 rounded-full blur-[100px] -z-10" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#F6C445]/30 rounded-full blur-[100px] -z-10" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#D8C9F2]/40 rounded-full blur-[100px] -z-10" />
       </div>
 
       {/* Register Card */}
-      <div className="w-full max-w-[420px] bg-white rounded-3xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] border-t-4 border-amber-400 relative z-10 overflow-hidden">
+      <div className="w-full max-w-[420px] bg-white rounded-[2rem] border-2 border-[#1C1917] shadow-[8px_8px_0_0_#1C1917] relative z-10 overflow-hidden">
         
         {/* Header */}
         <div className="px-8 pt-10 pb-6 text-center">
@@ -147,12 +148,12 @@ export default function RegisterPage() {
           </div>
 
           <div className="flex justify-center mb-5 mt-2">
-             <div className="w-14 h-14 bg-[#FAFAF9] rounded-2xl flex items-center justify-center border border-stone-100 shadow-sm text-amber-500">
+             <div className="w-14 h-14 bg-[#F6C445] rounded-2xl flex items-center justify-center border-2 border-[#1C1917] shadow-sm text-[#1C1917]">
                 <Gift size={28} strokeWidth={1.5} />
              </div>
           </div>
 
-          <h1 className={`text-3xl font-bold mb-2 text-[#1C1917] font-playfair`}>
+          <h1 className="text-3xl text-[#111111] mb-2 font-boldonse font-black" style={{ letterSpacing: "-0.01em" }}>
             Create Account
           </h1>
           <p className="text-stone-500 text-sm leading-relaxed max-w-[260px] mx-auto">
@@ -165,14 +166,14 @@ export default function RegisterPage() {
           <form onSubmit={handleRegister} className="space-y-5">
             
             <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-stone-500 uppercase tracking-wider ml-1">Full Name</label>
+              <label className="text-[11px] font-bold text-[#111111] uppercase tracking-wider ml-1">Full Name</label>
               <div className="relative group">
-                <User size={18} className="absolute left-4 top-3.5 text-stone-400 group-focus-within:text-amber-500 transition-colors" />
+                <User size={18} className="absolute left-4 top-3.5 text-stone-400 group-focus-within:text-[#1C1917] transition-colors" />
                 <input 
                   type="text" 
                   required 
                   placeholder="Your Name" 
-                  className="w-full bg-[#FAFAF9] border border-stone-200 rounded-xl py-3 pl-12 pr-4 text-sm text-stone-800 outline-none focus:bg-white focus:border-amber-400 focus:ring-4 focus:ring-amber-50 transition-all placeholder:text-stone-300" 
+                  className="w-full bg-[#FDFBF3] border-2 border-stone-200 rounded-xl py-3 pl-12 pr-4 text-sm text-stone-800 outline-none focus:bg-white focus:border-[#1C1917] focus:ring-4 focus:ring-[#F6C445]/30 transition-all placeholder:text-stone-300" 
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
                 />
@@ -180,14 +181,14 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-stone-500 uppercase tracking-wider ml-1">Email Address</label>
+              <label className="text-[11px] font-bold text-[#111111] uppercase tracking-wider ml-1">Email Address</label>
               <div className="relative group">
-                <Mail size={18} className="absolute left-4 top-3.5 text-stone-400 group-focus-within:text-amber-500 transition-colors" />
+                <Mail size={18} className="absolute left-4 top-3.5 text-stone-400 group-focus-within:text-[#1C1917] transition-colors" />
                 <input 
                   type="email" 
                   required 
                   placeholder="hello@cardify.id" 
-                  className="w-full bg-[#FAFAF9] border border-stone-200 rounded-xl py-3 pl-12 pr-4 text-sm text-stone-800 outline-none focus:bg-white focus:border-amber-400 focus:ring-4 focus:ring-amber-50 transition-all placeholder:text-stone-300" 
+                  className="w-full bg-[#FDFBF3] border-2 border-stone-200 rounded-xl py-3 pl-12 pr-4 text-sm text-stone-800 outline-none focus:bg-white focus:border-[#1C1917] focus:ring-4 focus:ring-[#F6C445]/30 transition-all placeholder:text-stone-300" 
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
                 />
@@ -195,27 +196,27 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-stone-500 uppercase tracking-wider ml-1">Password</label>
+              <label className="text-[11px] font-bold text-[#111111] uppercase tracking-wider ml-1">Password</label>
               <div className="relative group">
-                <Lock size={18} className="absolute left-4 top-3.5 text-stone-400 group-focus-within:text-amber-500 transition-colors" />
+                <Lock size={18} className="absolute left-4 top-3.5 text-stone-400 group-focus-within:text-[#1C1917] transition-colors" />
                 <input 
                   type="password" 
                   required 
                   placeholder="Strong password" 
-                  className="w-full bg-[#FAFAF9] border border-stone-200 rounded-xl py-3 pl-12 pr-4 text-sm text-stone-800 outline-none focus:bg-white focus:border-amber-400 focus:ring-4 focus:ring-amber-50 transition-all placeholder:text-stone-300" 
+                  className="w-full bg-[#FDFBF3] border-2 border-stone-200 rounded-xl py-3 pl-12 pr-4 text-sm text-stone-800 outline-none focus:bg-white focus:border-[#1C1917] focus:ring-4 focus:ring-[#F6C445]/30 transition-all placeholder:text-stone-300" 
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
                 />
               </div>
             </div>
 
-            <button type="submit" disabled={isLoading} className="w-full bg-[#1C1917] text-white py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-stone-200 hover:bg-black hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4 cursor-pointer">
+            <button type="submit" disabled={isLoading} className="w-full bg-[#1C1917] text-[#FDFBF3] py-3.5 rounded-xl font-bold text-sm border-2 border-[#1C1917] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_0_#F6C445] active:translate-y-0 active:shadow-none transition-all disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none flex items-center justify-center gap-2 mt-4 cursor-pointer">
               {isLoading ? <><Loader2 size={18} className="animate-spin" /> Creating Account...</> : "Sign Up"}
             </button>
           </form>
 
           <p className="text-center text-xs text-stone-400 mt-8 font-medium">
-            Already have an account? <a href="/login" className="text-amber-600 font-bold hover:underline cursor-pointer transition-colors">Log in</a>
+            Already have an account? <a href="/login" className="text-[#1C1917] font-bold hover:underline cursor-pointer transition-colors">Log in</a>
           </p>
 
         </div>
@@ -224,22 +225,22 @@ export default function RegisterPage() {
       {/* --- SUCCESS MODAL POPUP --- */}
       {showSuccessModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1C1917]/60 backdrop-blur-md p-4 animate-in fade-in duration-300">
-           <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm p-8 text-center transform scale-100 animate-in zoom-in-95 duration-300 relative border-t-4 border-green-500">
+           <div className="bg-white rounded-[2rem] border-2 border-[#1C1917] shadow-[8px_8px_0_0_#1C1917] w-full max-w-sm p-8 text-center transform scale-100 animate-in zoom-in-95 duration-300 relative">
              
              <button onClick={() => setShowSuccessModal(false)} className="absolute top-4 right-4 p-2 text-stone-300 hover:text-stone-600 transition-colors rounded-full hover:bg-stone-50">
                 <X size={18} />
              </button>
 
-             <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 text-green-500 shadow-sm border border-green-100 animate-in zoom-in duration-500 delay-100">
+             <div className="w-20 h-20 bg-[#B8E3C9] rounded-full flex items-center justify-center mx-auto mb-6 text-[#1C1917] shadow-sm border-2 border-[#1C1917] animate-in zoom-in duration-500 delay-100">
                 <CheckCircle size={40} strokeWidth={2.5} />
              </div>
              
-             <h3 className={`text-2xl font-bold text-[#1C1917] mb-2 font-playfair`}>Welcome Aboard!</h3>
+             <h3 className="text-2xl text-[#111111] mb-2 font-boldonse font-black italic" style={{ letterSpacing: "-0.01em" }}>Welcome Aboard!</h3>
              <p className="text-sm text-stone-500 mb-8 leading-relaxed px-4 font-medium">
                  Your account has been successfully created. You're ready to start crafting memories.
              </p>
              
-             <a href="/login" className="block w-full py-3.5 rounded-xl bg-[#1C1917] text-white font-bold hover:bg-black transition-all shadow-lg active:scale-[0.98]">
+             <a href="/login" className="block w-full py-3.5 rounded-xl bg-[#1C1917] text-[#FDFBF3] font-bold border-2 border-[#1C1917] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_0_#B8E3C9] active:translate-y-0 active:shadow-none transition-all">
                  Continue to Login
              </a>
            </div>
@@ -249,27 +250,27 @@ export default function RegisterPage() {
       {/* --- ERROR MODAL POPUP (EMAIL SUDAH ADA) --- */}
       {showErrorModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1C1917]/60 backdrop-blur-md p-4 animate-in fade-in duration-300">
-           <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm p-8 text-center transform scale-100 animate-in zoom-in-95 duration-300 relative border-t-4 border-red-500">
+           <div className="bg-white rounded-[2rem] border-2 border-[#1C1917] shadow-[8px_8px_0_0_#1C1917] w-full max-w-sm p-8 text-center transform scale-100 animate-in zoom-in-95 duration-300 relative">
              
              <button onClick={() => setShowErrorModal(false)} className="absolute top-4 right-4 p-2 text-stone-300 hover:text-stone-600 transition-colors rounded-full hover:bg-stone-50">
                 <X size={18} />
              </button>
 
              {/* Icon Error Merah */}
-             <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6 text-red-500 shadow-sm border border-red-100 animate-in zoom-in duration-500 delay-100">
+             <div className="w-20 h-20 bg-[#F3B8CC] rounded-full flex items-center justify-center mx-auto mb-6 text-[#1C1917] shadow-sm border-2 border-[#1C1917] animate-in zoom-in duration-500 delay-100">
                 <AlertCircle size={40} strokeWidth={2.5} />
              </div>
              
-             <h3 className={`text-2xl font-bold text-[#1C1917] mb-2 font-playfair`}>Account Exists</h3>
+             <h3 className="text-2xl text-[#111111] mb-2 font-boldonse font-black italic" style={{ letterSpacing: "-0.01em" }}>Account Exists</h3>
              <p className="text-sm text-stone-500 mb-8 leading-relaxed px-4 font-medium">
                  The email <span className="font-bold text-stone-800">{formData.email}</span> is already registered. Would you like to log in instead?
              </p>
              
              <div className="flex flex-col gap-3">
-                 <a href="/login" className="block w-full py-3.5 rounded-xl bg-[#1C1917] text-white font-bold hover:bg-black transition-all shadow-lg active:scale-[0.98]">
+                 <a href="/login" className="block w-full py-3.5 rounded-xl bg-[#1C1917] text-[#FDFBF3] font-bold border-2 border-[#1C1917] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_0_#F3B8CC] active:translate-y-0 active:shadow-none transition-all">
                      Go to Login
                  </a>
-                 <button onClick={() => setShowErrorModal(false)} className="block w-full py-3.5 rounded-xl bg-stone-100 text-stone-600 font-bold hover:bg-stone-200 transition-all">
+                 <button onClick={() => setShowErrorModal(false)} className="block w-full py-3.5 rounded-xl bg-stone-100 text-stone-600 font-bold border-2 border-stone-200 hover:bg-stone-200 transition-all">
                      Try Different Email
                  </button>
              </div>
