@@ -151,7 +151,7 @@ export default function TemplatesPage() {
       title: "Scrapbook Memories",
       category: "web-story",
       description: "A nostalgic scrapbook with interactive elements.",
-      image: "/scrapbook-story.jpg",
+      image: "/web-story.png",
       tag: "Creative",
       color: "bg-pink-100 text-pink-600"
    },
@@ -379,6 +379,7 @@ export default function TemplatesPage() {
       {/* --- GRID --- */}
       <main className="max-w-7xl mx-auto px-6 pb-24">
          <motion.div
+            key={activeTab}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
             initial="hidden"
             whileInView="show"

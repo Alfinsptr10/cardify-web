@@ -566,7 +566,7 @@ const handleLogout = async () => {
             },
             { tag: "Frames", title: "Discover your favorite style — Choose from postcard, film strip, retro game, magazine, and more.", image: "/frames.png", icon: <ImageIcon size={28} /> },
             { tag: "Create", title: "Make every greeting personal — Customize cards with photos, colors, and heartfelt messages.", image: "/create.png", icon: <ImageIcon size={28} /> },
-            { tag: "Share", title: "Download & share instantly — Save high-quality images for social media or print them as keepsakes.", bg: "bg-[#D8C9F2]", icon: <Newspaper size={28} /> },
+            { tag: "Share", title: "Download & share instantly — Save high-quality images for social media or print them as keepsakes.", image: "/share.png", icon: <ImageIcon size={28} /> },
          ].map((item) => (
             <div key={item.title} className="p-6 rounded-[1.75rem] bg-white border-2 border-[#1C1917] hover:-translate-y-1.5 hover:shadow-[5px_5px_0_0_#1C1917] transition-all duration-300">
                {/* Kondisi jika item memiliki properti image */}

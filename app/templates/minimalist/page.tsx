@@ -112,9 +112,9 @@ const ImageCropper = ({ src, aspectRatio, onCrop, onCancel }: { src: string, asp
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-stone-900/90 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-        <div className="p-4 border-b border-gray-100 flex justify-between items-center flex-shrink-0 bg-white z-10">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#1C1917]/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+      <div className="bg-white rounded-[1.75rem] w-full max-w-lg overflow-hidden border-2 border-[#1C1917] shadow-[8px_8px_0_0_#1C1917] flex flex-col max-h-[90vh]">
+        <div className="p-4 border-b-2 border-[#1C1917] flex justify-between items-center flex-shrink-0 bg-white z-10">
           <h3 className="font-bold text-lg flex items-center gap-2 text-stone-800"><ImageIcon size={18}/> Adjust Photo</h3>
           <button onClick={onCancel}><X size={20} className="text-gray-400 hover:text-black" /></button>
         </div>
@@ -130,14 +130,14 @@ const ImageCropper = ({ src, aspectRatio, onCrop, onCancel }: { src: string, asp
               <div className="absolute inset-0 pointer-events-none z-10 grid grid-cols-3 grid-rows-3 opacity-30"><div className="border-r border-b border-white/80"></div><div className="border-r border-b border-white/80"></div><div className="border-b border-white/80"></div><div className="border-r border-b border-white/80"></div><div className="border-r border-b border-white/80"></div><div className="border-b border-white/80"></div><div className="border-r border-white/80"></div><div className="border-r border-white/80"></div><div></div></div>
             </div>
         </div>
-        <div className="p-6 space-y-4 flex-shrink-0 bg-white z-20 border-t border-gray-100">
+        <div className="p-6 space-y-4 flex-shrink-0 bg-white z-20 border-t-2 border-[#1C1917]">
           <div className="flex items-center gap-4">
              <ZoomIn size={18} className="text-gray-400" />
-             <input type="range" min="1" max="3" step="0.1" value={zoom} onChange={(e) => setZoom(parseFloat(e.target.value))} className="w-full h-1 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-stone-800" />
+             <input type="range" min="1" max="3" step="0.1" value={zoom} onChange={(e) => setZoom(parseFloat(e.target.value))} className="w-full h-1 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-[#1C1917]" />
           </div>
           <div className="flex gap-3 pt-2">
-            <button onClick={onCancel} className="flex-1 py-3 rounded-lg border border-gray-200 font-bold text-sm hover:bg-gray-50 text-stone-600">Cancel</button>
-            <button onClick={performCrop} className="flex-1 py-3 rounded-lg bg-stone-900 text-white font-bold text-sm hover:bg-black shadow-lg">Apply Crop</button>
+            <button onClick={onCancel} className="flex-1 py-3 rounded-lg border-2 border-stone-200 font-bold text-sm hover:bg-gray-50 text-stone-600">Cancel</button>
+            <button onClick={performCrop} className="flex-1 py-3 rounded-lg bg-[#1C1917] text-[#F6C445] font-bold text-sm border-2 border-[#1C1917] hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_#1C1917]/30 transition-all">Apply Crop</button>
           </div>
         </div>
       </div>
@@ -226,7 +226,13 @@ export default function MinimalistEditor() {
   const finalAccentColor = isDarkBg && accentColor === "#1C1917" ? "#FFFFFF" : accentColor;
 
   return (
-    <div className={`h-screen w-full bg-[#FAFAF9] text-[#1C1917] flex flex-col xl:flex-row relative selection:bg-stone-200 selection:text-black overflow-hidden ${dmSans.className}`}>
+    <div className={`h-screen w-full bg-[#FDFBF3] text-[#1C1917] flex flex-col xl:flex-row relative selection:bg-[#F6C445] selection:text-black overflow-hidden ${dmSans.className}`}>
+
+      {/* INJECT FONT CHROME (khusus label editor, TIDAK dipakai di kartu/fontMap) */}
+      <style dangerouslySetInnerHTML={{__html: `
+          @import url('https://fonts.googleapis.com/css2?family=Boldonse&display=swap');
+          .font-boldonse-chrome { font-family: 'Boldonse', sans-serif; }
+      `}} />
       
       {/* CROP MODAL */}
       {cropModalOpen && tempImageSrc && (
@@ -239,19 +245,19 @@ export default function MinimalistEditor() {
       )}
 
       {/* ================== LEFT PANEL: EDITOR ================== */}
-      <div className="w-full xl:w-[420px] bg-white border-r border-stone-200 flex flex-col h-full z-20 shadow-xl flex-shrink-0">
+      <div className="w-full xl:w-[420px] bg-white border-r-2 border-[#1C1917] flex flex-col h-full z-20 shadow-xl flex-shrink-0">
         
         {/* Header */}
-        <div className="p-6 border-b border-stone-100 bg-white/95 backdrop-blur z-10 flex-shrink-0">
+        <div className="p-6 border-b-2 border-[#1C1917] bg-white/95 backdrop-blur z-10 flex-shrink-0">
           <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold text-stone-400 hover:text-stone-900 transition-colors uppercase tracking-widest mb-4">
              <ArrowLeft size={14} /> Back to Home
           </Link>
           <div className="flex items-center gap-3">
-             <div className="w-10 h-10 bg-stone-100 rounded-xl flex items-center justify-center border border-stone-200 text-stone-700">
+             <div className="w-10 h-10 bg-[#F6C445] rounded-xl flex items-center justify-center border-2 border-[#1C1917] shadow-[3px_3px_0_0_#1C1917] text-[#1C1917]">
                 <Layout size={20} />
              </div>
              <div>
-                <h2 className={`text-xl font-bold text-stone-900 ${playfair.className}`}>Minimalist Editor</h2>
+                <h2 className="text-xl text-stone-900 font-boldonse-chrome font-black">Minimalist Editor</h2>
                 <p className="text-xs text-stone-500 font-medium">Timeless elegance.</p>
              </div>
           </div>
@@ -262,36 +268,36 @@ export default function MinimalistEditor() {
           
           {/* Content Inputs */}
           <div className="space-y-5">
-            <h3 className="text-xs font-bold text-stone-400 uppercase tracking-widest flex items-center gap-2">
+            <h3 className="text-xs font-bold text-[#1C1917]/50 uppercase tracking-widest flex items-center gap-2 font-boldonse-chrome">
                <Type size={14} /> Content Details
             </h3>
             <div className="space-y-4">
                <div className="space-y-1.5">
                   <label className="text-xs font-bold text-stone-600 ml-1">Event Title</label>
-                  <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full bg-stone-50 border border-stone-200 rounded-lg px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-stone-900/10 focus:border-stone-400 transition-all placeholder:text-stone-400" />
+                  <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full bg-[#FDFBF3] border-2 border-stone-200 rounded-lg px-4 py-3 text-sm font-medium focus:ring-4 focus:ring-[#F6C445]/30 focus:border-[#1C1917] transition-all placeholder:text-stone-400" />
                </div>
                <div className="space-y-1.5">
                   <label className="text-xs font-bold text-stone-600 ml-1">Recipient / Honoree</label>
-                  <input value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-stone-50 border border-stone-200 rounded-lg px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-stone-900/10 focus:border-stone-400 transition-all placeholder:text-stone-400" />
+                  <input value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-[#FDFBF3] border-2 border-stone-200 rounded-lg px-4 py-3 text-sm font-medium focus:ring-4 focus:ring-[#F6C445]/30 focus:border-[#1C1917] transition-all placeholder:text-stone-400" />
                </div>
                <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                      <label className="text-xs font-bold text-stone-600 ml-1">Date & Time</label>
                      <div className="relative">
                         <Calendar size={16} className="absolute left-3.5 top-3.5 text-stone-400" />
-                        <input value={date} onChange={(e) => setDate(e.target.value)} className="w-full bg-stone-50 border border-stone-200 rounded-lg pl-10 pr-4 py-3 text-sm font-medium focus:ring-2 focus:ring-stone-900/10 focus:border-stone-400 transition-all" />
+                        <input value={date} onChange={(e) => setDate(e.target.value)} className="w-full bg-[#FDFBF3] border-2 border-stone-200 rounded-lg pl-10 pr-4 py-3 text-sm font-medium focus:ring-4 focus:ring-[#F6C445]/30 focus:border-[#1C1917] transition-all" />
                      </div>
                   </div>
                   <div className="space-y-1.5">
                      <label className="text-xs font-bold text-stone-600 ml-1">Location</label>
-                     <input value={location} onChange={(e) => setLocation(e.target.value)} className="w-full bg-stone-50 border border-stone-200 rounded-lg px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-stone-900/10 focus:border-stone-400 transition-all" />
+                     <input value={location} onChange={(e) => setLocation(e.target.value)} className="w-full bg-[#FDFBF3] border-2 border-stone-200 rounded-lg px-4 py-3 text-sm font-medium focus:ring-4 focus:ring-[#F6C445]/30 focus:border-[#1C1917] transition-all" />
                   </div>
                </div>
                <div className="space-y-1.5">
                   <label className="text-xs font-bold text-stone-600 ml-1">Message</label>
                   <div className="relative">
                      <MessageSquare size={16} className="absolute left-3.5 top-3.5 text-stone-400" />
-                     <textarea value={message} onChange={(e) => setMessage(e.target.value)} className="w-full bg-stone-50 border border-stone-200 rounded-lg pl-10 pr-4 py-3 text-sm font-medium focus:ring-2 focus:ring-stone-900/10 focus:border-stone-400 transition-all min-h-[100px] resize-none leading-relaxed" />
+                     <textarea value={message} onChange={(e) => setMessage(e.target.value)} className="w-full bg-[#FDFBF3] border-2 border-stone-200 rounded-lg pl-10 pr-4 py-3 text-sm font-medium focus:ring-4 focus:ring-[#F6C445]/30 focus:border-[#1C1917] transition-all min-h-[100px] resize-none leading-relaxed" />
                   </div>
                </div>
             </div>
@@ -301,14 +307,14 @@ export default function MinimalistEditor() {
 
           {/* Visual Inputs */}
           <div className="space-y-5">
-             <h3 className="text-xs font-bold text-stone-400 uppercase tracking-widest flex items-center gap-2">
+             <h3 className="text-xs font-bold text-[#1C1917]/50 uppercase tracking-widest flex items-center gap-2 font-boldonse-chrome">
                <Palette size={14} /> Aesthetic
             </h3>
             
             {/* Image Upload */}
-            <div className="p-4 rounded-xl border-2 border-dashed border-stone-200 hover:bg-stone-50 hover:border-stone-400 transition-all bg-white relative group overflow-hidden cursor-pointer flex items-center justify-center gap-3 mb-4" onClick={() => document.getElementById("uploadMinImg")?.click()}>
+            <div className="p-4 rounded-xl border-2 border-dashed border-stone-300 hover:bg-[#F6C445]/10 hover:border-[#1C1917] transition-all bg-white relative group overflow-hidden cursor-pointer flex items-center justify-center gap-3 mb-4" onClick={() => document.getElementById("uploadMinImg")?.click()}>
               <input type="file" id="uploadMinImg" accept="image/*" onChange={handleImageUpload} className="hidden" />
-              <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center text-stone-500 group-hover:bg-white group-hover:shadow-md transition-all">
+              <div className="w-10 h-10 rounded-full bg-[#F6C445] border-2 border-[#1C1917] flex items-center justify-center text-[#1C1917] group-hover:shadow-[2px_2px_0_0_#1C1917] transition-all">
                   <Upload size={18} />
               </div>
               <span className="text-xs font-bold text-stone-500 group-hover:text-stone-900 transition-colors uppercase tracking-wide">Upload Photo</span>
@@ -323,7 +329,7 @@ export default function MinimalistEditor() {
                        <button
                           key={c.value}
                           onClick={() => setCardColor(c.value)}
-                          className={`w-8 h-8 rounded-full border border-stone-200 shadow-sm transition-transform hover:scale-110 flex items-center justify-center ${cardColor === c.value ? "ring-2 ring-offset-1 ring-stone-400 scale-110" : ""}`}
+                          className={`w-8 h-8 rounded-full border-2 border-[#1C1917] shadow-sm transition-transform hover:scale-110 flex items-center justify-center ${cardColor === c.value ? "ring-2 ring-offset-1 ring-[#F6C445] scale-110" : ""}`}
                           style={{ backgroundColor: c.value }}
                           title={c.name}
                        >
@@ -341,7 +347,7 @@ export default function MinimalistEditor() {
                        <button
                           key={c.value}
                           onClick={() => setAccentColor(c.value)}
-                          className={`w-6 h-6 rounded-full border border-stone-200 shadow-sm transition-transform hover:scale-110 flex items-center justify-center ${accentColor === c.value ? "ring-2 ring-offset-1 ring-stone-400" : ""}`}
+                          className={`w-6 h-6 rounded-full border-2 border-[#1C1917] shadow-sm transition-transform hover:scale-110 flex items-center justify-center ${accentColor === c.value ? "ring-2 ring-offset-1 ring-[#F6C445]" : ""}`}
                           style={{ backgroundColor: c.value }}
                        >
                           {accentColor === c.value && <Check size={10} className="text-white" />}
@@ -358,10 +364,10 @@ export default function MinimalistEditor() {
                        <button
                           key={key}
                           onClick={() => setSelectedFont(key)}
-                          className={`flex items-center justify-between px-3 py-2 text-xs border rounded-lg transition-all ${
+                          className={`flex items-center justify-between px-3 py-2 text-xs border-2 rounded-lg transition-all ${
                             selectedFont === key 
-                            ? "bg-stone-900 text-white border-stone-900" 
-                            : "bg-white text-stone-600 border-stone-200 hover:border-stone-400"
+                            ? "bg-[#1C1917] text-[#F6C445] border-[#1C1917] shadow-[2px_2px_0_0_#F6C445]" 
+                            : "bg-white text-stone-600 border-stone-200 hover:border-[#1C1917]"
                           }`}
                        >
                           <span className={fontMap[key].font.className}>{fontMap[key].name}</span>
@@ -376,15 +382,15 @@ export default function MinimalistEditor() {
         </div>
 
         {/* Footer Action */}
-        <div className="p-6 border-t border-stone-100 bg-white flex-shrink-0 z-20">
-          <button onClick={handleDownload} disabled={isDownloading} className="w-full flex items-center justify-center gap-2 bg-stone-900 text-white py-3.5 rounded-full font-bold text-sm hover:bg-black hover:scale-[1.01] active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-xl shadow-stone-200">
+        <div className="p-6 border-t-2 border-[#1C1917] bg-white flex-shrink-0 z-20">
+          <button onClick={handleDownload} disabled={isDownloading} className="w-full flex items-center justify-center gap-2 bg-[#1C1917] text-[#FDFBF3] py-3.5 rounded-full font-bold text-sm border-2 border-[#1C1917] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_0_#F6C445] active:translate-y-0 active:shadow-none transition-all disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none">
             {isDownloading ? <><Loader2 size={18} className="animate-spin" /> Generating...</> : <><Download size={18} /> Export Card</>}
           </button>
         </div>
       </div>
 
       {/* ================== RIGHT PANEL: PREVIEW STAGE ================== */}
-      <div className="flex-1 h-full bg-[#E5E5E5] relative flex flex-col items-center justify-center p-8 xl:p-16 overflow-y-auto overflow-x-hidden">
+      <div className="flex-1 h-full bg-[#EAE6DC] relative flex flex-col items-center justify-center p-8 xl:p-16 overflow-y-auto overflow-x-hidden">
         
         {/* Background Texture */}
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none mix-blend-multiply fixed" />
@@ -455,7 +461,7 @@ export default function MinimalistEditor() {
                 </div>
             </div>
 
-            <div className="mt-8 text-stone-400 text-xs font-bold tracking-widest uppercase opacity-60">
+            <div className="mt-8 px-4 py-1.5 rounded-full bg-white border-2 border-[#1C1917] text-[#1C1917] text-xs font-bold tracking-widest uppercase">
                 Preview Mode: Elegant Landscape
             </div>
 

@@ -478,7 +478,6 @@ function FeaturesContent() {
               <ul className="space-y-4 text-sm text-stone-500 font-medium">
                 <li><Link href="/templates" className="hover:text-white cursor-pointer transition-colors">Templates</Link></li>
                 <li><Link href="/features" className="text-white font-bold cursor-pointer transition-colors">Features</Link></li>
-                <li><Link href="/showcase" className="hover:text-white cursor-pointer transition-colors">Showcase</Link></li>
               </ul>
             </div>
 
