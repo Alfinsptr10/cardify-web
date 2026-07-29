@@ -8,7 +8,13 @@ import {
   Cormorant_Garamond, 
   Great_Vibes, 
   Montserrat, 
-  Cinzel 
+  Cinzel,
+  Marcellus,
+  Italiana,
+  Josefin_Sans,
+  Bodoni_Moda,
+  Pinyon_Script,
+  EB_Garamond,
 } from "next/font/google";
 import { toPng } from "html-to-image";
 import { 
@@ -36,6 +42,12 @@ const cormorant = Cormorant_Garamond({ subsets: ["latin"], weight: ["400", "600"
 const greatVibes = Great_Vibes({ subsets: ["latin"], weight: ["400"] });
 const montserrat = Montserrat({ subsets: ["latin"], weight: ["400", "600"] });
 const cinzel = Cinzel({ subsets: ["latin"], weight: ["400", "600"] });
+const marcellus = Marcellus({ subsets: ["latin"], weight: ["400"] });
+const italiana = Italiana({ subsets: ["latin"], weight: ["400"] });
+const josefinSans = Josefin_Sans({ subsets: ["latin"], weight: ["400", "600"] });
+const bodoniModa = Bodoni_Moda({ subsets: ["latin"], weight: ["400", "600"] });
+const pinyonScript = Pinyon_Script({ subsets: ["latin"], weight: ["400"] });
+const ebGaramond = EB_Garamond({ subsets: ["latin"], weight: ["400", "600"] });
 
 // Mapping Font untuk State
 const fontMap: Record<string, any> = {
@@ -45,6 +57,12 @@ const fontMap: Record<string, any> = {
   greatVibes: { name: "Script", font: greatVibes },
   cinzel: { name: "Royal", font: cinzel },
   dmSans: { name: "Minimal", font: dmSans },
+  marcellus: { name: "Editorial", font: marcellus },
+  italiana: { name: "Boutique", font: italiana },
+  josefinSans: { name: "Geometric", font: josefinSans },
+  bodoniModa: { name: "Fashion", font: bodoniModa },
+  pinyonScript: { name: "Romantic", font: pinyonScript },
+  ebGaramond: { name: "Timeless", font: ebGaramond },
 };
 
 // --- KOMPONEN IMAGE CROPPER (Reused) ---
@@ -176,13 +194,10 @@ export default function MinimalistEditor() {
     { name: "Gold", value: "#b45309" },
   ];
 
-  // Palet Warna Kartu (Background)
+  // Palet Warna Kartu (Background) — 3 pilihan cepat, sisanya lewat color picker
   const bgPresets = [
     { name: "Cream", value: "#FAFAF9" },
     { name: "White", value: "#FFFFFF" },
-    { name: "Mist", value: "#F3F4F6" },
-    { name: "Rose", value: "#FFF1F2" },
-    { name: "Sky", value: "#F0F9FF" },
     { name: "Dark", value: "#1C1917" },
   ];
 
@@ -324,7 +339,7 @@ export default function MinimalistEditor() {
               {/* Card Background Color */}
               <div className="space-y-2">
                  <label className="text-xs font-bold text-stone-600 ml-1 flex items-center gap-1"><PaintBucket size={12}/> Card Background</label>
-                 <div className="flex gap-2 flex-wrap">
+                 <div className="flex gap-2 flex-wrap items-center">
                     {bgPresets.map((c) => (
                        <button
                           key={c.value}
@@ -336,6 +351,31 @@ export default function MinimalistEditor() {
                           {cardColor === c.value && <Check size={12} className={c.value === '#1C1917' ? "text-white" : "text-black"} />}
                        </button>
                     ))}
+
+                    {/* Custom color picker — bebas pilih warna apapun */}
+                    <label
+                       title="Custom color"
+                       className={`relative w-8 h-8 rounded-full border-2 border-[#1C1917] shadow-sm transition-transform hover:scale-110 flex items-center justify-center cursor-pointer overflow-hidden ${
+                          !bgPresets.some((c) => c.value.toLowerCase() === cardColor.toLowerCase())
+                             ? "ring-2 ring-offset-1 ring-[#F6C445] scale-110"
+                             : ""
+                       }`}
+                       style={{
+                          background: !bgPresets.some((c) => c.value.toLowerCase() === cardColor.toLowerCase())
+                             ? cardColor
+                             : "conic-gradient(from 180deg, #F6C445, #F3B8CC, #BFE0F5, #A9D6BC, #D8C9F2, #F6C445)",
+                       }}
+                    >
+                       {bgPresets.some((c) => c.value.toLowerCase() === cardColor.toLowerCase()) && (
+                          <Palette size={13} className="text-white drop-shadow" />
+                       )}
+                       <input
+                          type="color"
+                          value={cardColor}
+                          onChange={(e) => setCardColor(e.target.value)}
+                          className="absolute inset-0 opacity-0 cursor-pointer"
+                       />
+                    </label>
                  </div>
               </div>
 

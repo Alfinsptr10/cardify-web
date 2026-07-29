@@ -233,8 +233,8 @@ const EditModal = ({ slide, onClose, onUpdate, onDelete, onImageUpload }: any) =
 
     return (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-            <div className="bg-white/95 backdrop-blur rounded-[2rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-white/50">
-                <div className="p-5 border-b border-sky-100 flex justify-between items-center bg-sky-50/50">
+            <div className="bg-white/95 backdrop-blur rounded-[2rem] w-full max-w-md border-2 border-white shadow-[8px_8px_0_0_rgba(56,189,248,0.25)] overflow-hidden animate-in zoom-in-95 duration-200">
+                <div className="p-5 border-b-2 border-sky-100 flex justify-between items-center bg-sky-50/50">
                     <span className="text-xs font-bold text-sky-500 uppercase tracking-widest flex items-center gap-2">
                         Edit Content
                     </span>
@@ -254,16 +254,16 @@ const EditModal = ({ slide, onClose, onUpdate, onDelete, onImageUpload }: any) =
                             </div>
                             <div className="space-y-2">
                                 <label className="text-[10px] font-bold text-stone-400 uppercase tracking-wide">Caption</label>
-                                <input value={slide.caption} onChange={(e) => onUpdate(slide.id, 'caption', e.target.value)} className={`w-full bg-white border border-stone-200 rounded-xl px-4 py-3 text-xl text-center ${caveat.className}`} placeholder="Caption..." />
+                                <input value={slide.caption} onChange={(e) => onUpdate(slide.id, 'caption', e.target.value)} className={`w-full bg-white border-2 border-stone-200 focus:border-rose-200 rounded-xl px-4 py-3 text-xl text-center outline-none transition-colors ${caveat.className}`} placeholder="Caption..." />
                             </div>
                         </>
                     )}
                     {slide.type === 'message' && (
-                        <textarea value={slide.text} onChange={(e) => onUpdate(slide.id, 'text', e.target.value)} className={`w-full bg-[#fefce8] border border-yellow-100 rounded-xl px-5 py-4 text-2xl h-48 resize-none leading-relaxed text-stone-700 ${caveat.className}`} placeholder="Write message..." />
+                        <textarea value={slide.text} onChange={(e) => onUpdate(slide.id, 'text', e.target.value)} className={`w-full bg-[#fefce8] border-2 border-yellow-100 focus:border-yellow-300 rounded-xl px-5 py-4 text-2xl h-48 resize-none leading-relaxed text-stone-700 outline-none transition-colors ${caveat.className}`} placeholder="Write message..." />
                     )}
                 </div>
-                <div className="p-4 border-t border-stone-100 bg-white flex justify-end">
-                    <button onClick={onClose} className="px-8 py-3 bg-stone-900 text-white rounded-xl font-bold text-sm hover:bg-black transition-all shadow-lg">Save</button>
+                <div className="p-4 border-t-2 border-stone-100 bg-white flex justify-end">
+                    <button onClick={onClose} className="px-8 py-3 bg-stone-900 text-white rounded-xl font-bold text-sm border-2 border-stone-900 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_rgba(251,113,133,0.4)] transition-all">Save</button>
                 </div>
             </div>
         </div>
@@ -320,7 +320,7 @@ const MusicModal = ({ playlist, onClose, onAddSong, onDeleteSong, onSelectSong, 
     return (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
             {/* CONTAINER UTAMA: Soft Pink/Cream, tidak terlalu terang, border tipis */}
-            <div className="bg-[#fff9f9] border border-rose-100 rounded-[2rem] w-full max-w-[360px] p-6 text-stone-700 shadow-2xl relative overflow-hidden flex flex-col max-h-[85vh]">
+            <div className="bg-[#fff9f9] border-2 border-rose-100 rounded-[2rem] w-full max-w-[360px] p-6 text-stone-700 shadow-[6px_6px_0_0_rgba(251,113,133,0.2)] relative overflow-hidden flex flex-col max-h-[85vh]">
                 
                 {/* Decorative Elements - Subtle */}
                 <div className="absolute top-5 left-5 w-2 h-2 rounded-full bg-rose-200"></div>
@@ -463,7 +463,7 @@ const MusicModal = ({ playlist, onClose, onAddSong, onDeleteSong, onSelectSong, 
                                 />
                             )}
                             
-                            <button onClick={handleAdd} disabled={!newTitle || !newArtist || !newAudio} className="w-8 h-8 bg-rose-400 hover:bg-rose-500 text-white rounded-lg flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg">
+                            <button onClick={handleAdd} disabled={!newTitle || !newArtist || !newAudio} className="w-8 h-8 bg-rose-400 hover:bg-rose-500 text-white rounded-lg flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed border-2 border-rose-400 hover:-translate-y-0.5 hover:shadow-[2px_2px_0_0_rgba(251,113,133,0.4)] disabled:hover:translate-y-0 disabled:hover:shadow-none transition-all">
                                 <Plus size={16} />
                             </button>
                         </div>
@@ -676,7 +676,7 @@ export default function WebStoryEditor() {
       <div className="flex flex-col items-center justify-center min-h-[85vh] w-full max-w-5xl mx-auto animate-in fade-in duration-700 relative z-10 py-10">
          {/* ADDED: Back to App Home Button */}
          <div className="absolute top-4 left-4 md:top-8 md:left-[-100px] z-50">
-            <a href="/" className="flex items-center gap-2 bg-white/40 hover:bg-white/80 backdrop-blur-md px-5 py-2.5 rounded-full text-stone-600 hover:text-sky-600 font-bold uppercase text-xs tracking-widest shadow-sm border border-white/50 transition-all duration-300 group">
+            <a href="/" className="flex items-center gap-2 bg-white/60 hover:bg-white/90 backdrop-blur-md px-5 py-2.5 rounded-full text-stone-600 hover:text-sky-600 font-bold uppercase text-xs tracking-widest border-2 border-white/70 hover:border-rose-200 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_rgba(251,113,133,0.35)] transition-all duration-300 group">
                 <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
                 <span>Exit Editor</span>
             </a>
@@ -699,19 +699,19 @@ export default function WebStoryEditor() {
 
          <div className="mt-20 w-full max-w-md px-6 text-center">
              {!publishedUrl ? (
-                 <button onClick={handlePublish} disabled={isPublishing} className="w-full py-4 bg-sky-600 text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-sky-500 hover:scale-105 transition-all shadow-xl shadow-sky-0 disabled:opacity-70">
+                 <button onClick={handlePublish} disabled={isPublishing} className="w-full py-4 bg-sky-600 text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-sky-500 border-2 border-sky-600 hover:-translate-y-0.5 hover:shadow-[4px_4px_0_0_rgba(2,132,199,0.3)] transition-all disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none">
                     {isPublishing ? <Loader2 size={20} className="animate-spin" /> : <Share2 size={20} />}
                     {isPublishing ? "Saving..." : "Publish Website"}
                  </button>
              ) : (
-                 <div className="space-y-3 bg-white/90 backdrop-blur p-4 rounded-2xl shadow-xl border border-white animate-in slide-in-from-bottom-4">
+                 <div className="space-y-3 bg-white/90 backdrop-blur p-4 rounded-2xl border-2 border-green-100 shadow-[4px_4px_0_0_rgba(187,247,208,0.6)] animate-in slide-in-from-bottom-4">
                     <div className="flex items-center gap-2 p-2 bg-green-50 rounded-lg border border-green-100">
                         <Check size={16} className="text-green-600"/>
                         <span className="text-xs font-bold text-green-700 truncate flex-1">{publishedUrl}</span>
                         <button onClick={copyToClipboard} className="p-1.5 hover:bg-white rounded text-green-700"><Copy size={14}/></button>
                     </div>
                     {/* CHANGED: Link to standard <a> tag */}
-                    <a href={publishedUrl} target="_blank" className="block w-full py-3 bg-green-600 text-white rounded-xl font-bold text-sm hover:bg-green-700 transition-colors shadow-md">
+                    <a href={publishedUrl} target="_blank" className="block w-full py-3 bg-green-600 text-white rounded-xl font-bold text-sm border-2 border-green-600 hover:bg-green-700 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_rgba(21,128,61,0.3)] transition-all">
                         Visit Website
                     </a>
                     <button onClick={() => setPublishedUrl(null)} className="text-xs text-stone-400 hover:text-stone-600 underline">Edit Again</button>
@@ -725,7 +725,7 @@ export default function WebStoryEditor() {
   const renderGallery = () => (
       <div className="flex flex-col min-h-screen relative z-10 w-full">
           <div className="p-6 flex items-center justify-between sticky top-0 z-40">
-             <button onClick={() => setView('home')} className="flex items-center gap-2 bg-white/80 backdrop-blur px-5 py-2.5 rounded-full text-stone-600 hover:text-black font-bold uppercase text-xs tracking-widest group shadow-sm border border-white/50 hover:scale-105 transition-all">
+             <button onClick={() => setView('home')} className="flex items-center gap-2 bg-white/90 backdrop-blur px-5 py-2.5 rounded-full text-stone-600 hover:text-black font-bold uppercase text-xs tracking-widest group border-2 border-white/70 hover:border-sky-200 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_rgba(56,189,248,0.3)] transition-all">
                  <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform"/> Back to Menu
              </button>
              <h2 className={`text-4xl text-sky-600 ${greatVibes.className} drop-shadow-sm hidden md:block`}>{storyInfo.title} Gallery</h2>
@@ -781,7 +781,7 @@ export default function WebStoryEditor() {
   const renderLetter = () => (
       <div className="flex flex-col min-h-screen items-center justify-center p-6 relative z-10 w-full">
           <div className="absolute top-6 left-6 z-40">
-             <button onClick={() => setView('home')} className="flex items-center gap-2 bg-white/60 backdrop-blur px-4 py-2 rounded-full text-stone-600 hover:text-black font-bold uppercase text-xs tracking-widest group shadow-sm">
+             <button onClick={() => setView('home')} className="flex items-center gap-2 bg-white/70 backdrop-blur px-4 py-2 rounded-full text-stone-600 hover:text-black font-bold uppercase text-xs tracking-widest group border-2 border-white/70 hover:border-rose-200 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_rgba(251,113,133,0.3)] transition-all">
                  <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform"/> Home
              </button>
           </div>

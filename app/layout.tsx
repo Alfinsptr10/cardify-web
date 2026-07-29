@@ -32,6 +32,11 @@ export const metadata: Metadata = {
   title: "Cardify — Buat Kartu Digital Penuh Kenangan",
   description:
     "Buat kartu ucapan digital yang personal dan berkesan untuk ulang tahun, pernikahan, wisuda, dan momen spesial lainnya.",
+  icons: {
+    icon: "/logo.svg",
+    shortcut: "logo.svg",
+    apple: "logo.svg",
+  }
 };
 
 export default function RootLayout({

@@ -1,6 +1,7 @@
 "use client";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect, useRef, type MouseEvent } from "react";
+import Link from "next/link";
 import image from "next/image";
 import { motion, useMotionValue, useSpring, useTransform, type Variants } from "framer-motion";
 // MOCK IMPORTS REPLACEMENT
@@ -12,6 +13,7 @@ import {
   Newspaper, Stamp, Smartphone, Zap, Share2, Palette, Image as ImageIcon,
   Gamepad2
 } from "lucide-react";
+import SpeechBubble from "@/components/ui/SpeechBubble";
 
 // --- REUSABLE MOTION VARIANTS ---
 const fadeUp: Variants = {
@@ -222,15 +224,29 @@ const handleLogout = async () => {
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center relative">
           
           {/* Logo Brand */}
-          <div className="flex items-center gap-2.5 cursor-pointer group" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <div className="w-9 h-9 bg-[#1C1917] rounded-xl flex items-center justify-center text-[#F6C445] shadow-[3px_3px_0_0_#F6C445] group-hover:rotate-12 group-hover:shadow-[4px_4px_0_0_#F6C445] transition-all duration-300">
-               <Gift size={18} strokeWidth={2.5} />
+          <Link href="/" className="flex items-center gap-2.5 cursor-pointer group">
+                      <div className="w-9 h-9 bg-[#1C1917] rounded-xl flex items-center justify-center shadow-[3px_3px_0_0_#F6C445] group-hover:rotate-12 group-hover:shadow-[4px_4px_0_0_#F6C445] transition-all duration-300 p-1.5">
+                         {/* eslint-disable-next-line @next/next/no-img-element */}
+                         <img src="/logo.svg" alt="Cardify" className="w-full h-full object-contain" />
+                      </div>
+                      <div className="leading-none">
+            <div
+              className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1C1917]"
+            >
+              A CARD WITH A STORY
             </div>
-            <div className="flex flex-col leading-none">
-              <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400">A card with a story</span>
-              <span className={`text-xl font-bold tracking-tight font-playfair italic text-[#1C1917]`}>cardify</span>
+          
+            <div
+              className="text-2xl font-black italic tracking-[-0.02em]"
+              style={{
+                fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+                color: "#1C1917",
+              }}
+            >
+              cardify
             </div>
           </div>
+                    </Link>
           
           {/* Navigation Links - Centered */}
           <div className="hidden md:flex items-center gap-8 text-sm font-bold uppercase tracking-wide text-stone-600 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-full">
@@ -323,23 +339,23 @@ const handleLogout = async () => {
 
                 {/* Dropdown Menu */}
                 {showProfileMenu && (
-                  <div className="absolute top-full right-0 mt-3 w-72 bg-white rounded-2xl shadow-2xl border border-stone-100 p-2 overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right ring-1 ring-black/5">
-                    <div className="p-4 bg-stone-50/50 rounded-xl mb-2 border border-stone-100">
+                  <div className="absolute top-full right-0 mt-3 w-72 bg-white rounded-2xl border-2 border-[#1C1917] shadow-[6px_6px_0_0_#1C1917] p-2 overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right">
+                    <div className="p-4 bg-[#FDFBF3] rounded-xl mb-2 border-2 border-stone-100">
                       <p className="text-sm font-bold text-stone-900 truncate">{session?.user?.name}</p>
                       <p className="text-xs text-stone-500 truncate font-medium">{session?.user?.email}</p>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <button className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-stone-50 hover:text-black rounded-xl transition-all font-medium group">
-                        <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all"><User size={16} /></div>
+                      <a href="/account" className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-[#F6C445]/15 hover:text-[#1C1917] rounded-xl transition-all font-medium group">
+                        <div className="w-8 h-8 rounded-lg bg-[#F6C445] border-2 border-[#1C1917] flex items-center justify-center text-[#1C1917] group-hover:shadow-[2px_2px_0_0_#1C1917] transition-all"><User size={16} /></div>
                         Profile & Account
-                      </button>
-                      <button className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-stone-50 hover:text-black rounded-xl transition-all font-medium group">
-                        <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all"><Settings size={16} /></div>
+                      </a>
+                      <button className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-[#BFE0F5]/25 hover:text-[#1C1917] rounded-xl transition-all font-medium group">
+                        <div className="w-8 h-8 rounded-lg bg-[#BFE0F5] border-2 border-[#1C1917] flex items-center justify-center text-[#1C1917] group-hover:shadow-[2px_2px_0_0_#1C1917] transition-all"><Settings size={16} /></div>
                         Preferences
                       </button>
                       <div className="h-px bg-stone-100 my-1 mx-2"></div>
-                      <button onClick={initiateLogout} className="flex items-center gap-3 w-full p-2.5 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-all font-medium group">
-                        <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all"><LogOut size={16} /></div>
+                      <button onClick={initiateLogout} className="flex items-center gap-3 w-full p-2.5 text-sm text-red-600 hover:bg-[#F3B8CC]/25 rounded-xl transition-all font-medium group">
+                        <div className="w-8 h-8 rounded-lg bg-[#F3B8CC] border-2 border-[#1C1917] flex items-center justify-center text-red-600 group-hover:shadow-[2px_2px_0_0_#1C1917] transition-all"><LogOut size={16} /></div>
                         Sign Out
                       </button>
                     </div>
@@ -400,11 +416,22 @@ const handleLogout = async () => {
                </motion.h1>
 
                {/* Emotion chips */}
-               <motion.div variants={staggerItem} className="flex flex-wrap gap-2">
-                  <span className="px-4 py-1.5 rounded-full bg-[#F3B8CC] text-[#1C1917] text-xs font-black uppercase tracking-widest border-2 border-[#1C1917] rotate-[-2deg] font-sans">Happy</span>
-                  <span className="px-4 py-1.5 rounded-full bg-[#BFE0F5] text-[#1C1917] text-xs font-black uppercase tracking-widest border-2 border-[#1C1917] rotate-[1deg] font-sans">Thank You</span>
-                  <span className="px-4 py-1.5 rounded-full bg-[#FDFBF3] text-[#1C1917] text-xs font-black uppercase tracking-widest border-2 border-[#1C1917] rotate-[-1deg] font-sans">Miss You</span>
-               </motion.div>
+               <motion.div
+  variants={staggerItem}
+  className="mt-6 flex flex-wrap items-center gap-3"
+>
+  <SpeechBubble color="#F3B8CC" rotate={-3}>
+    Happy
+  </SpeechBubble>
+
+  <SpeechBubble color="#BFE0F5" rotate={4}>
+    Thank You
+  </SpeechBubble>
+
+  <SpeechBubble color="#DCCBFF" rotate={-2}>
+    Miss You
+  </SpeechBubble>
+</motion.div>
                
                <motion.p variants={staggerItem} className="text-lg md:text-xl text-[#1C1917]/70 leading-relaxed max-w-lg font-medium">
                  Cardify makes beautiful, personal, aesthetic digital greeting cards. Choose a template, add photos, share the memory — in seconds.
@@ -851,10 +878,23 @@ const handleLogout = async () => {
                  <Heart size={22} className="text-[#1C1917] fill-[#1C1917]" />
               </div>
               <span className="text-xs font-bold text-stone-400 uppercase tracking-[0.3em] mb-4 block">— Ready when you are —</span>
-              <motion.h2 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="text-4xl md:text-6xl font-bold text-white font-playfair leading-tight mb-10">
-                 Make someone's day <br />
-                 in <span className="italic text-[#F6C445]">two minutes.</span>
-              </motion.h2>
+              <motion.h2
+  initial={{ opacity: 0, y: 24 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  viewport={{ once: true, margin: "-100px" }}
+  transition={{ duration: 0.6, ease: "easeOut" }}
+  className="mx-auto mb-10 max-w-3xl text-5xl font-black italic leading-[0.95] md:text-7xl"
+  style={{
+    fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+    color:"#FDFBF3",
+    letterSpacing: "-0.02em",
+  }}
+>
+  Make someone's day <br />
+  <span style={{ color: "#F6C445" }}>
+    in two minutes.
+  </span>
+</motion.h2>
               <a
                  href={session ? "/templates" : "/register"}
                  className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-[#F6C445] text-[#1C1917] font-bold hover:-translate-y-1 hover:shadow-[4px_4px_0_0_rgba(255,255,255,0.3)] transition-all"
@@ -868,85 +908,310 @@ const handleLogout = async () => {
       </main>
 
       {/* --- FOOTER (konsisten dengan halaman lain: Ink dark) --- */}
-      <footer className="relative isolate w-full bg-[#1C1917] text-stone-400 py-16 border-t-4 border-[#111111] overflow-hidden">
-         <div className="max-w-7xl mx-auto px-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-               <div className="md:col-span-1 space-y-4">
-                  <div className="flex items-center gap-2">
-                     <div className="w-9 h-9 bg-[#F6C445] rounded-xl flex items-center justify-center text-[#1C1917] shadow-[3px_3px_0_0_#F6C445]">
-                        <Gift size={18} strokeWidth={2.5} />
-                     </div>
-                     <span className="text-2xl font-bold text-white font-playfair italic">cardify</span>
-                  </div>
-                  <p className="text-sm text-stone-500 leading-relaxed font-medium">
-                     The modern way to <span className="font-boldonse text-stone-300">celebrate</span>. Digital moments that last forever.
-                  </p>
-               </div>
-               
-               <div>
-                  <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest font-boldonse">Product</h4>
-                  <ul className="space-y-4 text-sm text-stone-500 font-medium">
-                     <li><a href="/templates" className="hover:text-white cursor-pointer transition-colors">Templates</a></li>
-                     <li><a href="/showcase" className="hover:text-white cursor-pointer transition-colors">Showcase</a></li>
-                  </ul>
-               </div>
+      <footer
+  className="relative isolate w-full border-t-[2.5px] px-6 py-12 overflow-hidden"
+  style={{
+    background: "#84D4A4", // MINT
+    borderColor: "#1C1917", // INK
+  }}
+>
+  <div className="mx-auto max-w-7xl">
 
-               <div>
-                  <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest font-boldonse">Company</h4>
-                  <ul className="space-y-4 text-sm text-stone-500 font-medium">
-                     <li><a href="/about" className="hover:text-white cursor-pointer transition-colors">About</a></li>
-                     <li><a href="/careers" className="hover:text-white cursor-pointer transition-colors">Careers</a></li>
-                     <li><a href="/blog" className="hover:text-white cursor-pointer transition-colors">Blog</a></li>
-                  </ul>
-               </div>
+    <div className="mb-12 grid grid-cols-2 gap-10 md:grid-cols-4">
 
-               <div>
-                  <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest font-boldonse">Connect</h4>
-                  <div className="flex flex-col gap-4">
-                     <a href="https://instagram.com/alfinnsptr" target="_blank" className="flex items-center gap-3 text-sm text-stone-500 hover:text-[#E1306C] transition-colors group">
-                        <div className="w-8 h-8 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center group-hover:border-[#E1306C] transition-colors"><Instagram size={16} /></div>
-                        <span className="font-medium">Instagram</span>
-                     </a>
-                     <a href="https://wa.me/6289501847804" target="_blank" className="flex items-center gap-3 text-sm text-stone-500 hover:text-[#25D366] transition-colors group">
-                        <div className="w-8 h-8 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center group-hover:border-[#25D366] transition-colors"><MessageCircle size={16} /></div>
-                        <span className="font-medium">WhatsApp</span>
-                     </a>
-                  </div>
-               </div>
+      {/* Brand */}
+      <div className="col-span-2 md:col-span-1">
+
+        <div className="mb-4 flex items-center gap-3">
+
+          <div
+            className="flex h-10 w-10 items-center justify-center rounded-full border-[2.5px]"
+            style={{
+              background: "#1C1917",
+              borderColor: "#1C1917",
+            }}
+          >
+            <img
+              src="/logo.svg"
+              alt="Cardify"
+              className="h-5 w-5 object-contain"
+            />
+          </div>
+
+          <div className="leading-none">
+  <div
+    className="text-[9px] font-black uppercase tracking-[0.2em]"
+    style={{ color: "#1C1917" }}
+  >
+    A CARD WITH A STORY
+  </div>
+
+  <div
+    className="text-2xl font-black italic tracking-[-0.02em]"
+    style={{
+      fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+      color: "#1C1917",
+    }}
+  >
+    cardify
+  </div>
+</div>
+
+        </div>
+
+        <p
+          className="text-sm font-medium leading-relaxed"
+          style={{ color: "#1C1917" }}
+        >
+          The modern way to celebrate.
+          Digital moments that last forever.
+        </p>
+
+      </div>
+
+      {/* Product */}
+
+      <div>
+
+        <h4
+          className="mb-4 text-xs font-black uppercase tracking-widest"
+          style={{ color: "#1C1917" }}
+        >
+          Product
+        </h4>
+
+        <ul className="space-y-2 text-sm font-bold">
+
+          <li>
+            <a
+              href="/templates"
+              className="transition-opacity hover:opacity-60"
+              style={{ color: "#1C1917" }}
+            >
+              Templates
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="/showcase"
+              className="transition-opacity hover:opacity-60"
+              style={{ color: "#1C1917" }}
+            >
+              Showcase
+            </a>
+          </li>
+
+        </ul>
+
+      </div>
+
+      {/* Company */}
+
+      <div>
+
+        <h4
+          className="mb-4 text-xs font-black uppercase tracking-widest"
+          style={{ color: "#1C1917" }}
+        >
+          Company
+        </h4>
+
+        <ul className="space-y-2 text-sm font-bold">
+
+          <li>
+            <a href="/about" className="hover:opacity-60" style={{ color: "#1C1917" }}>
+              About
+            </a>
+          </li>
+
+          <li>
+            <a href="/careers" className="hover:opacity-60" style={{ color: "#1C1917" }}>
+              Careers
+            </a>
+          </li>
+
+          <li>
+            <a href="/blog" className="hover:opacity-60" style={{ color: "#1C1917" }}>
+              Blog
+            </a>
+          </li>
+
+        </ul>
+
+      </div>
+
+      {/* Connect */}
+
+      <div>
+
+        <h4
+          className="mb-4 text-xs font-black uppercase tracking-widest"
+          style={{ color: "#1C1917" }}
+        >
+          Connect
+        </h4>
+
+        <div className="flex flex-col gap-3">
+
+          <a
+            href="https://instagram.com/alfinnsptr"
+            target="_blank"
+            className="flex items-center gap-3 hover:opacity-60"
+            style={{ color: "#1C1917" }}
+          >
+
+            <div
+              className="flex h-8 w-8 items-center justify-center rounded-full border-2"
+              style={{
+                background: "#FDFBF3",
+                borderColor: "#1C1917",
+              }}
+            >
+              <Instagram size={14} strokeWidth={2.5} />
             </div>
-            
-            <div className="border-t border-stone-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-               <p className="text-xs text-stone-500 font-medium">© 2025 Cardify Inc. All rights reserved.</p>
-               <div className="flex gap-8 text-xs text-stone-500 font-bold">
-                  <a href="/privacy-policy" className="cursor-pointer hover:text-white transition-colors">Privacy Policy</a>
-                  <a href="/terms" className="cursor-pointer hover:text-white transition-colors">Terms of Service</a>
-               </div>
+
+            <span className="text-sm font-bold">
+              Instagram
+            </span>
+
+          </a>
+
+          <a
+            href="https://wa.me/6289501847804"
+            target="_blank"
+            className="flex items-center gap-3 hover:opacity-60"
+            style={{ color: "#1C1917" }}
+          >
+
+            <div
+              className="flex h-8 w-8 items-center justify-center rounded-full border-2"
+              style={{
+                background: "#FDFBF3",
+                borderColor: "#1C1917",
+              }}
+            >
+              <MessageCircle size={14} strokeWidth={2.5} />
             </div>
-         </div>
-      </footer>
+
+            <span className="text-sm font-bold">
+              WhatsApp
+            </span>
+
+          </a>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    {/* Bottom */}
+
+    <div
+      className="flex flex-col items-center justify-between gap-3 border-t-[2.5px] pt-6 md:flex-row"
+      style={{ borderColor: "#1C1917" }}
+    >
+
+      <p
+        className="text-xs font-black uppercase tracking-wider"
+        style={{ color: "#1C1917" }}
+      >
+        © {new Date().getFullYear()} Cardify · Made with love
+      </p>
+
+      <div
+        className="flex gap-6 text-xs font-black uppercase tracking-wider"
+        style={{ color: "#1C1917" }}
+      >
+
+        <a
+          href="/privacy-policy"
+          className="hover:opacity-60"
+        >
+          Privacy
+        </a>
+
+        <a
+          href="/terms"
+          className="hover:opacity-60"
+        >
+          Terms
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+</footer>
 
       {/* --- POPUP KONFIRMASI LOGOUT --- */}
       {showLogoutConfirm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#1C1917]/40 backdrop-blur-sm p-4 animate-in fade-in duration-300" onClick={() => setShowLogoutConfirm(false)}>
-          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm p-8 text-center transform scale-100 animate-in zoom-in-95 duration-300 ring-1 ring-black/5" onClick={(e) => e.stopPropagation()}>
-            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6 text-red-500 shadow-sm">
-              <LogOut size={28} strokeWidth={1.5} />
-            </div>
-            <h3 className={`text-2xl font-bold text-stone-900 mb-3 font-playfair`}>Sign Out?</h3>
-            <p className="text-sm text-stone-500 mb-8 leading-relaxed px-4">
-              Are you sure you want to sign out? You will need to log in again to access your saved templates.
-            </p>
-            <div className="flex flex-col gap-3">
-              <button onClick={handleLogout} className="w-full py-3.5 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 transition-colors shadow-lg shadow-red-100 active:scale-[0.98]">
-                Yes, Sign Out
-              </button>
-              <button onClick={() => setShowLogoutConfirm(false)} className="w-full py-3.5 rounded-xl border border-stone-200 text-stone-600 font-bold hover:bg-stone-50 transition-colors active:scale-[0.98]">
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+              <div
+                className="fixed inset-0 z-[100] flex items-center justify-center bg-[#1C1917]/30 p-4 animate-in fade-in duration-300"
+                onClick={() => setShowLogoutConfirm(false)}
+              >
+                <div
+                  className="relative w-full max-w-sm transform scale-100 animate-in zoom-in-95 duration-300"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Hard shadow layer */}
+                  <div className="absolute inset-0 translate-x-1.5 translate-y-1.5 rounded-[2rem] bg-[#111111]" />
+      
+                  {/* Card */}
+                  <div className="relative rounded-[2rem] bg-[#FFFDF5] border-[2.5px] border-[#111111] p-8 text-center">
+                    {/* Cute sticker badge */}
+                    <div className="absolute -top-3 -right-3 rotate-12 rounded-full bg-[#FFE66D] border-[2.5px] border-[#111111] px-3 py-1 shadow-[3px_3px_0_#111111]">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-[#111111]">
+                        Bye-bye!
+                      </span>
+                    </div>
+      
+                    {/* Icon circle */}
+                    <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#FFD6D6] border-[2.5px] border-[#111111] shadow-[3px_3px_0_#111111]">
+                      <LogOut size={28} strokeWidth={2.5} className="text-[#111111]" />
+                    </div>
+      
+                    <h3
+                      className="mb-3 text-2xl font-black uppercase tracking-tight text-[#111111]"
+                      style={{ fontFamily: "'Boldonse', 'Archivo Black', sans-serif" }}
+                    >
+                      Sign Out?
+                    </h3>
+      
+                    <p className="mb-8 px-2 text-sm font-bold leading-relaxed text-[#4A4A4A]">
+                      Are you sure you want to sign out? You will need to log in again to access your saved templates.
+                    </p>
+      
+                    <div className="flex flex-col gap-3">
+                      {/* Primary button */}
+                      <button
+                        onClick={handleLogout}
+                        className="group relative w-full"
+                      >
+                        <div className="absolute inset-0 translate-x-1 translate-y-1 rounded-2xl bg-[#111111] transition-transform group-active:translate-x-0.5 group-active:translate-y-0.5" />
+                        <div className="relative flex items-center justify-center gap-2 rounded-2xl bg-[#FF6B6B] border-[2.5px] border-[#111111] py-3.5 font-black text-white transition-transform group-active:translate-x-0.5 group-active:translate-y-0.5">
+                          <LogOut size={18} strokeWidth={2.5} />
+                          Yes, Sign Out
+                        </div>
+                      </button>
+      
+                      {/* Secondary button */}
+                      <button
+                        onClick={() => setShowLogoutConfirm(false)}
+                        className="group relative w-full"
+                      >
+                        <div className="absolute inset-0 translate-x-1 translate-y-1 rounded-2xl bg-[#111111] transition-transform group-active:translate-x-0.5 group-active:translate-y-0.5" />
+                        <div className="relative rounded-2xl bg-[#FFFDF5] border-[2.5px] border-[#111111] py-3.5 font-black text-[#111111] transition-transform group-active:translate-x-0.5 group-active:translate-y-0.5 hover:bg-[#F0F0F0]">
+                          Cancel
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
     </div>
   );
 }

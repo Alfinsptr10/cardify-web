@@ -239,33 +239,66 @@ export default function LoginPage() {
     }, 2000);
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setErrorMessage("");
+const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    try {
-      const res = await signIn("credentials", {
+  setIsLoading(true);
+  setErrorMessage("");
+
+  try {
+    // 1. Cek email & password
+    const loginRes = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
         email,
         password,
-        redirect: false,
-      });
+      }),
+    });
 
-      if (res?.error) {
-        triggerRejectAnimation();
-        setErrorMessage("Email atau password salah.");
-        return;
-      }
+    const loginData = await loginRes.json();
 
-      window.location.href = "/";
-
-    } catch (err) {
+    if (!loginRes.ok) {
       triggerRejectAnimation();
-      setErrorMessage("Terjadi kesalahan. Coba lagi.");
-    } finally {
-      setIsLoading(false);
+      setErrorMessage(loginData.error || "Email atau password salah.");
+      return;
     }
-  };
+
+    // 2. Kirim OTP
+    const otpRes = await fetch("/api/auth/send-otp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+      }),
+    });
+
+    const otpData = await otpRes.json();
+
+    if (!otpRes.ok) {
+      triggerRejectAnimation();
+      setErrorMessage(otpData.error || "Gagal mengirim OTP.");
+      return;
+    }
+
+    // 3. Simpan sementara
+    sessionStorage.setItem("otp-email", email);
+    sessionStorage.setItem("otp-password", password);
+
+    // 4. Pindah ke halaman OTP
+    window.location.href = "/verify-otp";
+
+  } catch (err) {
+    triggerRejectAnimation();
+    setErrorMessage("Terjadi kesalahan. Coba lagi.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);

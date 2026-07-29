@@ -25,9 +25,12 @@ const handler = NextAuth({
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+        verified2fa: { label: "2FA", type: "text" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        if (!credentials?.email || !credentials?.password || credentials.verified2fa !== "true"){
+          return null;
+        }
 
         // 🔥 PAKAI API LOGIN EMAIL LO YANG SUDAH ADA
         const res = await fetch(`${process.env.NEXTAUTH_URL}/api/auth/login`, {

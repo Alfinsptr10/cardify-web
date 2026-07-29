@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
 import { 
   ArrowLeft, Search, Smartphone, Image as ImageIcon, ArrowRight, Sparkles, Filter,
@@ -209,15 +210,29 @@ export default function TemplatesPage() {
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center relative">
           
           {/* Logo Brand */}
-          <a href="/" className="flex items-center gap-2.5 cursor-pointer group">
-            <div className="w-9 h-9 bg-[#1C1917] rounded-xl flex items-center justify-center text-[#F6C445] shadow-[3px_3px_0_0_#F6C445] group-hover:rotate-12 group-hover:shadow-[4px_4px_0_0_#F6C445] transition-all duration-300">
-               <Gift size={18} strokeWidth={2.5} />
+          <Link href="/" className="flex items-center gap-2.5 cursor-pointer group">
+            <div className="w-9 h-9 bg-[#1C1917] rounded-xl flex items-center justify-center shadow-[3px_3px_0_0_#F6C445] group-hover:rotate-12 group-hover:shadow-[4px_4px_0_0_#F6C445] transition-all duration-300 p-1.5">
+               {/* eslint-disable-next-line @next/next/no-img-element */}
+               <img src="/logo.svg" alt="Cardify" className="w-full h-full object-contain" />
             </div>
-            <div className="flex flex-col leading-none">
-              <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400">A card with a story</span>
-              <span className="text-xl font-bold tracking-tight font-playfair italic text-[#1C1917]">cardify</span>
-            </div>
-          </a>
+            <div className="leading-none">
+  <div
+    className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1C1917]"
+  >
+    A CARD WITH A STORY
+  </div>
+
+  <div
+    className="text-2xl font-black italic tracking-[-0.02em]"
+    style={{
+      fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+      color: "#1C1917",
+    }}
+  >
+    cardify
+  </div>
+</div>
+          </Link>
           
           {/* Navigation Links - Centered */}
           <div className="hidden md:flex items-center gap-8 text-sm font-bold uppercase tracking-wide text-stone-600 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -290,10 +305,10 @@ export default function TemplatesPage() {
                       <p className="text-xs text-stone-500 truncate font-medium">{userData.email}</p>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <button className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-stone-50 hover:text-black rounded-xl transition-all font-medium group">
+                      <a href="/account" className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-stone-50 hover:text-black rounded-xl transition-all font-medium group">
                         <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all"><User size={16} /></div>
                         Profile & Account
-                      </button>
+                      </a>
                       <button className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-stone-50 hover:text-black rounded-xl transition-all font-medium group">
                         <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all"><Settings size={16} /></div>
                         Preferences
@@ -442,61 +457,244 @@ export default function TemplatesPage() {
       </main>
 
       {/* --- FOOTER (sama seperti homepage) --- */}
-      <footer className="relative isolate w-full bg-[#1C1917] text-stone-400 py-12 border-t-4 border-[#111111] overflow-hidden">
-         <div className="max-w-7xl mx-auto px-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
-               <div className="md:col-span-1 space-y-4">
-                  <div className="flex items-center gap-2">
-                     <div className="w-8 h-8 bg-[#F6C445] rounded-lg flex items-center justify-center text-[#1C1917]">
-                        <Gift size={16} />
-                     </div>
-                     <span className="text-2xl font-bold text-white font-playfair italic">cardify</span>
-                  </div>
-                  <p className="text-sm text-stone-500 leading-relaxed font-medium">
-                     The modern way to celebrate. Digital moments that last forever.
-                  </p>
-               </div>
-               
-               <div>
-                  <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest">Product</h4>
-                  <ul className="space-y-4 text-sm text-stone-500 font-medium">
-                     <li><a href="/templates" className="text-white font-bold cursor-pointer transition-colors">Templates</a></li>
-                     <li><a href="/showcase" className="hover:text-white cursor-pointer transition-colors">Showcase</a></li>
-                  </ul>
-               </div>
+            {/* --- FOOTER (konsisten dengan halaman lain: Ink dark) --- */}
+      <footer
+  className="relative isolate w-full border-t-[2.5px] px-6 py-12 overflow-hidden"
+  style={{
+    background: "#84D4A4", // MINT
+    borderColor: "#1C1917", // INK
+  }}
+>
+  <div className="mx-auto max-w-7xl">
 
-               <div>
-                  <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest">Company</h4>
-                  <ul className="space-y-4 text-sm text-stone-500 font-medium">
-                     <li><a href="/about" className="hover:text-white cursor-pointer transition-colors">About</a></li>
-                     <li><a href="/careers" className="hover:text-white cursor-pointer transition-colors">Careers</a></li>
-                     <li><a href="/blog" className="hover:text-white cursor-pointer transition-colors">Blog</a></li>
-                  </ul>
-               </div>
+    <div className="mb-12 grid grid-cols-2 gap-10 md:grid-cols-4">
 
-               <div>
-                  <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest">Connect</h4>
-                  <div className="flex flex-col gap-4">
-                     <a href="https://instagram.com/alfinnsptr" target="_blank" className="flex items-center gap-3 text-sm text-stone-500 hover:text-[#E1306C] transition-colors group">
-                        <div className="w-8 h-8 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center group-hover:border-[#E1306C] transition-colors"><Instagram size={16} /></div>
-                        <span className="font-medium">Instagram</span>
-                     </a>
-                     <a href="https://wa.me/6289501847804" target="_blank" className="flex items-center gap-3 text-sm text-stone-500 hover:text-[#25D366] transition-colors group">
-                        <div className="w-8 h-8 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center group-hover:border-[#25D366] transition-colors"><MessageCircle size={16} /></div>
-                        <span className="font-medium">WhatsApp</span>
-                     </a>
-                  </div>
-               </div>
+      {/* Brand */}
+      <div className="col-span-2 md:col-span-1">
+
+        <div className="mb-4 flex items-center gap-3">
+
+          <div
+            className="flex h-10 w-10 items-center justify-center rounded-full border-[2.5px]"
+            style={{
+              background: "#1C1917",
+              borderColor: "#1C1917",
+            }}
+          >
+            <img
+              src="/logo.svg"
+              alt="Cardify"
+              className="h-5 w-5 object-contain"
+            />
+          </div>
+
+          <div className="leading-none">
+  <div
+    className="text-[9px] font-black uppercase tracking-[0.2em]"
+    style={{ color: "#1C1917" }}
+  >
+    A CARD WITH A STORY
+  </div>
+
+  <div
+    className="text-2xl font-black italic tracking-[-0.02em]"
+    style={{
+      fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+      color: "#1C1917",
+    }}
+  >
+    cardify
+  </div>
+</div>
+
+        </div>
+
+        <p
+          className="text-sm font-medium leading-relaxed"
+          style={{ color: "#1C1917" }}
+        >
+          The modern way to celebrate.
+          Digital moments that last forever.
+        </p>
+
+      </div>
+
+      {/* Product */}
+
+      <div>
+
+        <h4
+          className="mb-4 text-xs font-black uppercase tracking-widest"
+          style={{ color: "#1C1917" }}
+        >
+          Product
+        </h4>
+
+        <ul className="space-y-2 text-sm font-bold">
+
+          <li>
+            <a
+              href="/templates"
+              className="transition-opacity hover:opacity-60"
+              style={{ color: "#FFFFFF" }}
+            >
+              Templates
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="/showcase"
+              className="transition-opacity hover:opacity-60"
+              style={{ color: "#1C1917" }}
+            >
+              Showcase
+            </a>
+          </li>
+
+        </ul>
+
+      </div>
+
+      {/* Company */}
+
+      <div>
+
+        <h4
+          className="mb-4 text-xs font-black uppercase tracking-widest"
+          style={{ color: "#1C1917" }}
+        >
+          Company
+        </h4>
+
+        <ul className="space-y-2 text-sm font-bold">
+
+          <li>
+            <a href="/about" className="hover:opacity-60" style={{ color: "#1C1917" }}>
+              About
+            </a>
+          </li>
+
+          <li>
+            <a href="/careers" className="hover:opacity-60" style={{ color: "#1C1917" }}>
+              Careers
+            </a>
+          </li>
+
+          <li>
+            <a href="/blog" className="hover:opacity-60" style={{ color: "#1C1917" }}>
+              Blog
+            </a>
+          </li>
+
+        </ul>
+
+      </div>
+
+      {/* Connect */}
+
+      <div>
+
+        <h4
+          className="mb-4 text-xs font-black uppercase tracking-widest"
+          style={{ color: "#1C1917" }}
+        >
+          Connect
+        </h4>
+
+        <div className="flex flex-col gap-3">
+
+          <a
+            href="https://instagram.com/alfinnsptr"
+            target="_blank"
+            className="flex items-center gap-3 hover:opacity-60"
+            style={{ color: "#1C1917" }}
+          >
+
+            <div
+              className="flex h-8 w-8 items-center justify-center rounded-full border-2"
+              style={{
+                background: "#FDFBF3",
+                borderColor: "#1C1917",
+              }}
+            >
+              <Instagram size={14} strokeWidth={2.5} />
             </div>
-            <div className="border-t border-stone-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-               <p className="text-xs text-stone-500 font-medium">© 2025 Cardify Inc. All rights reserved.</p>
-               <div className="flex gap-8 text-xs text-stone-500 font-bold">
-                  <a href="/privacy-policy" className="cursor-pointer hover:text-white transition-colors">Privacy Policy</a>
-                  <a href="/terms" className="cursor-pointer hover:text-white transition-colors">Terms of Service</a>
-               </div>
+
+            <span className="text-sm font-bold">
+              Instagram
+            </span>
+
+          </a>
+
+          <a
+            href="https://wa.me/6289501847804"
+            target="_blank"
+            className="flex items-center gap-3 hover:opacity-60"
+            style={{ color: "#1C1917" }}
+          >
+
+            <div
+              className="flex h-8 w-8 items-center justify-center rounded-full border-2"
+              style={{
+                background: "#FDFBF3",
+                borderColor: "#1C1917",
+              }}
+            >
+              <MessageCircle size={14} strokeWidth={2.5} />
             </div>
-         </div>
-      </footer>
+
+            <span className="text-sm font-bold">
+              WhatsApp
+            </span>
+
+          </a>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    {/* Bottom */}
+
+    <div
+      className="flex flex-col items-center justify-between gap-3 border-t-[2.5px] pt-6 md:flex-row"
+      style={{ borderColor: "#1C1917" }}
+    >
+
+      <p
+        className="text-xs font-black uppercase tracking-wider"
+        style={{ color: "#1C1917" }}
+      >
+        © {new Date().getFullYear()} Cardify · Made with love
+      </p>
+
+      <div
+        className="flex gap-6 text-xs font-black uppercase tracking-wider"
+        style={{ color: "#1C1917" }}
+      >
+
+        <a
+          href="/privacy-policy"
+          className="hover:opacity-60"
+        >
+          Privacy
+        </a>
+
+        <a
+          href="/terms"
+          className="hover:opacity-60"
+        >
+          Terms
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+</footer>
     </div>
   );
 }

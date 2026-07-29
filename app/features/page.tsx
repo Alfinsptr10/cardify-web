@@ -136,14 +136,29 @@ function FeaturesContent() {
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center relative">
 
           {/* Logo Brand */}
+          {/* Logo Brand */}
           <Link href="/" className="flex items-center gap-2.5 cursor-pointer group">
-            <div className="w-9 h-9 bg-[#1C1917] rounded-xl flex items-center justify-center text-[#F6C445] shadow-[3px_3px_0_0_#F6C445] group-hover:rotate-12 group-hover:shadow-[4px_4px_0_0_#F6C445] transition-all duration-300">
-              <Gift size={18} strokeWidth={2.5} />
+            <div className="w-9 h-9 bg-[#1C1917] rounded-xl flex items-center justify-center shadow-[3px_3px_0_0_#F6C445] group-hover:rotate-12 group-hover:shadow-[4px_4px_0_0_#F6C445] transition-all duration-300 p-1.5">
+               {/* eslint-disable-next-line @next/next/no-img-element */}
+               <img src="/logo.svg" alt="Cardify" className="w-full h-full object-contain" />
             </div>
-            <div className="flex flex-col leading-none">
-              <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400">A card with a story</span>
-              <span className="text-xl font-bold tracking-tight font-playfair italic text-[#1C1917]">cardify</span>
-            </div>
+            <div className="leading-none">
+  <div
+    className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1C1917]"
+  >
+    A CARD WITH A STORY
+  </div>
+
+  <div
+    className="text-2xl font-black italic tracking-[-0.02em]"
+    style={{
+      fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+      color: "#1C1917",
+    }}
+  >
+    cardify
+  </div>
+</div>
           </Link>
 
           {/* Navigation Links */}
@@ -184,7 +199,7 @@ function FeaturesContent() {
 
             <Link href="/features" className="text-[#1C1917]">Features</Link>
             <Link href="/about" className="hover:text-[#1C1917] transition-colors">About</Link>
-            <Link href="mailto:cardify.official.id@gmail.com" className="hover:text-[#1C1917] transition-colors">Contact</Link>
+            <Link href="/contact" className="hover:text-[#1C1917] transition-colors">Contact</Link>
           </div>
 
           {/* Auth Actions */}
@@ -216,10 +231,10 @@ function FeaturesContent() {
                       <p className="text-xs text-stone-500 truncate font-medium">{userData.email}</p>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <button className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-stone-50 hover:text-black rounded-xl transition-all font-medium group">
+                      <Link href="/account" className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-stone-50 hover:text-black rounded-xl transition-all font-medium group">
                         <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all"><User size={16} /></div>
                         Profile & Account
-                      </button>
+                      </Link>
                       <div className="h-px bg-stone-100 my-1 mx-2"></div>
                       <button onClick={handleLogout} className="flex items-center gap-3 w-full p-2.5 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-all font-medium group">
                         <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all"><LogOut size={16} /></div>
@@ -436,83 +451,278 @@ function FeaturesContent() {
       </section>
 
       {/* --- FINAL CTA (Ink paper) --- */}
-      <section className="py-20 px-4 bg-[#FDFBF3] border-t-4 border-[#111111]">
-        <div className="max-w-6xl mx-auto relative bg-[#1C1917] rounded-[2.5rem] px-8 md:px-16 py-16 md:py-20 text-center overflow-hidden">
-          <div className="absolute top-6 left-8 text-[#F6C445] rotate-[-12deg]"><Sparkles size={28} /></div>
-          <div className="absolute bottom-8 right-10 w-14 h-14 rounded-full bg-[#F3B8CC] flex items-center justify-center rotate-6">
-            <Heart size={22} className="text-[#1C1917] fill-[#1C1917]" />
-          </div>
-          <span className="text-xs font-bold text-stone-400 uppercase tracking-[0.3em] mb-4 block">— Ready when you are —</span>
-          <h2 className="text-4xl md:text-6xl font-bold text-white font-playfair leading-tight mb-10">
-            All these features. <br />
-            <span className="italic text-[#F6C445]">One good card.</span>
-          </h2>
-          <Link
-            href={session ? "/templates" : "/register"}
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-[#F6C445] text-[#1C1917] font-bold hover:-translate-y-1 hover:shadow-[4px_4px_0_0_rgba(255,255,255,0.3)] transition-all"
-          >
-            Start Creating — It's Free
-            <ArrowRight size={16} strokeWidth={2.5} />
-          </Link>
-        </div>
-      </section>
+      <section className="py-20 px-4 border-t-3 border-[#111111]">
+                 <div className="max-w-6xl mx-auto relative bg-[#1C1917] rounded-[2.5rem] px-8 md:px-16 py-16 md:py-20 text-center overflow-hidden">
+                    <div className="absolute top-6 left-8 text-[#F6C445] rotate-[-12deg]"><Sparkles size={28} /></div>
+                    <div className="absolute bottom-8 right-10 w-14 h-14 rounded-full bg-[#F3B8CC] flex items-center justify-center rotate-6">
+                       <Heart size={22} className="text-[#1C1917] fill-[#1C1917]" />
+                    </div>
+                    <span className="text-xs font-bold text-stone-400 uppercase tracking-[0.3em] mb-4 block">— Ready when you are —</span>
+                    <motion.h2
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="mx-auto mb-10 max-w-3xl text-5xl font-black italic leading-[0.95] md:text-7xl"
+        style={{
+          fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+          color:"#FDFBF3",
+          letterSpacing: "-0.02em",
+        }}
+      >
+        All these features. <br />
+        <span style={{ color: "#F6C445" }}>
+          One good card.
+        </span>
+      </motion.h2>
+                    <a
+                       href={session ? "/templates" : "/register"}
+                       className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-[#F6C445] text-[#1C1917] font-bold hover:-translate-y-1 hover:shadow-[4px_4px_0_0_rgba(255,255,255,0.3)] transition-all"
+                    >
+                       Start Creating — It's Free
+                       <ArrowRight size={16} strokeWidth={2.5} />
+                    </a>
+                 </div>
+              </section>
 
       {/* --- FOOTER (sama seperti halaman lain) --- */}
-      <footer className="relative isolate w-full bg-[#1C1917] text-stone-400 py-12 border-t-4 border-[#111111] overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
-            <div className="md:col-span-1 space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-[#F6C445] rounded-lg flex items-center justify-center text-[#1C1917]">
-                  <Gift size={16} />
-                </div>
-                <span className="text-2xl font-bold text-white font-playfair italic">cardify</span>
-              </div>
-              <p className="text-sm text-stone-500 leading-relaxed font-medium">
-                The modern way to celebrate. Digital moments that last forever.
-              </p>
-            </div>
+      <footer
+  className="relative isolate w-full border-t-[2.5px] px-6 py-12 overflow-hidden"
+  style={{
+    background: "#84D4A4", // MINT
+    borderColor: "#1C1917", // INK
+  }}
+>
+  <div className="mx-auto max-w-7xl">
 
-            <div>
-              <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest">Product</h4>
-              <ul className="space-y-4 text-sm text-stone-500 font-medium">
-                <li><Link href="/templates" className="hover:text-white cursor-pointer transition-colors">Templates</Link></li>
-                <li><Link href="/features" className="text-white font-bold cursor-pointer transition-colors">Features</Link></li>
-              </ul>
-            </div>
+    <div className="mb-12 grid grid-cols-2 gap-10 md:grid-cols-4">
 
-            <div>
-              <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest">Company</h4>
-              <ul className="space-y-4 text-sm text-stone-500 font-medium">
-                <li><Link href="/about" className="hover:text-white cursor-pointer transition-colors">About</Link></li>
-                <li><Link href="/careers" className="hover:text-white cursor-pointer transition-colors">Careers</Link></li>
-                <li><Link href="/blog" className="hover:text-white cursor-pointer transition-colors">Blog</Link></li>
-              </ul>
-            </div>
+      {/* Brand */}
+      <div className="col-span-2 md:col-span-1">
 
-            <div>
-              <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest">Connect</h4>
-              <div className="flex flex-col gap-4">
-                <a href="https://instagram.com/alfinnsptr" target="_blank" className="flex items-center gap-3 text-sm text-stone-500 hover:text-[#E1306C] transition-colors group">
-                  <div className="w-8 h-8 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center group-hover:border-[#E1306C] transition-colors"><Instagram size={16} /></div>
-                  <span className="font-medium">Instagram</span>
-                </a>
-                <a href="https://wa.me/6289501847804" target="_blank" className="flex items-center gap-3 text-sm text-stone-500 hover:text-[#25D366] transition-colors group">
-                  <div className="w-8 h-8 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center group-hover:border-[#25D366] transition-colors"><MessageCircle size={16} /></div>
-                  <span className="font-medium">WhatsApp</span>
-                </a>
-              </div>
-            </div>
+        <div className="mb-4 flex items-center gap-3">
+
+          <div
+            className="flex h-10 w-10 items-center justify-center rounded-full border-[2.5px]"
+            style={{
+              background: "#1C1917",
+              borderColor: "#1C1917",
+            }}
+          >
+            <img
+              src="/logo.svg"
+              alt="Cardify"
+              className="h-5 w-5 object-contain"
+            />
           </div>
-          <div className="border-t border-stone-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-xs text-stone-500 font-medium">© 2025 Cardify Inc. All rights reserved.</p>
-            <div className="flex gap-8 text-xs text-stone-500 font-bold">
-              <Link href="/privacy-policy" className="cursor-pointer hover:text-white transition-colors">Privacy Policy</Link>
-              <Link href="/terms" className="cursor-pointer hover:text-white transition-colors">Terms of Service</Link>
-            </div>
-          </div>
+
+          <div className="leading-none">
+  <div
+    className="text-[9px] font-black uppercase tracking-[0.2em]"
+    style={{ color: "#1C1917" }}
+  >
+    A CARD WITH A STORY
+  </div>
+
+  <div
+    className="text-2xl font-black italic tracking-[-0.02em]"
+    style={{
+      fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+      color: "#1C1917",
+    }}
+  >
+    cardify
+  </div>
+</div>
+
         </div>
-      </footer>
+
+        <p
+          className="text-sm font-medium leading-relaxed"
+          style={{ color: "#1C1917" }}
+        >
+          The modern way to celebrate.
+          Digital moments that last forever.
+        </p>
+
+      </div>
+
+      {/* Product */}
+
+      <div>
+
+        <h4
+          className="mb-4 text-xs font-black uppercase tracking-widest"
+          style={{ color: "#1C1917" }}
+        >
+          Product
+        </h4>
+
+        <ul className="space-y-2 text-sm font-bold">
+
+          <li>
+            <a
+              href="/templates"
+              className="transition-opacity hover:opacity-60"
+              style={{ color: "#1C1917" }}
+            >
+              Templates
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="/showcase"
+              className="transition-opacity hover:opacity-60"
+              style={{ color: "#1C1917" }}
+            >
+              Showcase
+            </a>
+          </li>
+
+        </ul>
+
+      </div>
+
+      {/* Company */}
+
+      <div>
+
+        <h4
+          className="mb-4 text-xs font-black uppercase tracking-widest"
+          style={{ color: "#1C1917" }}
+        >
+          Company
+        </h4>
+
+        <ul className="space-y-2 text-sm font-bold">
+
+          <li>
+            <a href="/about" className="hover:opacity-60" style={{ color: "#1C1917" }}>
+              About
+            </a>
+          </li>
+
+          <li>
+            <a href="/careers" className="hover:opacity-60" style={{ color: "#1C1917" }}>
+              Careers
+            </a>
+          </li>
+
+          <li>
+            <a href="/blog" className="hover:opacity-60" style={{ color: "#1C1917" }}>
+              Blog
+            </a>
+          </li>
+
+        </ul>
+
+      </div>
+
+      {/* Connect */}
+
+      <div>
+
+        <h4
+          className="mb-4 text-xs font-black uppercase tracking-widest"
+          style={{ color: "#1C1917" }}
+        >
+          Connect
+        </h4>
+
+        <div className="flex flex-col gap-3">
+
+          <a
+            href="https://instagram.com/alfinnsptr"
+            target="_blank"
+            className="flex items-center gap-3 hover:opacity-60"
+            style={{ color: "#1C1917" }}
+          >
+
+            <div
+              className="flex h-8 w-8 items-center justify-center rounded-full border-2"
+              style={{
+                background: "#FDFBF3",
+                borderColor: "#1C1917",
+              }}
+            >
+              <Instagram size={14} strokeWidth={2.5} />
+            </div>
+
+            <span className="text-sm font-bold">
+              Instagram
+            </span>
+
+          </a>
+
+          <a
+            href="https://wa.me/6289501847804"
+            target="_blank"
+            className="flex items-center gap-3 hover:opacity-60"
+            style={{ color: "#1C1917" }}
+          >
+
+            <div
+              className="flex h-8 w-8 items-center justify-center rounded-full border-2"
+              style={{
+                background: "#FDFBF3",
+                borderColor: "#1C1917",
+              }}
+            >
+              <MessageCircle size={14} strokeWidth={2.5} />
+            </div>
+
+            <span className="text-sm font-bold">
+              WhatsApp
+            </span>
+
+          </a>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    {/* Bottom */}
+
+    <div
+      className="flex flex-col items-center justify-between gap-3 border-t-[2.5px] pt-6 md:flex-row"
+      style={{ borderColor: "#1C1917" }}
+    >
+
+      <p
+        className="text-xs font-black uppercase tracking-wider"
+        style={{ color: "#1C1917" }}
+      >
+        © {new Date().getFullYear()} Cardify · Made with love
+      </p>
+
+      <div
+        className="flex gap-6 text-xs font-black uppercase tracking-wider"
+        style={{ color: "#1C1917" }}
+      >
+
+        <a
+          href="/privacy-policy"
+          className="hover:opacity-60"
+        >
+          Privacy
+        </a>
+
+        <a
+          href="/terms"
+          className="hover:opacity-60"
+        >
+          Terms
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+</footer>
 
     </div>
   );

@@ -401,11 +401,12 @@ export default function ScrapbookEditor() {
     };
 
     return (
-        <div className="h-screen w-full flex flex-col md:flex-row bg-stone-100 overflow-hidden text-stone-800 font-sans">
+        <div className="h-screen w-full flex flex-col md:flex-row bg-[#EAE6DC] overflow-hidden text-stone-800 font-sans">
             <style dangerouslySetInnerHTML={{__html: `
-                @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Indie+Flower&family=Playfair+Display:wght@700&display=swap');
+                @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Indie+Flower&family=Playfair+Display:wght@700&family=Boldonse&display=swap');
                 .font-handwriting { font-family: 'Patrick Hand', cursive; }
                 .font-serif { font-family: 'Playfair Display', serif; }
+                .font-boldonse-chrome { font-family: 'Boldonse', sans-serif; }
                 .transform-style-3d { transform-style: preserve-3d; }
                 .backface-hidden { backface-visibility: hidden; }
                 .rotate-y-0 { transform: rotateY(0deg); }
@@ -415,12 +416,17 @@ export default function ScrapbookEditor() {
             `}} />
 
             {/* --- LEFT PANEL --- */}
-            <div className="w-full md:w-[420px] h-full bg-white border-r border-stone-200 flex flex-col shadow-xl z-20 relative">
-                <div className="p-5 border-b border-stone-100 z-10">
+            <div className="w-full md:w-[420px] h-full bg-white border-r-2 border-[#1C1917] flex flex-col shadow-xl z-20 relative">
+                <div className="p-5 border-b-2 border-[#1C1917] z-10">
                     <a href="/" className="inline-flex items-center gap-2 text-xs font-bold text-stone-400 hover:text-stone-700 uppercase tracking-widest mb-3">
                         <ArrowLeft size={12} /> Back
                     </a>
-                    <h1 className="text-xl font-bold text-stone-800">DIY Scrapbook Editor</h1>
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-[#F6C445] rounded-xl flex items-center justify-center border-2 border-[#1C1917] shadow-[3px_3px_0_0_#1C1917] text-[#1C1917]">
+                            <Book size={20} />
+                        </div>
+                        <h1 className="text-xl text-stone-800 font-boldonse-chrome font-black">DIY Scrapbook</h1>
+                    </div>
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar">
@@ -428,7 +434,7 @@ export default function ScrapbookEditor() {
                     <div className="space-y-4">
                         <div className="space-y-1">
                             <label className="text-xs font-bold text-stone-500 uppercase tracking-widest">Title</label>
-                            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full bg-stone-50 border border-stone-200 rounded-lg p-2 font-handwriting text-xl text-stone-800 focus:outline-none focus:border-stone-400" />
+                            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full bg-[#FDFBF3] border-2 border-stone-200 rounded-lg p-2 font-handwriting text-xl text-stone-800 focus:outline-none focus:border-[#1C1917] focus:ring-4 focus:ring-[#F6C445]/30 transition-all" />
                         </div>
                         <div className="space-y-2">
                              <div className="flex items-center gap-2 text-stone-500">
@@ -437,7 +443,7 @@ export default function ScrapbookEditor() {
                             </div>
                             <div className="grid grid-cols-5 gap-2">
                                 {SCRAPBOOK_THEMES.map((t) => (
-                                    <button key={t.id} onClick={() => setThemeId(t.id)} title={t.name} className={`w-full aspect-square rounded-md border-2 relative overflow-hidden ${themeId === t.id ? 'ring-2 ring-offset-2 ring-stone-400 border-stone-400' : 'border-stone-200'}`} style={{ background: t.bg }}>
+                                    <button key={t.id} onClick={() => setThemeId(t.id)} title={t.name} className={`w-full aspect-square rounded-md border-2 relative overflow-hidden transition-all ${themeId === t.id ? 'ring-2 ring-offset-2 ring-[#F6C445] border-[#1C1917] scale-105' : 'border-stone-200 hover:border-[#1C1917]'}`} style={{ background: t.bg }}>
                                         <div className="absolute inset-0 opacity-50" style={{ backgroundImage: t.pattern, backgroundSize: t.bgSize || 'auto' }}></div>
                                     </button>
                                 ))}
@@ -458,7 +464,7 @@ export default function ScrapbookEditor() {
                                 <button 
                                     key={count} 
                                     onClick={() => changePhotoCount(count as 1|2|3)}
-                                    className={`p-2 border rounded-lg text-xs font-bold flex flex-col items-center gap-1 ${activePage.photoCount === count ? 'bg-stone-800 text-white border-stone-800' : 'bg-white text-stone-500 border-stone-200 hover:border-stone-400'}`}
+                                    className={`p-2 border-2 rounded-lg text-xs font-bold flex flex-col items-center gap-1 transition-all ${activePage.photoCount === count ? 'bg-[#1C1917] text-[#F6C445] border-[#1C1917] shadow-[2px_2px_0_0_#F6C445]' : 'bg-white text-stone-500 border-stone-200 hover:border-[#1C1917]'}`}
                                 >
                                     {count === 1 && <Square size={16} />}
                                     {count === 2 && <Columns size={16} />}
@@ -471,15 +477,15 @@ export default function ScrapbookEditor() {
                     </div>
 
                     {/* CONTENT LIST */}
-                    <div className="bg-stone-50 p-4 rounded-xl border border-stone-200 space-y-3">
+                    <div className="bg-[#FDFBF3] p-4 rounded-xl border-2 border-stone-200 space-y-3">
                         <div className="flex justify-between items-center">
                             <span className="text-xs font-bold text-stone-600 uppercase">Items on Page</span>
-                            <button onClick={addNote} className="text-[10px] bg-white border border-stone-300 px-2 py-1 rounded text-stone-600 hover:bg-stone-100 font-bold">+ Add Note</button>
+                            <button onClick={addNote} className="text-[10px] bg-white border-2 border-[#1C1917] px-2 py-1 rounded-md text-stone-700 hover:bg-[#F6C445]/20 font-bold transition-colors">+ Add Note</button>
                         </div>
                         
                         <div className="space-y-2 max-h-40 overflow-y-auto">
                             {activePage.items.map((item, idx) => (
-                                <div key={item.id} onClick={() => setSelectedItemId(item.id)} className={`p-2 rounded border flex items-center gap-3 cursor-pointer ${selectedItemId === item.id ? 'bg-white border-stone-400 shadow-sm' : 'bg-stone-100 border-transparent hover:bg-white'}`}>
+                                <div key={item.id} onClick={() => setSelectedItemId(item.id)} className={`p-2 rounded-lg border-2 flex items-center gap-3 cursor-pointer transition-all ${selectedItemId === item.id ? 'bg-[#F6C445]/15 border-[#1C1917]' : 'bg-white border-stone-200 hover:border-[#1C1917]'}`}>
                                     <div className="w-8 h-8 bg-stone-200 rounded flex items-center justify-center flex-shrink-0">
                                         {item.type === 'image' ? (
                                             item.content ? <img src={item.content} className="w-full h-full object-cover rounded" alt=""/> : <ImageIcon size={14} className="text-stone-400" />
@@ -490,7 +496,7 @@ export default function ScrapbookEditor() {
                                         <p className="text-[10px] text-stone-400">Click to edit pos</p>
                                     </div>
                                     {item.type === 'image' && (
-                                        <label className="p-1.5 bg-stone-200 rounded hover:bg-stone-300 cursor-pointer text-stone-600">
+                                        <label className="p-1.5 bg-white border-2 border-stone-200 rounded-md hover:border-[#1C1917] cursor-pointer text-stone-600 transition-colors">
                                             {isUploading ? <Loader2 className="animate-spin" size={12}/> : <Upload size={12} />}
                                             <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, item.id)} disabled={isUploading} />
                                         </label>
@@ -505,9 +511,9 @@ export default function ScrapbookEditor() {
 
                     {/* SELECTED ITEM CONTROLS */}
                     {selectedItem && (
-                        <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-sm animate-in slide-in-from-top-2 space-y-3">
-                            <div className="flex justify-between items-center pb-2 border-b border-stone-100">
-                                <span className="text-xs font-bold text-indigo-600 uppercase">Adjusting {selectedItem.type}</span>
+                        <div className="bg-white p-4 rounded-xl border-2 border-[#1C1917] shadow-[3px_3px_0_0_#1C1917] animate-in slide-in-from-top-2 space-y-3">
+                            <div className="flex justify-between items-center pb-2 border-b-2 border-stone-100">
+                                <span className="text-xs font-bold text-[#1C1917] uppercase bg-[#F6C445] px-2 py-0.5 rounded-full border border-[#1C1917]">Adjusting {selectedItem.type}</span>
                                 <button onClick={() => setSelectedItemId(null)} className="text-stone-400 hover:text-stone-600"><X size={14}/></button>
                             </div>
                             
@@ -517,7 +523,7 @@ export default function ScrapbookEditor() {
                                         value={selectedItem.content}
                                         maxLength={100} // LIMITER
                                         onChange={(e) => updateItem(selectedItem.id, 'content', e.target.value)}
-                                        className="w-full bg-stone-50 border border-stone-200 rounded p-2 text-sm font-handwriting focus:outline-none focus:border-stone-400"
+                                        className="w-full bg-[#FDFBF3] border-2 border-stone-200 rounded p-2 text-sm font-handwriting focus:outline-none focus:border-[#1C1917] focus:ring-4 focus:ring-[#F6C445]/30 transition-all"
                                         rows={2}
                                         placeholder="Write your note here..."
                                     />
@@ -528,15 +534,15 @@ export default function ScrapbookEditor() {
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-bold text-stone-400">Move X</label>
-                                    <input type="range" min="0" max="100" value={selectedItem.x} onChange={(e) => updateItem(selectedItem.id, 'x', Number(e.target.value))} className="w-full h-1 bg-stone-200 rounded-lg appearance-none cursor-pointer" />
+                                    <input type="range" min="0" max="100" value={selectedItem.x} onChange={(e) => updateItem(selectedItem.id, 'x', Number(e.target.value))} className="w-full h-1 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-[#1C1917]" />
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-bold text-stone-400">Move Y</label>
-                                    <input type="range" min="0" max="100" value={selectedItem.y} onChange={(e) => updateItem(selectedItem.id, 'y', Number(e.target.value))} className="w-full h-1 bg-stone-200 rounded-lg appearance-none cursor-pointer" />
+                                    <input type="range" min="0" max="100" value={selectedItem.y} onChange={(e) => updateItem(selectedItem.id, 'y', Number(e.target.value))} className="w-full h-1 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-[#1C1917]" />
                                 </div>
                                 <div className="col-span-2 space-y-1">
                                     <label className="text-[10px] font-bold text-stone-400">Rotation</label>
-                                    <input type="range" min="-45" max="45" value={selectedItem.rotation} onChange={(e) => updateItem(selectedItem.id, 'rotation', Number(e.target.value))} className="w-full h-1 bg-stone-200 rounded-lg appearance-none cursor-pointer" />
+                                    <input type="range" min="-45" max="45" value={selectedItem.rotation} onChange={(e) => updateItem(selectedItem.id, 'rotation', Number(e.target.value))} className="w-full h-1 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-[#1C1917]" />
                                 </div>
                             </div>
                         </div>
@@ -554,7 +560,7 @@ export default function ScrapbookEditor() {
                              {['🎟️', '✈️', '💖', '✨', '🔥', '🌸'].map(emoji => (
                                  <button key={emoji} onClick={() => {
                                      const newPages = [...pages]; newPages[activePageIndex].sticker = emoji; setPages(newPages);
-                                 }} className="flex-shrink-0 w-8 h-8 rounded border border-stone-200 flex items-center justify-center text-lg bg-white hover:bg-stone-50">
+                                 }} className="flex-shrink-0 w-8 h-8 rounded-md border-2 border-stone-200 hover:border-[#1C1917] flex items-center justify-center text-lg bg-white transition-colors">
                                      {emoji}
                                  </button>
                              ))}
@@ -574,24 +580,24 @@ export default function ScrapbookEditor() {
                         </div>
                         <div className="flex gap-2 overflow-x-auto pb-2">
                             {pages.map((_, i) => (
-                                <button key={i} onClick={() => { setActivePageIndex(i); setSelectedItemId(null); }} className={`w-8 h-10 rounded flex items-center justify-center text-xs font-bold border transition-all ${activePageIndex === i ? 'bg-stone-800 text-white border-stone-800 scale-105' : 'bg-stone-50 text-stone-400 border-stone-200'}`}>{i + 1}</button>
+                                <button key={i} onClick={() => { setActivePageIndex(i); setSelectedItemId(null); }} className={`w-8 h-10 rounded flex items-center justify-center text-xs font-bold border-2 transition-all ${activePageIndex === i ? 'bg-[#1C1917] text-[#F6C445] border-[#1C1917] scale-105 shadow-[2px_2px_0_0_#F6C445]' : 'bg-[#FDFBF3] text-stone-400 border-stone-200 hover:border-[#1C1917]'}`}>{i + 1}</button>
                             ))}
                         </div>
                     </div>
                 </div>
 
                 {/* Footer */}
-                <div className="p-5 bg-white border-t border-stone-200">
+                <div className="p-5 bg-white border-t-2 border-[#1C1917]">
                     {!generatedLink ? (
-                        <button onClick={handlePublish} disabled={isSaving} className="w-full py-3 bg-stone-800 text-white rounded-lg font-bold text-sm hover:bg-black transition-all flex items-center justify-center gap-2">
+                        <button onClick={handlePublish} disabled={isSaving} className="w-full py-3 bg-[#1C1917] text-[#FDFBF3] rounded-lg font-bold text-sm border-2 border-[#1C1917] hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_#F6C445] active:translate-y-0 active:shadow-none transition-all disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none flex items-center justify-center gap-2">
                             {isSaving ? <Loader2 className="animate-spin" size={16}/> : <Save size={16} />}
                             {isSaving ? "Saving..." : "Finish Scrapbook"}
                         </button>
                     ) : (
-                        <div className="bg-stone-50 border border-stone-200 rounded-lg p-3 text-center">
+                        <div className="bg-[#FDFBF3] border-2 border-[#1C1917] rounded-lg p-3 text-center">
                             <div className="flex gap-2 mb-2">
-                                <input readOnly value={generatedLink} className="flex-1 bg-white border border-stone-300 rounded px-2 py-1 text-xs text-stone-600" />
-                                <button onClick={() => navigator.clipboard.writeText(generatedLink)} className="p-1 bg-white border border-stone-300 rounded"><LinkIcon size={14} /></button>
+                                <input readOnly value={generatedLink} className="flex-1 bg-white border-2 border-stone-300 rounded px-2 py-1 text-xs text-stone-600" />
+                                <button onClick={() => navigator.clipboard.writeText(generatedLink)} className="p-1 bg-white border-2 border-[#1C1917] rounded"><LinkIcon size={14} /></button>
                             </div>
                             <a href={generatedLink} target="_blank" className="text-xs font-bold text-stone-600 underline">Open Link</a>
                         </div>
@@ -600,14 +606,14 @@ export default function ScrapbookEditor() {
             </div>
 
             {/* --- RIGHT PANEL: PREVIEW --- */}
-            <div className="flex-1 bg-[#e5e5e5] relative flex flex-col items-center justify-center overflow-hidden">
+            <div className="flex-1 bg-[#EAE6DC] relative flex flex-col items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'linear-gradient(#9ca3af 1px, transparent 1px), linear-gradient(90deg, #9ca3af 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
                 
                 <div className="relative z-10 transform transition-transform hover:scale-[1.02] duration-500 drop-shadow-2xl">
                      <Flipbook pages={pages} coverTitle={title} themeId={themeId} /> 
                 </div>
                 
-                <div className="absolute bottom-8 bg-white/80 px-4 py-2 rounded-full text-xs font-bold text-stone-500 shadow-sm backdrop-blur">
+                <div className="absolute bottom-8 bg-white px-4 py-2 rounded-full text-xs font-bold text-[#1C1917] border-2 border-[#1C1917] backdrop-blur">
                     Preview Mode (Use sliders to adjust positions)
                 </div>
             </div>

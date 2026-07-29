@@ -2,16 +2,25 @@
 
 import { useState, useEffect } from "react";
 // MOCK IMPORTS: Use standard HTML/React components
-import { 
-  ArrowLeft, Mail, Lock, User, Loader2, 
+import {
+  ArrowLeft, Mail, Lock, User, Loader2,
   Flower2, Bird, Gift, Heart, Sparkles, Cloud, Music, CheckCircle, X, AlertCircle
 } from "lucide-react";
+
+// --- PALETTE (dōzo kawaii-editorial) ---
+const INK = "#111111";
+const MINT = "#BFE8D4";
+const CREAM = "#FFFDF5";
+const YELLOW = "#F6C445";
+const CORAL = "#F3B8CC";
+const SKY = "#BBD8F2";
+const LILAC = "#D8C9F2";
 
 // --- MAIN CONTENT ---
 export default function RegisterPage() {
   // State
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // State untuk Modal Sukses & Error
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false); // <--- State Baru
@@ -27,11 +36,11 @@ export default function RegisterPage() {
   // Efek Samping: Dekorasi Background
   useEffect(() => {
     document.title = "Register - Cardify";
-    
+
     const items: any[] = [];
     const types = ['flower', 'bird', 'gift', 'heart', 'sparkle', 'cloud', 'music'];
     const colors = [
-      'text-amber-400/20', 'text-stone-300/30', 'text-orange-200/20', 'text-yellow-500/10', 'text-stone-400/20'
+      'text-[#111111]/10', 'text-[#F6C445]/50', 'text-[#F3B8CC]/50', 'text-[#BBD8F2]/60', 'text-[#D8C9F2]/60'
     ];
 
     for (let i = 0; i < 25; i++) {
@@ -84,19 +93,17 @@ export default function RegisterPage() {
 
       if (!res.ok) {
         // Cek apakah errornya karena email sudah terdaftar
-        // Sesuaikan kondisi ini dengan respon API kamu. 
-        // Biasanya status 409 (Conflict) atau pesan berisi "exist" / "registered"
         if (res.status === 409 || data.message?.toLowerCase().includes("already") || data.message?.toLowerCase().includes("exist")) {
-             setShowErrorModal(true); // <--- Munculkan Modal Error
+          setShowErrorModal(true); // <--- Munculkan Modal Error
         } else {
-             throw new Error(data.message || "Register failed");
+          throw new Error(data.message || "Register failed");
         }
         return; // Berhenti di sini, jangan lanjut ke sukses
       }
 
       // ✅ REGISTER BERHASIL
       setShowSuccessModal(true);
-      
+
     } catch (error: any) {
       alert("Failed to register: " + error.message);
     } finally {
@@ -104,16 +111,21 @@ export default function RegisterPage() {
     }
   };
 
+  const inputClass =
+    "w-full bg-white border-[2.5px] border-[#111111] rounded-2xl py-3.5 pl-12 pr-4 text-sm font-bold text-[#111111] outline-none transition-all placeholder:text-[#111111]/30 placeholder:font-medium focus:shadow-[4px_4px_0_0_#111111] focus:-translate-y-0.5";
+
   return (
-    <div className={`min-h-screen w-full bg-[#FDFBF3] text-[#1C1917] flex items-center justify-center relative overflow-hidden p-6 font-sans`}>
-      
+    <div className="min-h-screen w-full text-[#111111] flex items-center justify-center relative overflow-hidden p-6 font-sans" style={{ backgroundColor: MINT }}>
+
       {/* INJECT FONTS */}
       <style dangerouslySetInnerHTML={{__html: `
-          @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Boldonse&family=DM+Sans:opsz,wght@9..40,400;500;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Boldonse&family=DM+Sans:opsz,wght@9..40,400;500;700;800;900&family=Instrument+Serif:ital@0;1&display=swap');
           .font-dm-sans { font-family: 'DM Sans', sans-serif; }
-          .font-playfair { font-family: 'Playfair Display', serif; }
+          .font-serif-accent { font-family: 'Instrument Serif', serif; }
           .font-boldonse { font-family: 'Boldonse', 'Archivo Black', sans-serif; }
           .font-sans { font-family: 'DM Sans', sans-serif; }
+          @keyframes dozo-float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-8px) } }
+          .dozo-float { animation: dozo-float 4s ease-in-out infinite; }
       `}} />
 
       {/* Background Decorations */}
@@ -121,42 +133,61 @@ export default function RegisterPage() {
         {decorations.map((item) => (
           <div
             key={item.id}
-            className={`absolute ${item.color} animate-pulse`}
+            className={`absolute ${item.color} dozo-float`}
             style={{
               top: `${item.top}%`,
               left: `${item.left}%`,
               transform: `rotate(${item.rotation}deg)`,
-              animationDuration: `${item.duration}s`,
+              animationDelay: `${item.delay}s`,
+              animationDuration: `${item.duration / 3}s`,
             }}
           >
             {renderIcon(item.type, item.size)}
           </div>
         ))}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#F6C445]/30 rounded-full blur-[100px] -z-10" />
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#D8C9F2]/40 rounded-full blur-[100px] -z-10" />
+        {/* soft blobs */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[100px] opacity-50" style={{ backgroundColor: YELLOW }} />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full blur-[100px] opacity-50" style={{ backgroundColor: LILAC }} />
       </div>
 
+      {/* Back link */}
+      <a
+        href="/"
+        className="absolute top-6 left-6 z-20 inline-flex items-center gap-2 rounded-full border-[2.5px] border-[#111111] bg-white px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] shadow-[3px_3px_0_0_#111111] transition-all hover:-translate-y-0.5 hover:shadow-[5px_5px_0_0_#111111] group"
+      >
+        <ArrowLeft size={12} className="group-hover:-translate-x-1 transition-transform" /> Back
+      </a>
+
       {/* Register Card */}
-      <div className="w-full max-w-[420px] bg-white rounded-[2rem] border-2 border-[#1C1917] shadow-[8px_8px_0_0_#1C1917] relative z-10 overflow-hidden">
-        
+      <div
+        className="w-full max-w-[440px] rounded-[2.25rem] border-[3px] border-[#111111] shadow-[10px_10px_0_0_#111111] relative z-10"
+        style={{ backgroundColor: CREAM }}
+      >
+        {/* sticker */}
+        <div
+          className="absolute -top-4 -right-4 z-20 rotate-6 rounded-full border-[2.5px] border-[#111111] px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] shadow-[3px_3px_0_0_#111111]"
+          style={{ backgroundColor: YELLOW }}
+        >
+          New here? ✿
+        </div>
+
         {/* Header */}
         <div className="px-8 pt-10 pb-6 text-center">
-          <div className="absolute top-6 left-6">
-            <a href="/" className="inline-flex items-center gap-2 text-[10px] font-bold text-stone-400 hover:text-stone-800 transition-colors uppercase tracking-widest cursor-pointer group">
-               <ArrowLeft size={12} className="group-hover:-translate-x-1 transition-transform" /> Back
-            </a>
+          <div className="flex justify-center mb-5">
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center border-[2.5px] border-[#111111] shadow-[4px_4px_0_0_#111111] -rotate-6"
+              style={{ backgroundColor: CORAL }}
+            >
+              <Gift size={30} strokeWidth={2} />
+            </div>
           </div>
 
-          <div className="flex justify-center mb-5 mt-2">
-             <div className="w-14 h-14 bg-[#F6C445] rounded-2xl flex items-center justify-center border-2 border-[#1C1917] shadow-sm text-[#1C1917]">
-                <Gift size={28} strokeWidth={1.5} />
-             </div>
-          </div>
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#111111]/50 mb-3">— join cardify —</p>
 
-          <h1 className="text-3xl text-[#111111] mb-2 font-boldonse font-black" style={{ letterSpacing: "-0.01em" }}>
+          <h1 className="text-3xl md:text-4xl text-[#111111] mb-3 font-boldonse font-black" style={{ letterSpacing: "-0.02em" }}>
             Create Account
           </h1>
-          <p className="text-stone-500 text-sm leading-relaxed max-w-[260px] mx-auto">
+          <p className="text-[#111111]/60 text-sm font-medium leading-relaxed max-w-[280px] mx-auto">
             Join Cardify to start crafting beautiful digital moments.
           </p>
         </div>
@@ -164,121 +195,164 @@ export default function RegisterPage() {
         {/* Form */}
         <div className="px-8 pb-10">
           <form onSubmit={handleRegister} className="space-y-5">
-            
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-[#111111] uppercase tracking-wider ml-1">Full Name</label>
+
+            <div className="space-y-2">
+              <label className="text-[11px] font-black text-[#111111] uppercase tracking-[0.15em] ml-1">Full Name</label>
               <div className="relative group">
-                <User size={18} className="absolute left-4 top-3.5 text-stone-400 group-focus-within:text-[#1C1917] transition-colors" />
-                <input 
-                  type="text" 
-                  required 
-                  placeholder="Your Name" 
-                  className="w-full bg-[#FDFBF3] border-2 border-stone-200 rounded-xl py-3 pl-12 pr-4 text-sm text-stone-800 outline-none focus:bg-white focus:border-[#1C1917] focus:ring-4 focus:ring-[#F6C445]/30 transition-all placeholder:text-stone-300" 
+                <User size={18} className="absolute left-4 top-4 text-[#111111]/40 group-focus-within:text-[#111111] transition-colors z-10" />
+                <input
+                  type="text"
+                  required
+                  placeholder="Your Name"
+                  className={inputClass}
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
                 />
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-[#111111] uppercase tracking-wider ml-1">Email Address</label>
+            <div className="space-y-2">
+              <label className="text-[11px] font-black text-[#111111] uppercase tracking-[0.15em] ml-1">Email Address</label>
               <div className="relative group">
-                <Mail size={18} className="absolute left-4 top-3.5 text-stone-400 group-focus-within:text-[#1C1917] transition-colors" />
-                <input 
-                  type="email" 
-                  required 
-                  placeholder="hello@cardify.id" 
-                  className="w-full bg-[#FDFBF3] border-2 border-stone-200 rounded-xl py-3 pl-12 pr-4 text-sm text-stone-800 outline-none focus:bg-white focus:border-[#1C1917] focus:ring-4 focus:ring-[#F6C445]/30 transition-all placeholder:text-stone-300" 
+                <Mail size={18} className="absolute left-4 top-4 text-[#111111]/40 group-focus-within:text-[#111111] transition-colors z-10" />
+                <input
+                  type="email"
+                  required
+                  placeholder="hello@cardify.id"
+                  className={inputClass}
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
                 />
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-[#111111] uppercase tracking-wider ml-1">Password</label>
+            <div className="space-y-2">
+              <label className="text-[11px] font-black text-[#111111] uppercase tracking-[0.15em] ml-1">Password</label>
               <div className="relative group">
-                <Lock size={18} className="absolute left-4 top-3.5 text-stone-400 group-focus-within:text-[#1C1917] transition-colors" />
-                <input 
-                  type="password" 
-                  required 
-                  placeholder="Strong password" 
-                  className="w-full bg-[#FDFBF3] border-2 border-stone-200 rounded-xl py-3 pl-12 pr-4 text-sm text-stone-800 outline-none focus:bg-white focus:border-[#1C1917] focus:ring-4 focus:ring-[#F6C445]/30 transition-all placeholder:text-stone-300" 
+                <Lock size={18} className="absolute left-4 top-4 text-[#111111]/40 group-focus-within:text-[#111111] transition-colors z-10" />
+                <input
+                  type="password"
+                  required
+                  placeholder="Strong password"
+                  className={inputClass}
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
                 />
               </div>
             </div>
 
-            <button type="submit" disabled={isLoading} className="w-full bg-[#1C1917] text-[#FDFBF3] py-3.5 rounded-xl font-bold text-sm border-2 border-[#1C1917] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_0_#F6C445] active:translate-y-0 active:shadow-none transition-all disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none flex items-center justify-center gap-2 mt-4 cursor-pointer">
-              {isLoading ? <><Loader2 size={18} className="animate-spin" /> Creating Account...</> : "Sign Up"}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-[#111111] text-[#FFFDF5] py-4 rounded-full font-black text-sm uppercase tracking-[0.15em] border-[2.5px] border-[#111111] shadow-[5px_5px_0_0_#F6C445] hover:-translate-y-1 hover:shadow-[7px_7px_0_0_#F6C445] active:translate-y-0 active:shadow-[2px_2px_0_0_#F6C445] transition-all disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2 mt-6 cursor-pointer"
+            >
+              {isLoading ? <><Loader2 size={18} className="animate-spin" /> Creating Account...</> : "Sign Up ✦"}
             </button>
           </form>
 
-          <p className="text-center text-xs text-stone-400 mt-8 font-medium">
-            Already have an account? <a href="/login" className="text-[#1C1917] font-bold hover:underline cursor-pointer transition-colors">Log in</a>
-          </p>
+          <div className="mt-8 flex items-center gap-3">
+            <div className="h-[2px] flex-1 bg-[#111111]/15" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#111111]/40">or</span>
+            <div className="h-[2px] flex-1 bg-[#111111]/15" />
+          </div>
 
+          <p className="text-center text-xs text-[#111111]/60 mt-6 font-bold">
+            Already have an account?{" "}
+            <a href="/login" className="text-[#111111] font-black underline decoration-[2px] underline-offset-4 decoration-[#F3B8CC] hover:decoration-[#111111] cursor-pointer transition-colors">Log in</a>
+          </p>
         </div>
       </div>
 
       {/* --- SUCCESS MODAL POPUP --- */}
       {showSuccessModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1C1917]/60 backdrop-blur-md p-4 animate-in fade-in duration-300">
-           <div className="bg-white rounded-[2rem] border-2 border-[#1C1917] shadow-[8px_8px_0_0_#1C1917] w-full max-w-sm p-8 text-center transform scale-100 animate-in zoom-in-95 duration-300 relative">
-             
-             <button onClick={() => setShowSuccessModal(false)} className="absolute top-4 right-4 p-2 text-stone-300 hover:text-stone-600 transition-colors rounded-full hover:bg-stone-50">
-                <X size={18} />
-             </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#111111]/50 p-4 animate-in fade-in duration-300">
+          <div
+            className="rounded-[2.25rem] border-[3px] border-[#111111] shadow-[10px_10px_0_0_#111111] w-full max-w-sm p-8 text-center animate-in zoom-in-95 duration-300 relative"
+            style={{ backgroundColor: CREAM }}
+          >
+            <div
+              className="absolute -top-4 -left-4 -rotate-6 rounded-full border-[2.5px] border-[#111111] px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] shadow-[3px_3px_0_0_#111111]"
+              style={{ backgroundColor: MINT }}
+            >
+              Yay! ♡
+            </div>
 
-             <div className="w-20 h-20 bg-[#B8E3C9] rounded-full flex items-center justify-center mx-auto mb-6 text-[#1C1917] shadow-sm border-2 border-[#1C1917] animate-in zoom-in duration-500 delay-100">
-                <CheckCircle size={40} strokeWidth={2.5} />
-             </div>
-             
-             <h3 className="text-2xl text-[#111111] mb-2 font-boldonse font-black italic" style={{ letterSpacing: "-0.01em" }}>Welcome Aboard!</h3>
-             <p className="text-sm text-stone-500 mb-8 leading-relaxed px-4 font-medium">
-                 Your account has been successfully created. You're ready to start crafting memories.
-             </p>
-             
-             <a href="/login" className="block w-full py-3.5 rounded-xl bg-[#1C1917] text-[#FDFBF3] font-bold border-2 border-[#1C1917] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_0_#B8E3C9] active:translate-y-0 active:shadow-none transition-all">
-                 Continue to Login
-             </a>
-           </div>
+            <button
+              onClick={() => setShowSuccessModal(false)}
+              className="absolute top-4 right-4 p-2 rounded-full border-[2.5px] border-[#111111] bg-white hover:shadow-[3px_3px_0_0_#111111] hover:-translate-y-0.5 transition-all"
+            >
+              <X size={16} strokeWidth={3} />
+            </button>
+
+            <div
+              className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 mt-2 text-[#111111] border-[2.5px] border-[#111111] shadow-[4px_4px_0_0_#111111] animate-in zoom-in duration-500"
+              style={{ backgroundColor: MINT }}
+            >
+              <CheckCircle size={40} strokeWidth={2.5} />
+            </div>
+
+            <h3 className="text-2xl text-[#111111] mb-3 font-boldonse font-black italic" style={{ letterSpacing: "-0.02em" }}>Welcome Aboard!</h3>
+            <p className="text-sm text-[#111111]/60 mb-8 leading-relaxed px-2 font-medium">
+              Your account has been successfully created. You're ready to start crafting memories.
+            </p>
+
+            <a href="/login" className="block w-full py-3.5 rounded-full bg-[#111111] text-[#FFFDF5] font-black text-sm uppercase tracking-[0.15em] border-[2.5px] border-[#111111] shadow-[5px_5px_0_0_#BFE8D4] hover:-translate-y-1 hover:shadow-[7px_7px_0_0_#BFE8D4] active:translate-y-0 transition-all">
+              Continue to Login
+            </a>
+          </div>
         </div>
       )}
 
       {/* --- ERROR MODAL POPUP (EMAIL SUDAH ADA) --- */}
       {showErrorModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1C1917]/60 backdrop-blur-md p-4 animate-in fade-in duration-300">
-           <div className="bg-white rounded-[2rem] border-2 border-[#1C1917] shadow-[8px_8px_0_0_#1C1917] w-full max-w-sm p-8 text-center transform scale-100 animate-in zoom-in-95 duration-300 relative">
-             
-             <button onClick={() => setShowErrorModal(false)} className="absolute top-4 right-4 p-2 text-stone-300 hover:text-stone-600 transition-colors rounded-full hover:bg-stone-50">
-                <X size={18} />
-             </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#111111]/50 p-4 animate-in fade-in duration-300">
+          <div
+            className="rounded-[2.25rem] border-[3px] border-[#111111] shadow-[10px_10px_0_0_#111111] w-full max-w-sm p-8 text-center animate-in zoom-in-95 duration-300 relative"
+            style={{ backgroundColor: CREAM }}
+          >
+            <div
+              className="absolute -top-4 -left-4 -rotate-6 rounded-full border-[2.5px] border-[#111111] px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] shadow-[3px_3px_0_0_#111111]"
+              style={{ backgroundColor: CORAL }}
+            >
+              Oops!
+            </div>
 
-             {/* Icon Error Merah */}
-             <div className="w-20 h-20 bg-[#F3B8CC] rounded-full flex items-center justify-center mx-auto mb-6 text-[#1C1917] shadow-sm border-2 border-[#1C1917] animate-in zoom-in duration-500 delay-100">
-                <AlertCircle size={40} strokeWidth={2.5} />
-             </div>
-             
-             <h3 className="text-2xl text-[#111111] mb-2 font-boldonse font-black italic" style={{ letterSpacing: "-0.01em" }}>Account Exists</h3>
-             <p className="text-sm text-stone-500 mb-8 leading-relaxed px-4 font-medium">
-                 The email <span className="font-bold text-stone-800">{formData.email}</span> is already registered. Would you like to log in instead?
-             </p>
-             
-             <div className="flex flex-col gap-3">
-                 <a href="/login" className="block w-full py-3.5 rounded-xl bg-[#1C1917] text-[#FDFBF3] font-bold border-2 border-[#1C1917] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_0_#F3B8CC] active:translate-y-0 active:shadow-none transition-all">
-                     Go to Login
-                 </a>
-                 <button onClick={() => setShowErrorModal(false)} className="block w-full py-3.5 rounded-xl bg-stone-100 text-stone-600 font-bold border-2 border-stone-200 hover:bg-stone-200 transition-all">
-                     Try Different Email
-                 </button>
-             </div>
-           </div>
+            <button
+              onClick={() => setShowErrorModal(false)}
+              className="absolute top-4 right-4 p-2 rounded-full border-[2.5px] border-[#111111] bg-white hover:shadow-[3px_3px_0_0_#111111] hover:-translate-y-0.5 transition-all"
+            >
+              <X size={16} strokeWidth={3} />
+            </button>
+
+            <div
+              className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 mt-2 text-[#111111] border-[2.5px] border-[#111111] shadow-[4px_4px_0_0_#111111] animate-in zoom-in duration-500"
+              style={{ backgroundColor: CORAL }}
+            >
+              <AlertCircle size={40} strokeWidth={2.5} />
+            </div>
+
+            <h3 className="text-2xl text-[#111111] mb-3 font-boldonse font-black italic" style={{ letterSpacing: "-0.02em" }}>Account Exists</h3>
+            <p className="text-sm text-[#111111]/60 mb-8 leading-relaxed px-2 font-medium">
+              The email <span className="font-black text-[#111111]">{formData.email}</span> is already registered. Would you like to log in instead?
+            </p>
+
+            <div className="flex flex-col gap-3">
+              <a href="/login" className="block w-full py-3.5 rounded-full bg-[#111111] text-[#FFFDF5] font-black text-sm uppercase tracking-[0.15em] border-[2.5px] border-[#111111] shadow-[5px_5px_0_0_#F3B8CC] hover:-translate-y-1 hover:shadow-[7px_7px_0_0_#F3B8CC] active:translate-y-0 transition-all">
+                Go to Login
+              </a>
+              <button
+                onClick={() => setShowErrorModal(false)}
+                className="block w-full py-3.5 rounded-full font-black text-sm uppercase tracking-[0.15em] border-[2.5px] border-[#111111] text-[#111111] hover:-translate-y-1 hover:shadow-[5px_5px_0_0_#111111] active:translate-y-0 transition-all"
+                style={{ backgroundColor: SKY }}
+              >
+                Try Different Email
+              </button>
+            </div>
+          </div>
         </div>
       )}
-      
-      <div className="absolute bottom-6 text-[10px] text-stone-400 font-bold tracking-widest opacity-60 uppercase">© 2025 Cardify Inc.</div>
+
+      <div className="absolute bottom-6 z-10 text-[10px] text-[#111111]/50 font-black tracking-[0.25em] uppercase">© 2025 Cardify Inc.</div>
     </div>
   );
 }
