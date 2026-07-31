@@ -33,6 +33,7 @@ const handler = NextAuth({
         }
 
         // 🔥 PAKAI API LOGIN EMAIL LO YANG SUDAH ADA
+        console.log("NEXTAUTH_URL:", process.env.NEXTAUTH_URL);
         const res = await fetch(`${process.env.NEXTAUTH_URL}/api/auth/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },

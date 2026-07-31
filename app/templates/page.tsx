@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, type Variants } from "framer-motion";
 import { 
   ArrowLeft, Search, Smartphone, Image as ImageIcon, ArrowRight, Sparkles, Filter,
@@ -172,8 +173,29 @@ export default function TemplatesPage() {
     ? templates 
     : templates.filter(t => t.category === activeTab);
 
+  // --- INJECT SEO: JSON-LD ITEM LIST SCHEMA ---
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": templates.map((template, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "url": `https://cardify-web-kappa.vercel.app${template.href}`, // Ganti dengan domain asli
+      "name": template.title,
+      "description": template.description,
+      "image": `https://cardify-web-kappa.vercel.app${template.image}` // Ganti dengan domain asli
+    }))
+  };
+
   return (
     <div className="min-h-screen bg-[#FDFBF3] font-dm-sans text-[#1C1917]">
+      
+      {/* INJECT SEO: SCRIPT RENDERER */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      
       {/* INJECT FONTS */}
       <style dangerouslySetInnerHTML={{__html: `
           @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Boldonse&family=DM+Sans:opsz,wght@9..40,400;500;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,900;1,400;1,600;1,700&display=swap');
@@ -239,16 +261,16 @@ export default function TemplatesPage() {
             
             {/* Templates Dropdown */}
             <div className="relative group h-full flex items-center cursor-pointer">
-                <a href="/templates" className="hover:text-[#1C1917] transition-colors relative py-2 flex items-center gap-1 text-[#1C1917]">
+                <Link href="/templates" className="hover:text-[#1C1917] transition-colors relative py-2 flex items-center gap-1 text-[#1C1917]">
                   Templates
                   <ChevronDown size={14} className="opacity-50 group-hover:opacity-100 transition-transform duration-300 group-hover:rotate-180 text-[#D9A400]" />
-                </a>
+                </Link>
                 
                 {/* Dropdown Menu */}
                 <div className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-72 bg-white rounded-2xl shadow-xl border-2 border-[#1C1917] p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top translate-y-2 group-hover:translate-y-0 z-50 normal-case">
                    <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-2 px-2">Create New</p>
 
-                   <a href="/web-story" className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#F3B8CC]/20 transition-colors group/item relative z-10 mb-1">
+                   <Link href="/web-story" className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#F3B8CC]/20 transition-colors group/item relative z-10 mb-1">
                       <div className="w-10 h-10 rounded-full bg-[#F3B8CC] flex-shrink-0 flex items-center justify-center text-[#1C1917] border-2 border-[#1C1917] transition-all shadow-sm">
                          <Smartphone size={18} />
                       </div>
@@ -256,9 +278,9 @@ export default function TemplatesPage() {
                          <p className="text-sm font-bold text-stone-800 transition-colors">Web Story</p>
                          <p className="text-[10px] text-stone-500 font-medium leading-tight mt-0.5 normal-case">Interactive, Music, Animations</p>
                       </div>
-                   </a>
+                   </Link>
 
-                   <a href="/templates?filter=card-image" className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#F6C445]/20 transition-colors group/item relative z-10">
+                   <Link href="/templates?filter=card-image" className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#F6C445]/20 transition-colors group/item relative z-10">
                       <div className="w-10 h-10 rounded-full bg-[#F6C445] flex-shrink-0 flex items-center justify-center text-[#1C1917] border-2 border-[#1C1917] transition-all shadow-sm">
                          <ImageIcon size={18} />
                       </div>
@@ -266,13 +288,13 @@ export default function TemplatesPage() {
                          <p className="text-sm font-bold text-stone-800 transition-colors">Card Image</p>
                          <p className="text-[10px] text-stone-500 font-medium leading-tight mt-0.5 normal-case">Static, Printable, Classic</p>
                       </div>
-                   </a>
+                   </Link>
                 </div>
             </div>
             
-            <a href="/features" className="hover:text-[#1C1917] transition-colors">Features</a>
-            <a href="/about" className="hover:text-[#1C1917] transition-colors">About</a>
-            <a href="/contact" className="hover:text-[#1C1917] transition-colors">Contact</a>
+            <Link href="/features" className="hover:text-[#1C1917] transition-colors">Features</Link>
+            <Link href="/about" className="hover:text-[#1C1917] transition-colors">About</Link>
+            <Link href="/contact" className="hover:text-[#1C1917] transition-colors">Contact</Link>
           </div>
 
           {/* Auth Actions */}
@@ -305,10 +327,10 @@ export default function TemplatesPage() {
                       <p className="text-xs text-stone-500 truncate font-medium">{userData.email}</p>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <a href="/account" className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-stone-50 hover:text-black rounded-xl transition-all font-medium group">
+                      <Link href="/account" className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-stone-50 hover:text-black rounded-xl transition-all font-medium group">
                         <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all"><User size={16} /></div>
                         Profile & Account
-                      </a>
+                      </Link>
                       <button className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-stone-50 hover:text-black rounded-xl transition-all font-medium group">
                         <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all"><Settings size={16} /></div>
                         Preferences
@@ -324,13 +346,13 @@ export default function TemplatesPage() {
               </div>
             ) : (
               <div className="flex items-center gap-6">
-                <a href="/login" className="hidden md:flex text-sm font-bold uppercase tracking-wide text-stone-600 hover:text-black transition-colors">Log in</a>
-                <a href="/register" className="hidden md:flex text-sm font-bold uppercase tracking-wide text-stone-600 hover:text-black transition-colors">Sign Up</a>
+                <Link href="/login" className="hidden md:flex text-sm font-bold uppercase tracking-wide text-stone-600 hover:text-black transition-colors">Log in</Link>
+                <Link href="/register" className="hidden md:flex text-sm font-bold uppercase tracking-wide text-stone-600 hover:text-black transition-colors">Sign Up</Link>
               </div>
             )}
-            <a href="/templates" className="px-5 py-2.5 rounded-full bg-[#1C1917] text-[#FDFBF3] text-sm font-bold hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_#F6C445] transition-all flex items-center gap-2 border-2 border-[#1C1917]">
+            <Link href="/templates" className="px-5 py-2.5 rounded-full bg-[#1C1917] text-[#FDFBF3] text-sm font-bold hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_#F6C445] transition-all flex items-center gap-2 border-2 border-[#1C1917]">
               Start Creating <ArrowRight size={16} strokeWidth={2.5} className="text-[#F6C445]" />
-            </a>
+            </Link>
           </div>
         </div>
       </nav>
@@ -402,7 +424,7 @@ export default function TemplatesPage() {
             variants={staggerContainer}
          >
             {filteredTemplates.map((template) => (
-<a
+<Link
   href={template.href}
   key={template.id}
   className="group block h-full"
@@ -412,7 +434,7 @@ export default function TemplatesPage() {
                      {/* Image Container */}
                      <div className="relative aspect-[4/3] bg-stone-100 overflow-hidden border-b-2 border-[#1C1917]">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img 
+                        <Image 
                            src={template.image} 
                            alt={template.title} 
                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
@@ -451,7 +473,7 @@ export default function TemplatesPage() {
                         </div>
                      </div>
                   </motion.div>
-               </a>
+               </Link>
             ))}
          </motion.div>
       </main>
@@ -533,23 +555,23 @@ export default function TemplatesPage() {
         <ul className="space-y-2 text-sm font-bold">
 
           <li>
-            <a
+            <Link
               href="/templates"
               className="transition-opacity hover:opacity-60"
               style={{ color: "#FFFFFF" }}
             >
               Templates
-            </a>
+            </Link>
           </li>
 
           <li>
-            <a
+            <Link
               href="/showcase"
               className="transition-opacity hover:opacity-60"
               style={{ color: "#1C1917" }}
             >
               Showcase
-            </a>
+            </Link>
           </li>
 
         </ul>
@@ -570,21 +592,21 @@ export default function TemplatesPage() {
         <ul className="space-y-2 text-sm font-bold">
 
           <li>
-            <a href="/about" className="hover:opacity-60" style={{ color: "#1C1917" }}>
+            <Link href="/about" className="hover:opacity-60" style={{ color: "#1C1917" }}>
               About
-            </a>
+            </Link>
           </li>
 
           <li>
-            <a href="/careers" className="hover:opacity-60" style={{ color: "#1C1917" }}>
+            <Link href="/careers" className="hover:opacity-60" style={{ color: "#1C1917" }}>
               Careers
-            </a>
+            </Link>
           </li>
 
           <li>
-            <a href="/blog" className="hover:opacity-60" style={{ color: "#1C1917" }}>
+            <Link href="/blog" className="hover:opacity-60" style={{ color: "#1C1917" }}>
               Blog
-            </a>
+            </Link>
           </li>
 
         </ul>
@@ -675,19 +697,19 @@ export default function TemplatesPage() {
         style={{ color: "#1C1917" }}
       >
 
-        <a
+        <Link
           href="/privacy-policy"
           className="hover:opacity-60"
         >
           Privacy
-        </a>
+        </Link>
 
-        <a
+        <Link
           href="/terms"
           className="hover:opacity-60"
         >
           Terms
-        </a>
+        </Link>
 
       </div>
 

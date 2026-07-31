@@ -7,9 +7,9 @@ import { SessionProvider, useSession, signOut } from "next-auth/react";
 import { motion, type Variants } from "framer-motion";
 import {
   ArrowRight, Sparkles, Gift, Heart, User, LogOut, Settings, ChevronDown,
-  LayoutGrid, FileImage, Shield, Instagram, MessageCircle, Smartphone,
-  Image as ImageIcon, Pencil, Download, Trash2, Plus, Camera, Check,
-  Sparkle, Clock, Layers
+  FileImage, Shield, Instagram, MessageCircle,
+  Pencil, Download, Trash2, Plus, Camera, Check,
+  Sparkle, Clock, Layers, FileEdit
 } from "lucide-react";
 
 // --- REUSABLE MOTION VARIANTS ---
@@ -31,11 +31,15 @@ const savedCards = [
   { id: 4, title: "Miss You Already", template: "8-Bit Congrats!", date: "1 month ago", bg: "bg-[#A9D6BC]" },
 ];
 
-const activity = [
-  { id: 1, text: "Created \"Happy Birthday, Sarah!\" using Retro Birthday Bash", time: "2 days ago" },
-  { id: 2, text: "Snapped 3 photos with Photobooth", time: "2 days ago" },
-  { id: 3, text: "Downloaded \"Congrats on the Wedding\" as image", time: "1 week ago" },
-  { id: 4, text: "Joined Cardify", time: "2 months ago" },
+const draftCards = [
+  { id: 101, title: "Untitled — Retro Birthday", template: "Retro Birthday Bash", date: "Edited 3 hours ago", bg: "bg-[#F6C445]" },
+  { id: 102, title: "Untitled — Newspaper", template: "Vintage Press", date: "Edited yesterday", bg: "bg-[#D8C9F2]" },
+];
+
+const favoriteTemplates = [
+  { id: 201, title: "Wedding Bloom Set", tag: "Popular", bg: "bg-[#F3B8CC]" },
+  { id: 202, title: "8-Bit Congrats!", tag: "Hot", bg: "bg-[#BFE0F5]" },
+  { id: 203, title: "Vintage Press", tag: "Classic", bg: "bg-[#A9D6BC]" },
 ];
 
 // --- WRAPPER SESSION ---
@@ -54,7 +58,7 @@ function AccountContent() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [userData, setUserData] = useState<{ name: string; email: string; image: string | null } | null>(null);
-  const [activeTab, setActiveTab] = useState<"overview" | "cards" | "settings">("overview");
+  const [activeTab, setActiveTab] = useState<"cards" | "drafts" | "favorites" | "profile" | "settings">("cards");
 
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
@@ -143,14 +147,28 @@ function AccountContent() {
       <nav className={`fixed top-9 z-50 w-full transition-all duration-300 border-b ${scrolled ? "bg-[#FDFBF3]/90 backdrop-blur-xl border-stone-200 shadow-sm py-3" : "bg-[#FDFBF3] border-stone-200 py-4"}`}>
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center relative">
           <Link href="/" className="flex items-center gap-2.5 cursor-pointer group">
-            <div className="w-9 h-9 bg-[#1C1917] rounded-xl flex items-center justify-center text-[#F6C445] shadow-[3px_3px_0_0_#F6C445] group-hover:rotate-12 group-hover:shadow-[4px_4px_0_0_#F6C445] transition-all duration-300">
-              <Gift size={18} strokeWidth={2.5} />
+                      <div className="w-9 h-9 bg-[#1C1917] rounded-xl flex items-center justify-center shadow-[3px_3px_0_0_#F6C445] group-hover:rotate-12 group-hover:shadow-[4px_4px_0_0_#F6C445] transition-all duration-300 p-1.5">
+                         {/* eslint-disable-next-line @next/next/no-img-element */}
+                         <img src="/logo.svg" alt="Cardify" className="w-full h-full object-contain" />
+                      </div>
+                      <div className="leading-none">
+            <div
+              className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1C1917]"
+            >
+              A CARD WITH A STORY
             </div>
-            <div className="flex flex-col leading-none">
-              <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400">A card with a story</span>
-              <span className="text-xl font-bold tracking-tight font-playfair italic text-[#1C1917]">cardify</span>
+          
+            <div
+              className="text-2xl font-black italic tracking-[-0.02em]"
+              style={{
+                fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+                color: "#1C1917",
+              }}
+            >
+              cardify
             </div>
-          </Link>
+          </div>
+                    </Link>
 
           <div className="flex items-center gap-4">
             {userData ? (
@@ -270,197 +288,450 @@ function AccountContent() {
         <section className="bg-[#FDFBF3] pb-24 px-6">
           <div className="max-w-6xl mx-auto">
 
-            {/* Tab Switcher */}
-            <div className="flex justify-center mb-10">
-              <div className="bg-white p-1.5 rounded-full border-2 border-[#1C1917] shadow-[4px_4px_0_0_#1C1917] inline-flex items-center gap-1">
-                {[
-                  { id: "overview", label: "Overview", icon: <LayoutGrid size={16} /> },
-                  { id: "cards", label: "My Cards", icon: <FileImage size={16} /> },
-                  { id: "settings", label: "Settings", icon: <Settings size={16} /> },
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                    className={`px-5 py-2.5 rounded-full text-sm font-bold uppercase tracking-wide transition-all flex items-center gap-2 ${
-                      activeTab === tab.id ? "bg-[#1C1917] text-[#F6C445] shadow-md" : "text-stone-500 hover:bg-stone-50"
-                    }`}
-                  >
-                    {tab.icon} {tab.label}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
 
-            {/* --- OVERVIEW TAB --- */}
-            {activeTab === "overview" && (
-              <motion.div initial="hidden" animate="show" variants={staggerContainer} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <motion.div variants={staggerItem} className="lg:col-span-1 space-y-4">
-                  <h3 className="text-xs font-black text-[#1C1917]/50 uppercase tracking-widest font-sans">Quick Actions</h3>
-                  <Link href="/templates" className="flex items-center gap-4 p-5 bg-white rounded-[1.5rem] border-2 border-[#1C1917] hover:-translate-y-1 hover:shadow-[5px_5px_0_0_#1C1917] transition-all">
-                    <div className="w-12 h-12 rounded-full bg-[#F6C445] border-2 border-[#1C1917] flex items-center justify-center text-[#1C1917]"><Plus size={20} /></div>
-                    <div>
-                      <p className="font-bold text-stone-800 font-playfair">Create a Card</p>
-                      <p className="text-xs text-stone-500">Start from 200+ templates</p>
-                    </div>
-                  </Link>
-                  <Link href="/web-story" className="flex items-center gap-4 p-5 bg-white rounded-[1.5rem] border-2 border-[#1C1917] hover:-translate-y-1 hover:shadow-[5px_5px_0_0_#1C1917] transition-all">
-                    <div className="w-12 h-12 rounded-full bg-[#F3B8CC] border-2 border-[#1C1917] flex items-center justify-center text-[#1C1917]"><Smartphone size={20} /></div>
-                    <div>
-                      <p className="font-bold text-stone-800 font-playfair">Web Story</p>
-                      <p className="text-xs text-stone-500">Add music &amp; animation</p>
-                    </div>
-                  </Link>
-                  <div className="flex items-center gap-4 p-5 bg-white rounded-[1.5rem] border-2 border-[#1C1917] hover:-translate-y-1 hover:shadow-[5px_5px_0_0_#1C1917] transition-all cursor-pointer">
-                    <div className="w-12 h-12 rounded-full bg-[#BFE0F5] border-2 border-[#1C1917] flex items-center justify-center text-[#1C1917]"><ImageIcon size={20} /></div>
-                    <div>
-                      <p className="font-bold text-stone-800 font-playfair">Photobooth</p>
-                      <p className="text-xs text-stone-500">Snap a fresh photo</p>
-                    </div>
-                  </div>
-                </motion.div>
+              {/* --- SIDEBAR --- */}
+              <aside className="lg:col-span-3">
+                <div className="lg:sticky lg:top-28 space-y-1">
+                  <p className="text-[11px] font-black text-[#1C1917]/40 uppercase tracking-[0.2em] mb-3 px-4 font-sans">Dashboard</p>
+                  {[
+                    { id: "cards", label: "My Cards", icon: <FileImage size={16} /> },
+                    { id: "drafts", label: "Drafts", icon: <FileEdit size={16} /> },
+                    { id: "favorites", label: "Favorites", icon: <Heart size={16} /> },
+                    { id: "profile", label: "Profile", icon: <User size={16} /> },
+                    { id: "settings", label: "Settings", icon: <Settings size={16} /> },
+                  ].map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveTab(item.id as typeof activeTab)}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all border-2 ${
+                        activeTab === item.id
+                          ? "bg-[#1C1917] text-[#F6C445] border-[#1C1917] shadow-[3px_3px_0_0_rgba(28,25,23,0.2)]"
+                          : "text-stone-500 border-transparent hover:bg-white hover:border-stone-200"
+                      }`}
+                    >
+                      {item.icon} {item.label}
+                      {item.id === "drafts" && draftCards.length > 0 && (
+                        <span className={`ml-auto text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center ${activeTab === "drafts" ? "bg-[#F6C445] text-[#1C1917]" : "bg-stone-200 text-stone-600"}`}>
+                          {draftCards.length}
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </aside>
 
-                <motion.div variants={staggerItem} className="lg:col-span-2">
-                  <h3 className="text-xs font-black text-[#1C1917]/50 uppercase tracking-widest font-sans mb-4">Recent Activity</h3>
-                  <div className="bg-white rounded-[1.75rem] border-2 border-[#1C1917] shadow-[5px_5px_0_0_#1C1917] divide-y-2 divide-stone-100 overflow-hidden">
-                    {activity.map((a) => (
-                      <div key={a.id} className="flex items-start gap-3 p-5">
-                        <div className="w-2 h-2 rounded-full bg-[#F6C445] border border-[#1C1917] mt-1.5 flex-shrink-0" />
-                        <div>
-                          <p className="text-sm font-medium text-stone-700">{a.text}</p>
-                          <p className="text-xs text-stone-400 font-bold uppercase tracking-wide mt-1">{a.time}</p>
+              {/* --- CONTENT --- */}
+              <div className="lg:col-span-9">
+
+                {/* --- MY CARDS --- */}
+                {activeTab === "cards" && (
+                  <motion.div initial="hidden" animate="show" variants={staggerContainer}>
+                    <h2 className="text-2xl font-black text-[#1C1917] font-boldonse mb-6">My Cards</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                      {savedCards.map((card) => (
+                        <motion.div key={card.id} variants={staggerItem} className="bg-white rounded-[1.75rem] border-2 border-[#1C1917] overflow-hidden hover:-translate-y-1.5 hover:shadow-[5px_5px_0_0_#1C1917] transition-all duration-300">
+                          <div className={`aspect-[4/3] ${card.bg} flex items-center justify-center border-b-2 border-[#1C1917]`}>
+                            <Gift size={36} className="text-[#1C1917]/40" />
+                          </div>
+                          <div className="p-4">
+                            <p className="font-bold text-sm text-stone-800 truncate font-playfair">{card.title}</p>
+                            <p className="text-xs text-stone-400 mt-0.5">{card.template} • {card.date}</p>
+                            <div className="flex gap-2 mt-3">
+                              <button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-[#FDFBF3] border-2 border-stone-200 text-xs font-bold text-stone-600 hover:border-[#1C1917] transition-colors">
+                                <Pencil size={12} /> Edit
+                              </button>
+                              <button className="flex items-center justify-center w-9 py-2 rounded-lg bg-[#FDFBF3] border-2 border-stone-200 text-stone-500 hover:border-[#1C1917] transition-colors">
+                                <Download size={14} />
+                              </button>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                      <Link href="/templates" className="flex flex-col items-center justify-center gap-3 rounded-[1.75rem] border-2 border-dashed border-stone-300 hover:border-[#1C1917] hover:bg-white transition-all min-h-[220px] text-stone-400 hover:text-[#1C1917]">
+                        <div className="w-12 h-12 rounded-full bg-[#FDFBF3] border-2 border-current flex items-center justify-center">
+                          <Plus size={22} />
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              </motion.div>
-            )}
-
-            {/* --- MY CARDS TAB --- */}
-            {activeTab === "cards" && (
-              <motion.div initial="hidden" animate="show" variants={staggerContainer} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {savedCards.map((card) => (
-                  <motion.div key={card.id} variants={staggerItem} className="bg-white rounded-[1.75rem] border-2 border-[#1C1917] overflow-hidden hover:-translate-y-1.5 hover:shadow-[5px_5px_0_0_#1C1917] transition-all duration-300">
-                    <div className={`aspect-[4/3] ${card.bg} flex items-center justify-center border-b-2 border-[#1C1917]`}>
-                      <Gift size={36} className="text-[#1C1917]/40" />
-                    </div>
-                    <div className="p-4">
-                      <p className="font-bold text-sm text-stone-800 truncate font-playfair">{card.title}</p>
-                      <p className="text-xs text-stone-400 mt-0.5">{card.template} • {card.date}</p>
-                      <div className="flex gap-2 mt-3">
-                        <button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-[#FDFBF3] border-2 border-stone-200 text-xs font-bold text-stone-600 hover:border-[#1C1917] transition-colors">
-                          <Pencil size={12} /> Edit
-                        </button>
-                        <button className="flex items-center justify-center w-9 py-2 rounded-lg bg-[#FDFBF3] border-2 border-stone-200 text-stone-500 hover:border-[#1C1917] transition-colors">
-                          <Download size={14} />
-                        </button>
-                      </div>
+                        <span className="text-sm font-bold">Create New Card</span>
+                      </Link>
                     </div>
                   </motion.div>
-                ))}
+                )}
 
-                <Link href="/templates" className="flex flex-col items-center justify-center gap-3 rounded-[1.75rem] border-2 border-dashed border-stone-300 hover:border-[#1C1917] hover:bg-white transition-all min-h-[220px] text-stone-400 hover:text-[#1C1917]">
-                  <div className="w-12 h-12 rounded-full bg-[#FDFBF3] border-2 border-current flex items-center justify-center">
-                    <Plus size={22} />
-                  </div>
-                  <span className="text-sm font-bold">Create New Card</span>
-                </Link>
-              </motion.div>
-            )}
+                {/* --- DRAFTS --- */}
+                {activeTab === "drafts" && (
+                  <motion.div initial="hidden" animate="show" variants={staggerContainer}>
+                    <h2 className="text-2xl font-black text-[#1C1917] font-boldonse mb-2">Drafts</h2>
+                    <p className="text-sm text-stone-500 mb-6">Unfinished cards — pick up right where you left off.</p>
+                    {draftCards.length > 0 ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {draftCards.map((card) => (
+                          <motion.div key={card.id} variants={staggerItem} className="bg-white rounded-[1.75rem] border-2 border-[#1C1917] overflow-hidden hover:-translate-y-1.5 hover:shadow-[5px_5px_0_0_#1C1917] transition-all duration-300">
+                            <div className={`aspect-[4/3] ${card.bg} flex items-center justify-center border-b-2 border-[#1C1917] relative opacity-80`}>
+                              <Gift size={36} className="text-[#1C1917]/40" />
+                              <span className="absolute top-3 left-3 text-[10px] font-black uppercase tracking-widest bg-white/90 px-2 py-1 rounded-full border-2 border-[#1C1917]">Draft</span>
+                            </div>
+                            <div className="p-4">
+                              <p className="font-bold text-sm text-stone-800 truncate font-playfair">{card.title}</p>
+                              <p className="text-xs text-stone-400 mt-0.5">{card.template} • {card.date}</p>
+                              <div className="flex gap-2 mt-3">
+                                <button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-[#1C1917] text-[#F6C445] text-xs font-bold hover:-translate-y-0.5 transition-all">
+                                  <Pencil size={12} /> Continue Editing
+                                </button>
+                                <button className="flex items-center justify-center w-9 py-2 rounded-lg bg-[#FDFBF3] border-2 border-stone-200 text-stone-400 hover:border-red-300 hover:text-red-500 transition-colors">
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="bg-white rounded-[1.75rem] border-2 border-dashed border-stone-300 py-16 text-center text-stone-400">
+                        <FileEdit size={32} className="mx-auto mb-3" />
+                        <p className="text-sm font-bold">No drafts yet</p>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
 
-            {/* --- SETTINGS TAB --- */}
-            {activeTab === "settings" && (
-              <motion.div initial="hidden" animate="show" variants={staggerContainer} className="max-w-2xl mx-auto space-y-6">
-                <motion.div variants={staggerItem} className="bg-white p-8 rounded-[1.75rem] border-2 border-[#1C1917] shadow-[5px_5px_0_0_#1C1917]">
-                  <h3 className="text-lg font-bold text-[#1C1917] mb-6 font-playfair flex items-center gap-2"><User size={18} /> Personal Information</h3>
-                  <div className="space-y-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-stone-500 uppercase tracking-wider ml-1">Full Name</label>
-                      <input defaultValue={displayName} className="w-full bg-[#FDFBF3] border-2 border-stone-200 rounded-xl py-3 px-4 text-sm font-medium focus:border-[#1C1917] focus:ring-4 focus:ring-[#F6C445]/30 outline-none transition-all" />
+                {/* --- FAVORITES --- */}
+                {activeTab === "favorites" && (
+                  <motion.div initial="hidden" animate="show" variants={staggerContainer}>
+                    <h2 className="text-2xl font-black text-[#1C1917] font-boldonse mb-2">Favorites</h2>
+                    <p className="text-sm text-stone-500 mb-6">Templates you've saved for later.</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                      {favoriteTemplates.map((tpl) => (
+                        <motion.div key={tpl.id} variants={staggerItem} className="bg-white rounded-[1.75rem] border-2 border-[#1C1917] overflow-hidden hover:-translate-y-1.5 hover:shadow-[5px_5px_0_0_#1C1917] transition-all duration-300">
+                          <div className={`aspect-[4/3] ${tpl.bg} flex items-center justify-center border-b-2 border-[#1C1917] relative`}>
+                            <Sparkle size={32} className="text-[#1C1917]/40" />
+                            <span className="absolute top-3 left-3 text-[10px] font-black uppercase tracking-widest bg-white/90 px-2 py-1 rounded-full border-2 border-[#1C1917]">{tpl.tag}</span>
+                            <button className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white border-2 border-[#1C1917] flex items-center justify-center text-red-500">
+                              <Heart size={14} className="fill-red-500" />
+                            </button>
+                          </div>
+                          <div className="p-4">
+                            <p className="font-bold text-sm text-stone-800 truncate font-playfair">{tpl.title}</p>
+                            <Link href="/templates" className="mt-3 w-full flex items-center justify-center gap-1.5 py-2 rounded-lg bg-[#1C1917] text-[#F6C445] text-xs font-bold hover:-translate-y-0.5 transition-all">
+                              Use Template
+                            </Link>
+                          </div>
+                        </motion.div>
+                      ))}
                     </div>
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-stone-500 uppercase tracking-wider ml-1">Email Address</label>
-                      <input defaultValue={displayEmail} disabled className="w-full bg-stone-100 border-2 border-stone-200 rounded-xl py-3 px-4 text-sm font-medium text-stone-500 cursor-not-allowed" />
-                      <p className="text-[11px] text-stone-400 ml-1">Signed in via {session?.user ? "Google/GitHub" : "email & password"} — contact support to change this.</p>
-                    </div>
-                  </div>
-                  <button className="mt-6 px-6 py-3 rounded-full bg-[#1C1917] text-[#FDFBF3] text-sm font-bold border-2 border-[#1C1917] hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_#F6C445] transition-all flex items-center gap-2">
-                    <Check size={16} /> Save Changes
-                  </button>
-                </motion.div>
+                  </motion.div>
+                )}
 
-                <motion.div variants={staggerItem} className="bg-white p-8 rounded-[1.75rem] border-2 border-[#1C1917] shadow-[5px_5px_0_0_#1C1917]">
-                  <h3 className="text-lg font-bold text-[#1C1917] mb-2 font-playfair flex items-center gap-2"><Shield size={18} /> Sign Out</h3>
-                  <p className="text-sm text-stone-500 mb-5">You'll need to log in again to access your saved templates.</p>
-                  <button onClick={handleLogout} className="px-6 py-3 rounded-full bg-white text-[#1C1917] text-sm font-bold border-2 border-[#1C1917] hover:bg-[#1C1917] hover:text-[#FDFBF3] transition-all flex items-center gap-2">
-                    <LogOut size={16} /> Sign Out of Cardify
-                  </button>
-                </motion.div>
+                {/* --- PROFILE --- */}
+                {activeTab === "profile" && (
+                  <motion.div initial="hidden" animate="show" variants={staggerContainer} className="max-w-2xl">
+                    <h2 className="text-2xl font-black text-[#1C1917] font-boldonse mb-6">Profile</h2>
+                    <motion.div variants={staggerItem} className="bg-white p-8 rounded-[1.75rem] border-2 border-[#1C1917] shadow-[5px_5px_0_0_#1C1917]">
+                      <div className="flex items-center gap-5 mb-8">
+                        {userData?.image ? (
+                          <Image src={userData.image} alt={displayName} width={72} height={72} className="rounded-2xl border-2 border-[#1C1917]" />
+                        ) : (
+                          <div className="w-[72px] h-[72px] rounded-2xl bg-[#1C1917] flex items-center justify-center text-[#F6C445] border-2 border-[#1C1917]">
+                            <User size={30} />
+                          </div>
+                        )}
+                        <div>
+                          <p className="font-bold text-lg text-stone-800 font-playfair">{displayName}</p>
+                          <button className="text-xs font-bold text-[#1C1917] border-b-2 border-[#1C1917] mt-1">Change Photo</button>
+                        </div>
+                      </div>
+                      <div className="space-y-4">
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold text-stone-500 uppercase tracking-wider ml-1">Full Name</label>
+                          <input defaultValue={displayName} className="w-full bg-[#FDFBF3] border-2 border-stone-200 rounded-xl py-3 px-4 text-sm font-medium focus:border-[#1C1917] focus:ring-4 focus:ring-[#F6C445]/30 outline-none transition-all" />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold text-stone-500 uppercase tracking-wider ml-1">Email Address</label>
+                          <input defaultValue={displayEmail} disabled className="w-full bg-stone-100 border-2 border-stone-200 rounded-xl py-3 px-4 text-sm font-medium text-stone-500 cursor-not-allowed" />
+                          <p className="text-[11px] text-stone-400 ml-1">Signed in via {session?.user ? "Google/GitHub" : "email & password"} — contact support to change this.</p>
+                        </div>
+                      </div>
+                      <button className="mt-6 px-6 py-3 rounded-full bg-[#1C1917] text-[#FDFBF3] text-sm font-bold border-2 border-[#1C1917] hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_#F6C445] transition-all flex items-center gap-2">
+                        <Check size={16} /> Save Changes
+                      </button>
+                    </motion.div>
+                  </motion.div>
+                )}
 
-                <motion.div variants={staggerItem} className="bg-white p-8 rounded-[1.75rem] border-2 border-red-200 shadow-[5px_5px_0_0_#fecaca]">
-                  <h3 className="text-lg font-bold text-red-600 mb-2 font-playfair flex items-center gap-2"><Trash2 size={18} /> Danger Zone</h3>
-                  <p className="text-sm text-stone-500 mb-5">Deleting your account removes all saved cards and cannot be undone.</p>
-                  <button className="px-6 py-3 rounded-full bg-white text-red-600 text-sm font-bold border-2 border-red-200 hover:bg-red-50 transition-all">
-                    Delete My Account
-                  </button>
-                </motion.div>
-              </motion.div>
-            )}
+                {/* --- SETTINGS --- */}
+                {activeTab === "settings" && (
+                  <motion.div initial="hidden" animate="show" variants={staggerContainer} className="max-w-2xl space-y-6">
+                    <h2 className="text-2xl font-black text-[#1C1917] font-boldonse mb-2">Settings</h2>
+
+                    <motion.div variants={staggerItem} className="bg-white p-8 rounded-[1.75rem] border-2 border-[#1C1917] shadow-[5px_5px_0_0_#1C1917]">
+                      <h3 className="text-lg font-bold text-[#1C1917] mb-2 font-playfair flex items-center gap-2"><Shield size={18} /> Notifications &amp; Security</h3>
+                      <p className="text-sm text-stone-500 mb-5">Manage notification preferences and two-factor authentication.</p>
+                      <Link href="/preferences" className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#FDFBF3] text-[#1C1917] text-sm font-bold border-2 border-[#1C1917] hover:bg-[#F6C445]/20 transition-all">
+                        Go to Preferences <ArrowRight size={14} />
+                      </Link>
+                    </motion.div>
+
+                    <motion.div variants={staggerItem} className="bg-white p-8 rounded-[1.75rem] border-2 border-[#1C1917] shadow-[5px_5px_0_0_#1C1917]">
+                      <h3 className="text-lg font-bold text-[#1C1917] mb-2 font-playfair flex items-center gap-2"><LogOut size={18} /> Sign Out</h3>
+                      <p className="text-sm text-stone-500 mb-5">You'll need to log in again to access your saved templates.</p>
+                      <button onClick={handleLogout} className="px-6 py-3 rounded-full bg-white text-[#1C1917] text-sm font-bold border-2 border-[#1C1917] hover:bg-[#1C1917] hover:text-[#FDFBF3] transition-all flex items-center gap-2">
+                        <LogOut size={16} /> Sign Out of Cardify
+                      </button>
+                    </motion.div>
+
+                    <motion.div variants={staggerItem} className="bg-white p-8 rounded-[1.75rem] border-2 border-red-200 shadow-[5px_5px_0_0_#fecaca]">
+                      <h3 className="text-lg font-bold text-red-600 mb-2 font-playfair flex items-center gap-2"><Trash2 size={18} /> Danger Zone</h3>
+                      <p className="text-sm text-stone-500 mb-5">Deleting your account removes all saved cards and cannot be undone.</p>
+                      <button className="px-6 py-3 rounded-full bg-white text-red-600 text-sm font-bold border-2 border-red-200 hover:bg-red-50 transition-all">
+                        Delete My Account
+                      </button>
+                    </motion.div>
+                  </motion.div>
+                )}
+
+              </div>
+            </div>
 
           </div>
         </section>
       </main>
 
       {/* --- FOOTER --- */}
-      <footer className="relative isolate w-full bg-[#1C1917] text-stone-400 py-12 border-t-4 border-[#111111] overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
-            <div className="md:col-span-1 space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-[#F6C445] rounded-lg flex items-center justify-center text-[#1C1917]">
-                  <Gift size={16} />
+      <footer
+        className="relative isolate w-full border-t-[2.5px] px-6 py-12 overflow-hidden"
+        style={{
+          background: "#84D4A4", // MINT
+          borderColor: "#1C1917", // INK
+        }}
+      >
+        <div className="mx-auto max-w-7xl">
+      
+          <div className="mb-12 grid grid-cols-2 gap-10 md:grid-cols-4">
+      
+            {/* Brand */}
+            <div className="col-span-2 md:col-span-1">
+      
+              <div className="mb-4 flex items-center gap-3">
+      
+                <div
+                  className="flex h-10 w-10 items-center justify-center rounded-full border-[2.5px]"
+                  style={{
+                    background: "#1C1917",
+                    borderColor: "#1C1917",
+                  }}
+                >
+                  <img
+                    src="/logo.svg"
+                    alt="Cardify"
+                    className="h-5 w-5 object-contain"
+                  />
                 </div>
-                <span className="text-2xl font-bold text-white font-playfair italic">cardify</span>
+      
+                <div className="leading-none">
+        <div
+          className="text-[9px] font-black uppercase tracking-[0.2em]"
+          style={{ color: "#1C1917" }}
+        >
+          A CARD WITH A STORY
+        </div>
+      
+        <div
+          className="text-2xl font-black italic tracking-[-0.02em]"
+          style={{
+            fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+            color: "#1C1917",
+          }}
+        >
+          cardify
+        </div>
+      </div>
+      
               </div>
-              <p className="text-sm text-stone-500 leading-relaxed font-medium">
-                The modern way to celebrate. Digital moments that last forever.
+      
+              <p
+                className="text-sm font-medium leading-relaxed"
+                style={{ color: "#1C1917" }}
+              >
+                The modern way to celebrate.
+                Digital moments that last forever.
               </p>
+      
             </div>
+      
+            {/* Product */}
+      
             <div>
-              <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest">Product</h4>
-              <ul className="space-y-4 text-sm text-stone-500 font-medium">
-                <li><Link href="/templates" className="hover:text-white cursor-pointer transition-colors">Templates</Link></li>
-                <li><Link href="/features" className="hover:text-white cursor-pointer transition-colors">Features</Link></li>
+      
+              <h4
+                className="mb-4 text-xs font-black uppercase tracking-widest"
+                style={{ color: "#1C1917" }}
+              >
+                Product
+              </h4>
+      
+              <ul className="space-y-2 text-sm font-bold">
+      
+                <li>
+                  <a
+                    href="/templates"
+                    className="transition-opacity hover:opacity-60"
+                    style={{ color: "#1C1917" }}
+                  >
+                    Templates
+                  </a>
+                </li>
+      
+                <li>
+                  <a
+                    href="/showcase"
+                    className="transition-opacity hover:opacity-60"
+                    style={{ color: "#1C1917" }}
+                  >
+                    Showcase
+                  </a>
+                </li>
+      
               </ul>
+      
             </div>
+      
+            {/* Company */}
+      
             <div>
-              <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest">Company</h4>
-              <ul className="space-y-4 text-sm text-stone-500 font-medium">
-                <li><Link href="/about" className="hover:text-white cursor-pointer transition-colors">About</Link></li>
-                <li><Link href="/careers" className="hover:text-white cursor-pointer transition-colors">Careers</Link></li>
+      
+              <h4
+                className="mb-4 text-xs font-black uppercase tracking-widest"
+                style={{ color: "#1C1917" }}
+              >
+                Company
+              </h4>
+      
+              <ul className="space-y-2 text-sm font-bold">
+      
+                <li>
+                  <a href="/about" className="hover:opacity-60" style={{ color: "#1C1917" }}>
+                    About
+                  </a>
+                </li>
+      
+                <li>
+                  <a href="/careers" className="hover:opacity-60" style={{ color: "#1C1917" }}>
+                    Careers
+                  </a>
+                </li>
+      
+                <li>
+                  <a href="/blog" className="hover:opacity-60" style={{ color: "#1C1917" }}>
+                    Blog
+                  </a>
+                </li>
+      
               </ul>
+      
             </div>
+      
+            {/* Connect */}
+      
             <div>
-              <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest">Connect</h4>
-              <div className="flex flex-col gap-4">
-                <a href="https://instagram.com/alfinnsptr" target="_blank" className="flex items-center gap-3 text-sm text-stone-500 hover:text-[#E1306C] transition-colors group">
-                  <div className="w-8 h-8 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center group-hover:border-[#E1306C] transition-colors"><Instagram size={16} /></div>
-                  <span className="font-medium">Instagram</span>
+      
+              <h4
+                className="mb-4 text-xs font-black uppercase tracking-widest"
+                style={{ color: "#1C1917" }}
+              >
+                Connect
+              </h4>
+      
+              <div className="flex flex-col gap-3">
+      
+                <a
+                  href="https://instagram.com/alfinnsptr"
+                  target="_blank"
+                  className="flex items-center gap-3 hover:opacity-60"
+                  style={{ color: "#1C1917" }}
+                >
+      
+                  <div
+                    className="flex h-8 w-8 items-center justify-center rounded-full border-2"
+                    style={{
+                      background: "#FDFBF3",
+                      borderColor: "#1C1917",
+                    }}
+                  >
+                    <Instagram size={14} strokeWidth={2.5} />
+                  </div>
+      
+                  <span className="text-sm font-bold">
+                    Instagram
+                  </span>
+      
                 </a>
-                <a href="https://wa.me/6289501847804" target="_blank" className="flex items-center gap-3 text-sm text-stone-500 hover:text-[#25D366] transition-colors group">
-                  <div className="w-8 h-8 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center group-hover:border-[#25D366] transition-colors"><MessageCircle size={16} /></div>
-                  <span className="font-medium">WhatsApp</span>
+      
+                <a
+                  href="https://wa.me/6289501847804"
+                  target="_blank"
+                  className="flex items-center gap-3 hover:opacity-60"
+                  style={{ color: "#1C1917" }}
+                >
+      
+                  <div
+                    className="flex h-8 w-8 items-center justify-center rounded-full border-2"
+                    style={{
+                      background: "#FDFBF3",
+                      borderColor: "#1C1917",
+                    }}
+                  >
+                    <MessageCircle size={14} strokeWidth={2.5} />
+                  </div>
+      
+                  <span className="text-sm font-bold">
+                    WhatsApp
+                  </span>
+      
                 </a>
+      
               </div>
+      
             </div>
+      
           </div>
-          <div className="border-t border-stone-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-xs text-stone-500 font-medium">© 2025 Cardify Inc. All rights reserved.</p>
-            <div className="flex gap-8 text-xs text-stone-500 font-bold">
-              <Link href="/privacy-policy" className="cursor-pointer hover:text-white transition-colors">Privacy Policy</Link>
-              <Link href="/terms" className="cursor-pointer hover:text-white transition-colors">Terms of Service</Link>
+      
+          {/* Bottom */}
+      
+          <div
+            className="flex flex-col items-center justify-between gap-3 border-t-[2.5px] pt-6 md:flex-row"
+            style={{ borderColor: "#1C1917" }}
+          >
+      
+            <p
+              className="text-xs font-black uppercase tracking-wider"
+              style={{ color: "#1C1917" }}
+            >
+              © {new Date().getFullYear()} Cardify · Made with love
+            </p>
+      
+            <div
+              className="flex gap-6 text-xs font-black uppercase tracking-wider"
+              style={{ color: "#1C1917" }}
+            >
+      
+              <a
+                href="/privacy-policy"
+                className="hover:opacity-60"
+              >
+                Privacy
+              </a>
+      
+              <a
+                href="/terms"
+                className="hover:opacity-60"
+              >
+                Terms
+              </a>
+      
             </div>
+      
           </div>
+      
         </div>
       </footer>
     </div>

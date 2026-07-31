@@ -2,11 +2,11 @@
 import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect, useRef, type MouseEvent } from "react";
 import Link from "next/link";
-import image from "next/image";
+import Image from "next/image";
 import { motion, useMotionValue, useSpring, useTransform, type Variants } from "framer-motion";
 // MOCK IMPORTS REPLACEMENT
 import { 
-  ArrowRight, Sparkles, Gift, Heart, Phone, Star, PenTool, Play, 
+  ArrowRight, ArrowLeft, Sparkles, Gift, Heart, Phone, Star, PenTool, Play, 
   Instagram, MessageCircle, LogIn, Quote, UserPlus, 
   Flower2, Bird, Cloud, Music,
   User, LogOut, Settings, ChevronDown, Layout, CheckCircle2,
@@ -47,6 +47,22 @@ function HomeContent() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [galleryPage, setGalleryPage] = useState(0);
+
+  // Data 5 kartu "Find Your Style" — href/gambar/badge/teks semua dipertahankan
+  // persis dari versi lama, cuma sekarang didata-kan biar bisa dirender seragam + dipaginasi
+  const galleryItems = [
+    { href: "/gameboy-app", img: "/gameboy-journey.png", alt: "Gameboy Journey", badge: "Hot", badgeClass: "bg-purple-500/90 text-white", title: "Gameboy Journey", titleHover: "group-hover:text-purple-700", desc: "Interactive handheld story with 8-bit charm.", cta: "Create Story" },
+    { href: "/web-story", img: "/web-story.png", alt: "Web Story", badge: "New", badgeClass: "bg-sky-500/90 text-white", title: "Web Story", titleHover: "group-hover:text-amber-700", desc: "Interactive story with music.", cta: "Create Story" },
+    { href: "/templates/minimalist", img: "/minimalist.png", alt: "Minimalist", badge: "Popular", badgeClass: "bg-white/90 text-stone-800", title: "Modern Minimalist", titleHover: "group-hover:text-stone-600", desc: "Clean typography focus.", cta: "Use Template" },
+    { href: "/templates/postcard", img: "/postcard.png", alt: "Classic Postcard", badge: "Classic", badgeClass: "bg-white/90 text-stone-800", title: "Classic Postcard", titleHover: "group-hover:text-stone-600", desc: "Warm greetings, old style.", cta: "Use Template" },
+    { href: "/templates/newspaper", img: "/newspaper.png", alt: "Vintage Newspaper", badge: "New", badgeClass: "bg-white/90 text-stone-800", title: "Vintage Press", titleHover: "group-hover:text-stone-600", desc: "Headline news aesthetic.", cta: "Use Template" },
+  ];
+  const GALLERY_PER_PAGE = 3;
+  const galleryTotalPages = Math.ceil(galleryItems.length / GALLERY_PER_PAGE);
+  const galleryVisibleItems = galleryItems.slice(galleryPage * GALLERY_PER_PAGE, galleryPage * GALLERY_PER_PAGE + GALLERY_PER_PAGE);
+  const goPrevGalleryPage = () => setGalleryPage((p) => (p - 1 + galleryTotalPages) % galleryTotalPages);
+  const goNextGalleryPage = () => setGalleryPage((p) => (p + 1) % galleryTotalPages);
 
   // Mouse parallax buat hero — murni visual, tidak menyentuh state/logic lain
   const heroMouseX = useMotionValue(0);
@@ -156,14 +172,46 @@ function HomeContent() {
   };
 
 const handleLogout = async () => {
-  setShowLogoutConfirm(false);
-  await signOut({ callbackUrl: "/" });
-};
+    setShowLogoutConfirm(false);
+    await signOut({ callbackUrl: "/" });
+  };
 
+  // --- INJECT SEO: JSON-LD SCHEMA ---
+  // Kita taruh di sini agar variabel 'faqs' yang ada di atas bisa langsung terbaca.
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "name": "Cardify",
+        "url": "https://www.cardify.com",
+        "applicationCategory": "DesignApplication",
+        "description": "Make beautiful digital greeting cards and aesthetic photobooths.",
+        "operatingSystem": "All"
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": faqs.map((faq) => ({
+          "@type": "Question",
+          "name": faq.q,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": faq.a
+          }
+        }))
+      }
+    ]
+  };
 
   return (
     // CARDIFY DESIGN TOKENS — Cream paper base, ink text, marigold/mint/sky/lilac/sage as section "pages"
     <div className={`min-h-screen w-full bg-[#FDFBF3] text-[#1C1917] selection:bg-[#F6C445] selection:text-[#1C1917] flex flex-col relative overflow-hidden font-sans`}>
+      
+      {/* INJECT SEO: SCRIPT RENDERER */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       
       {/* INJECT FONTS */}
       <style dangerouslySetInnerHTML={{__html: `
@@ -253,16 +301,16 @@ const handleLogout = async () => {
             
             {/* 1. Templates Dropdown */}
             <div className="relative group h-full flex items-center cursor-pointer">
-                <a href="/templates" className="hover:text-[#1C1917] transition-colors relative py-2 flex items-center gap-1 group-hover:text-[#D9A400]">
+                <Link href="/templates" className="hover:text-[#1C1917] transition-colors relative py-2 flex items-center gap-1 group-hover:text-[#D9A400]">
                   Templates
                   <ChevronDown size={14} className="opacity-50 group-hover:opacity-100 transition-transform duration-300 group-hover:rotate-180 text-[#D9A400]" />
-                </a>
+                </Link>
                 
                 {/* Dropdown Menu */}
                 <div className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-72 bg-white rounded-2xl shadow-xl border-2 border-[#1C1917] p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top translate-y-2 group-hover:translate-y-0 z-50 normal-case">
                    <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-2 px-2">Create New</p>
 
-                   <a href="/web-story" className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#F3B8CC]/20 transition-colors group/item relative z-10 mb-1">
+                   <Link href="/web-story" className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#F3B8CC]/20 transition-colors group/item relative z-10 mb-1">
                       <div className="w-10 h-10 rounded-full bg-[#F3B8CC] flex-shrink-0 flex items-center justify-center text-[#1C1917] border-2 border-[#1C1917] shadow-sm">
                          <Smartphone size={18} />
                       </div>
@@ -270,9 +318,9 @@ const handleLogout = async () => {
                          <p className="text-sm font-bold text-stone-800">Web Story</p>
                          <p className="text-[10px] text-stone-500 font-medium leading-tight mt-0.5 normal-case">Interactive, Music, Animations</p>
                       </div>
-                   </a>
+                   </Link>
 
-                   <a href="/templates?filter=card-image" className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#F6C445]/20 transition-colors group/item relative z-10">
+                   <Link href="/templates?filter=card-image" className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#F6C445]/20 transition-colors group/item relative z-10">
                       <div className="w-10 h-10 rounded-full bg-[#F6C445] flex-shrink-0 flex items-center justify-center text-[#1C1917] border-2 border-[#1C1917] shadow-sm">
                          <ImageIcon size={18} />
                       </div>
@@ -280,27 +328,27 @@ const handleLogout = async () => {
                          <p className="text-sm font-bold text-stone-800">Card Image</p>
                          <p className="text-[10px] text-stone-500 font-medium leading-tight mt-0.5 normal-case">Static, Printable, Classic</p>
                       </div>
-                   </a>
+                   </Link>
                 </div>
             </div>
             
             {/* 2. Features */}
-            <a href="/features" className="hover:text-[#1C1917] transition-colors relative group">
+            <Link href="/features" className="hover:text-[#1C1917] transition-colors relative group">
               Features
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#F6C445] transition-all group-hover:w-full"></span>
-            </a>
+            </Link>
 
             {/* 3. About */}
-            <a href="/about" className="hover:text-[#1C1917] transition-colors relative group">
+            <Link href="/about" className="hover:text-[#1C1917] transition-colors relative group">
               About
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#F6C445] transition-all group-hover:w-full"></span>
-            </a>
+            </Link>
             
             {/* 4. Contact */}
-            <a href="/contact" className="hover:text-[#1C1917] transition-colors relative group">
+            <Link href="/contact" className="hover:text-[#1C1917] transition-colors relative group">
               Contact
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#F6C445] transition-all group-hover:w-full"></span>
-            </a>
+            </Link>
           </div>
 
           {/* Auth Actions */}
@@ -345,10 +393,10 @@ const handleLogout = async () => {
                       <p className="text-xs text-stone-500 truncate font-medium">{session?.user?.email}</p>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <a href="/account" className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-[#F6C445]/15 hover:text-[#1C1917] rounded-xl transition-all font-medium group">
+                      <Link href="/account" className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-[#F6C445]/15 hover:text-[#1C1917] rounded-xl transition-all font-medium group">
                         <div className="w-8 h-8 rounded-lg bg-[#F6C445] border-2 border-[#1C1917] flex items-center justify-center text-[#1C1917] group-hover:shadow-[2px_2px_0_0_#1C1917] transition-all"><User size={16} /></div>
                         Profile & Account
-                      </a>
+                      </Link>
                       <button className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-[#BFE0F5]/25 hover:text-[#1C1917] rounded-xl transition-all font-medium group">
                         <div className="w-8 h-8 rounded-lg bg-[#BFE0F5] border-2 border-[#1C1917] flex items-center justify-center text-[#1C1917] group-hover:shadow-[2px_2px_0_0_#1C1917] transition-all"><Settings size={16} /></div>
                         Preferences
@@ -365,20 +413,20 @@ const handleLogout = async () => {
             ) : (
               // --- LOGGED OUT STATE ---
               <div className="flex items-center gap-6">
-                <a href="/login" className="hidden md:flex text-sm font-bold uppercase tracking-wide text-stone-600 hover:text-black transition-colors">
+                <Link href="/login" className="hidden md:flex text-sm font-bold uppercase tracking-wide text-stone-600 hover:text-black transition-colors">
                    Log in
-                </a>
-                <a href="/register" className="hidden md:flex text-sm font-bold uppercase tracking-wide text-stone-600 hover:text-black transition-colors">
+                </Link>
+                <Link href="/register" className="hidden md:flex text-sm font-bold uppercase tracking-wide text-stone-600 hover:text-black transition-colors">
                    Sign Up
-                </a>
+                </Link>
               </div>
             )}
 
             {/* CTA Button */}
-            <a href="/templates" className="px-5 py-2.5 rounded-full bg-[#1C1917] text-[#FDFBF3] text-sm font-bold hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_#F6C445] transition-all flex items-center gap-2 border-2 border-[#1C1917]">
+            <Link href="/templates" className="px-5 py-2.5 rounded-full bg-[#1C1917] text-[#FDFBF3] text-sm font-bold hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_#F6C445] transition-all flex items-center gap-2 border-2 border-[#1C1917]">
               Start Creating
               <ArrowRight size={16} strokeWidth={2.5} className="text-[#F6C445]" />
-            </a>
+            </Link>
           </div>
         </div>
       </nav>
@@ -481,17 +529,19 @@ const handleLogout = async () => {
             >
                <motion.div style={{ x: phoneX, y: phoneY }}>
                  <motion.div
-                    className="relative z-10 w-72 md:w-80 aspect-[9/16] bg-[#FDFBF3] rounded-[2.5rem] shadow-2xl border-[8px] border-[#1C1917] overflow-hidden"
-                    animate={{ rotate: [-4, -1, -4], y: [0, -10, 0] }}
-                    transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                    whileHover={{ rotate: 0, scale: 1.05 }}
-                 >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img 
-                       src="/gameboy-greetings.png" 
-                       alt="App Preview"
-                       className="w-full h-full object-cover"
-                    />
+   className="relative z-10 w-72 md:w-80 aspect-[9/16] bg-[#FDFBF3] rounded-[2.5rem] shadow-2xl border-[8px] border-[#1C1917] overflow-hidden"
+   animate={{ rotate: [-4, -1, -4], y: [0, -10, 0] }}
+   transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+   whileHover={{ rotate: 0, scale: 1.05 }}
+>
+   <Image 
+      src="/gameboy-greetings.png" 
+      alt="Cardify Editor Interface showing Gameboy template" // Alt text dioptimasi untuk screen reader
+      fill // Mengisi container aspect-[9/16]
+      sizes="(max-width: 768px) 18rem, 20rem" // Lebar dari w-72 (18rem) / md:w-80 (20rem)
+      priority // WAJIB untuk hero image LCP SEO
+      className="object-cover"
+   />
                     
                     {/* Dynamic Island style element */}
                     <div className="absolute top-6 left-1/2 -translate-x-1/2 w-24 h-7 bg-black rounded-full flex items-center justify-center gap-2 px-3 shadow-lg">
@@ -704,106 +754,75 @@ const handleLogout = async () => {
                     <p className="mt-3 text-[14px] font-bold font-sans text-[#1C1917]/60">お気に入りを見つけよう</p>
                   </div>
                   {/* CHANGED: Link to /templates */}
-                  <a href="/templates" className="flex items-center gap-2 text-sm font-bold text-[#1C1917] bg-[#FDFBF3] border-2 border-[#1C1917] px-5 py-2.5 rounded-full hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_#1C1917] transition-all group">
+                  <Link href="/templates" className="flex items-center gap-2 text-sm font-bold text-[#1C1917] bg-[#FDFBF3] border-2 border-[#1C1917] px-5 py-2.5 rounded-full hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_#1C1917] transition-all group">
                       View All Templates <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                  </a>
+                  </Link>
               </div>
               
-              <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut", delay: 0.15 }}>
-                  
-                  {/* CARD 1: GAMEBOY APP (MENGGUNAKAN GAMBAR gameboy-journey.png) */}
-                  <a href="/gameboy-app" className="group cursor-pointer block h-full">
-                     <div className="relative aspect-[9/16] bg-stone-900 rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border-2 border-[#1C1917] group-hover:-translate-y-2">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img 
-                           src="/gameboy-journey.png" 
-                           alt="Gameboy Journey" 
-                           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
-                        />
-                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px] z-30">
-                           <span className="bg-white text-stone-900 px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl border border-white/20 flex items-center gap-2">
-                              Create Story <ArrowRight size={14} />
-                           </span>
-                        </div>
-                        <div className="absolute top-5 right-5 bg-purple-500/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-white uppercase tracking-widest shadow-sm z-20">Hot</div>
-                     </div>
-                     <div className="px-1">
-                        <h3 className={`text-2xl font-medium mb-2 group-hover:text-purple-700 transition-colors font-playfair`}>Gameboy Journey</h3>
-                        <p className="text-stone-600 text-sm leading-relaxed">Interactive handheld story with 8-bit charm.</p>
-                     </div>
-                  </a>
-                  {/* CARD 2: WEB STORY */}
-                  <a href="/web-story" className="group cursor-pointer block h-full">
-                     <div className="relative aspect-[9/16] bg-stone-900 rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border-2 border-[#1C1917] group-hover:-translate-y-2">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img 
-                           src="/web-story.png" 
-                           alt="Web Story" 
-                           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
-                        />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px] z-30">
-                           <span className="bg-white text-stone-900 px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl border border-white/20 flex items-center gap-2">
-                              Create Story <ArrowRight size={14} />
-                           </span>
-                        </div>
-                         <div className="absolute top-5 right-5 bg-sky-500/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-white uppercase tracking-widest shadow-sm z-20">New</div>
-                     </div>
-                     <div className="px-1">
-                        <h3 className={`text-2xl font-medium mb-2 group-hover:text-amber-700 transition-colors font-playfair`}>Web Story</h3>
-                        <p className="text-stone-600 text-sm leading-relaxed">Interactive story with music.</p>
-                     </div>
-                  </a>
-
-                  {/* CENTER COLUMN GROUP */}
-                  <div className="flex flex-col gap-8">
-                      <a href="/templates/minimalist" className="group cursor-pointer block">
-                         <div className="relative aspect-[3/2] bg-white rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border-2 border-[#1C1917] group-hover:-translate-y-2 flex items-center justify-center">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src="/minimalist.png" alt="Minimalist" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                            <div className="absolute top-5 right-5 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-stone-800 uppercase tracking-widest shadow-sm">Popular</div>
-                            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
-                               <span className="bg-white text-stone-900 px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl border border-white/20 flex items-center gap-2">Use Template <ArrowRight size={14} /></span>
-                            </div>
-                         </div>
-                         <div className="px-1">
-                            <h3 className="text-xl font-medium mb-1 group-hover:text-stone-600 transition-colors font-serif">Modern Minimalist</h3>
-                            <p className="text-stone-600 text-sm leading-relaxed font-light">Clean typography focus.</p>
-                         </div>
-                      </a>
-
-                      <a href="/templates/postcard" className="group cursor-pointer block">
-                         <div className="relative aspect-[3/2] bg-white rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border-2 border-[#1C1917] group-hover:-translate-y-2 flex items-center justify-center">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src="/postcard.png" alt="Classic Postcard" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                            <div className="absolute top-5 right-5 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-stone-800 uppercase tracking-widest shadow-sm z-10">Classic</div>
-                            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20 backdrop-blur-[2px]">
-                               <span className="bg-white text-stone-900 px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl border border-white/20 flex items-center gap-2">Use Template <ArrowRight size={14} /></span>
-                            </div>
-                         </div>
-                         <div className="px-1">
-                            <h3 className="text-xl font-medium mb-1 group-hover:text-stone-600 transition-colors font-serif">Classic Postcard</h3>
-                            <p className="text-stone-600 text-sm leading-relaxed font-light">Warm greetings, old style.</p>
-                         </div>
-                      </a>
-                  </div>
-
-                  {/* CARD 5: NEWSPAPER */}
-                  <a href="/templates/newspaper" className="group cursor-pointer block h-full">
-                     <div className="relative aspect-[2/3] bg-white rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border-2 border-[#1C1917] group-hover:-translate-y-2 flex items-center justify-center">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src="/newspaper.png" alt="Vintage Newspaper" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                        <div className="absolute top-5 right-5 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold text-stone-800 uppercase tracking-widest shadow-sm">New</div>
-                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
-                           <span className="bg-white text-stone-900 px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl border border-white/20 flex items-center gap-2">Use Template <ArrowRight size={14} /></span>
-                        </div>
-                     </div>
-                     <div className="px-1">
-                        <h3 className="text-xl font-medium mb-1 group-hover:text-stone-600 transition-colors font-serif">Vintage Press</h3>
-                        <p className="text-stone-600 text-sm leading-relaxed font-light">Headline news aesthetic.</p>
-                     </div>
-                  </a>
-
+              <motion.div
+                 key={galleryPage}
+                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+                 initial={{ opacity: 0, y: 24 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ duration: 0.5, ease: "easeOut" }}
+              >
+                 {galleryVisibleItems.map((item) => (
+   <Link key={item.href} href={item.href} className="group cursor-pointer block h-full">
+      <article> {/* Semantic HTML untuk item galeri */}
+         <div className="relative aspect-[4/5] bg-stone-200 rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border-2 border-[#1C1917] group-hover:-translate-y-2">
+            <Image
+               src={item.img}
+               alt={`Template ${item.title} - ${item.desc}`} // Alt text SEO
+               fill // Karena posisi absolute inset-0
+               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+               className="object-cover group-hover:scale-105 transition-transform duration-700"
+            />
+                          <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px] z-30">
+                             <span className="bg-white text-stone-900 px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl border border-white/20 flex items-center gap-2">
+                                {item.cta} <ArrowRight size={14} />
+                             </span>
+                          </div>
+                          <div className={`absolute top-5 right-5 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm z-20 ${item.badgeClass}`}>{item.badge}</div>
+                       </div>
+                       <div className="px-1">
+                          <h3 className={`text-2xl font-medium mb-2 ${item.titleHover} transition-colors font-playfair`}>{item.title}</h3>
+                          <p className="text-stone-600 text-sm leading-relaxed">{item.desc}</p>
+                       </div>
+      </article>
+                    </Link>
+                 ))}
               </motion.div>
+
+              {/* --- PAGINATION --- */}
+              <div className="flex items-center justify-center gap-5 mt-14">
+                 <button
+                    onClick={goPrevGalleryPage}
+                    aria-label="Previous slide"
+                    className="w-11 h-11 rounded-full bg-white border-2 border-[#1C1917] flex items-center justify-center hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_#1C1917] transition-all"
+                 >
+                    <ArrowLeft size={18} className="text-[#1C1917]" />
+                 </button>
+                 <div className="flex items-center gap-3">
+                    {Array.from({ length: galleryTotalPages }, (_, i) => i).map((i, idx) => (
+                       <div key={i} className="flex items-center gap-3">
+                          {idx > 0 && <span className="w-6 h-[2px] bg-stone-300" />}
+                          <button
+                             onClick={() => setGalleryPage(i)}
+                             className={`text-sm font-black tracking-wide transition-colors ${i === galleryPage ? "text-[#1C1917]" : "text-stone-300 hover:text-stone-400"}`}
+                          >
+                             {String(i + 1).padStart(2, "0")}
+                          </button>
+                       </div>
+                    ))}
+                 </div>
+                 <button
+                    onClick={goNextGalleryPage}
+                    aria-label="Next slide"
+                    className="w-11 h-11 rounded-full bg-white border-2 border-[#1C1917] flex items-center justify-center hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_#1C1917] transition-all"
+                 >
+                    <ArrowRight size={18} className="text-[#1C1917]" />
+                 </button>
+              </div>
            </div>
         </section>
 
@@ -895,13 +914,13 @@ const handleLogout = async () => {
     in two minutes.
   </span>
 </motion.h2>
-              <a
+              <Link
                  href={session ? "/templates" : "/register"}
                  className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-[#F6C445] text-[#1C1917] font-bold hover:-translate-y-1 hover:shadow-[4px_4px_0_0_rgba(255,255,255,0.3)] transition-all"
               >
                  Start Creating — It's Free
                  <ArrowRight size={16} strokeWidth={2.5} />
-              </a>
+              </Link>
            </div>
         </section>
 
@@ -983,23 +1002,23 @@ const handleLogout = async () => {
         <ul className="space-y-2 text-sm font-bold">
 
           <li>
-            <a
+            <Link
               href="/templates"
               className="transition-opacity hover:opacity-60"
               style={{ color: "#1C1917" }}
             >
               Templates
-            </a>
+            </Link>
           </li>
 
           <li>
-            <a
+            <Link
               href="/showcase"
               className="transition-opacity hover:opacity-60"
               style={{ color: "#1C1917" }}
             >
               Showcase
-            </a>
+            </Link>
           </li>
 
         </ul>
@@ -1020,21 +1039,21 @@ const handleLogout = async () => {
         <ul className="space-y-2 text-sm font-bold">
 
           <li>
-            <a href="/about" className="hover:opacity-60" style={{ color: "#1C1917" }}>
+            <Link href="/about" className="hover:opacity-60" style={{ color: "#1C1917" }}>
               About
-            </a>
+            </Link>
           </li>
 
           <li>
-            <a href="/careers" className="hover:opacity-60" style={{ color: "#1C1917" }}>
+            <Link href="/careers" className="hover:opacity-60" style={{ color: "#1C1917" }}>
               Careers
-            </a>
+            </Link>
           </li>
 
           <li>
-            <a href="/blog" className="hover:opacity-60" style={{ color: "#1C1917" }}>
+            <Link href="/blog" className="hover:opacity-60" style={{ color: "#1C1917" }}>
               Blog
-            </a>
+            </Link>
           </li>
 
         </ul>
@@ -1125,19 +1144,19 @@ const handleLogout = async () => {
         style={{ color: "#1C1917" }}
       >
 
-        <a
+        <Link
           href="/privacy-policy"
           className="hover:opacity-60"
         >
           Privacy
-        </a>
+        </Link>
 
-        <a
+        <Link
           href="/terms"
           className="hover:opacity-60"
         >
           Terms
-        </a>
+        </Link>
 
       </div>
 

@@ -16,7 +16,7 @@ import { getFirestore, collection, addDoc } from "firebase/firestore";
 
 // --- KONFIGURASI BACKGROUND (EDITOR) ---
 // Ganti background editor menjadi field.jpeg
-const EDITOR_BG_IMAGE = "/field.jpeg";
+const EDITOR_BG_IMAGE = "/web-story-bg.png";
 
 // --- MOCK FONTS (Standard CSS Classes replacement) ---
 const dmSans = { className: "font-dm-sans" };
@@ -76,7 +76,7 @@ const BackgroundEffects = ({ image }: { image?: string }) => {
   if (image) {
       return (
           <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-             <div className="absolute inset-0 bg-black/40 z-10" />
+             <div className="absolute inset-0bg-transparent z-10" />
              {/* eslint-disable-next-line @next/next/no-img-element */}
              <img src={image} alt="Background" className="w-full h-full object-cover animate-in fade-in duration-1000" />
           </div>
