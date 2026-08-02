@@ -67,6 +67,15 @@ if (firebaseConfig && firebaseConfig.apiKey) {
   }
 }
 
+// --- DOZO STYLE TOKENS ---
+const INK = "#111111";
+const CREAM = "#FFFDF5";
+const MINT = "#BFE7DA";
+const SKY = "#BBD9F5";
+const YELLOW = "#F7D046";
+const CORAL = "#F58A7B";
+const LILAC = "#D8C6F0";
+
 // --- DATA & CONFIG ---
 const SONGS_LIBRARY: Song[] = [
   {
@@ -258,7 +267,10 @@ const placeFood = () => {
   };
 
   return (
-    <div className={`relative ${activeColor.bg} rounded-[2rem] w-[340px] h-[600px] p-5 flex flex-col shadow-2xl border-4 ${activeColor.border} transform scale-90 sm:scale-100 origin-top select-none sticky top-10 transition-colors duration-300`}>
+    <div
+      className={`relative ${activeColor.bg} rounded-[2rem] w-[340px] h-[600px] p-5 flex flex-col border-[3px] transform scale-90 sm:scale-100 origin-top select-none sticky top-10 transition-colors duration-300`}
+      style={{ borderColor: INK, boxShadow: `10px 10px 0px 0px ${INK}` }}
+    >
       <div className="flex justify-between items-center mb-3 px-1">
         <div className="flex flex-col items-center">
               <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_5px_red]"></div>
@@ -268,7 +280,7 @@ const placeFood = () => {
       </div>
       
       {/* Screen */}
-      <div className="bg-[#788a82] p-2.5 rounded-md border-2 border-gray-400 relative mb-4 shadow-inner">
+      <div className="bg-[#788a82] p-2.5 rounded-md border-[2.5px] relative mb-4" style={{ borderColor: INK }}>
          <div className="flex justify-between items-center px-1 mb-0.5">
              <div className="flex gap-0.5">
                 <div className="w-1 h-1 rounded-full bg-red-500/80"></div>
@@ -406,31 +418,64 @@ const placeFood = () => {
       </div>
       <div className="relative h-[220px]">
           <div className="absolute top-4 left-4 w-[110px] h-[110px]">
-               <div className="relative w-full h-full">
-                   <div className="absolute top-0 left-1/3 w-1/3 h-full bg-[#333] rounded-sm"></div>
-                   <div className="absolute top-1/3 left-0 w-full h-1/3 bg-[#333] rounded-sm"></div>
-                   <div className="absolute top-1/3 left-1/3 w-1/3 h-1/3 bg-[#2a2a2a] rounded-full"></div>
-                   <button onClick={() => handleDpad('UP')} className="absolute top-0 left-1/3 w-1/3 h-1/3 z-10 active:bg-white/10 rounded-t-sm" />
-                   <button onClick={() => handleDpad('DOWN')} className="absolute bottom-0 left-1/3 w-1/3 h-1/3 z-10 active:bg-white/10 rounded-b-sm" />
-                   <button onClick={() => handleDpad('LEFT')} className="absolute top-1/3 left-0 w-1/3 h-1/3 z-10 active:bg-white/10 rounded-l-sm" />
-                   <button onClick={() => handleDpad('RIGHT')} className="absolute top-1/3 right-0 w-1/3 h-1/3 z-10 active:bg-white/10 rounded-r-sm" />
+               <div className="relative w-full h-full" style={{ filter: "drop-shadow(2px 4px 3px rgba(0,0,0,0.45))" }}>
+                   {/* Vertical arm */}
+                   <div
+                     className="absolute top-0 left-1/3 w-1/3 h-full rounded-[3px]"
+                     style={{
+                       background: "linear-gradient(155deg, #4a4a4a 0%, #2c2c2c 45%, #1a1a1a 100%)",
+                       boxShadow: "inset 0 1px 1px rgba(255,255,255,0.25), inset 0 -3px 4px rgba(0,0,0,0.55)",
+                     }}
+                   />
+                   {/* Horizontal arm */}
+                   <div
+                     className="absolute top-1/3 left-0 w-full h-1/3 rounded-[3px]"
+                     style={{
+                       background: "linear-gradient(155deg, #4a4a4a 0%, #2c2c2c 45%, #1a1a1a 100%)",
+                       boxShadow: "inset 0 1px 1px rgba(255,255,255,0.25), inset 0 -3px 4px rgba(0,0,0,0.55)",
+                     }}
+                   />
+                   {/* Center pivot dome */}
+                   <div
+                     className="absolute top-1/3 left-1/3 w-1/3 h-1/3 rounded-full"
+                     style={{
+                       background: "radial-gradient(circle at 35% 30%, #565656 0%, #232323 65%, #141414 100%)",
+                       boxShadow: "inset 0 1px 2px rgba(255,255,255,0.3), inset 0 -2px 3px rgba(0,0,0,0.6)",
+                     }}
+                   />
+
+                   {/* Panah dekoratif tiap arah — murni visual, pointer-events-none */}
+                   <ArrowUp size={11} strokeWidth={3} className="absolute top-[8%] left-1/2 -translate-x-1/2 text-white/40 pointer-events-none" />
+                   <ArrowDown size={11} strokeWidth={3} className="absolute bottom-[8%] left-1/2 -translate-x-1/2 text-white/40 pointer-events-none" />
+                   <IconArrowLeft size={11} strokeWidth={3} className="absolute left-[8%] top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+                   <IconArrowRight size={11} strokeWidth={3} className="absolute right-[8%] top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+
+                   {/* Highlight tipis di tepi atas tiap arm biar kesan plastik mengkilap */}
+                   <div className="absolute top-0 left-1/3 w-1/3 h-[3px] bg-white/20 rounded-full pointer-events-none" />
+                   <div className="absolute top-1/3 left-0 w-[3px] h-1/3 bg-white/20 rounded-full pointer-events-none" />
+
+                   {/* 4 tombol klik — geometri & onClick sama persis, cuma tambah efek tekan 3D */}
+                   <button onClick={() => handleDpad('UP')} className="absolute top-0 left-1/3 w-1/3 h-1/3 z-10 active:bg-black/30 active:scale-95 transition-transform rounded-t-sm" />
+                   <button onClick={() => handleDpad('DOWN')} className="absolute bottom-0 left-1/3 w-1/3 h-1/3 z-10 active:bg-black/30 active:scale-95 transition-transform rounded-b-sm" />
+                   <button onClick={() => handleDpad('LEFT')} className="absolute top-1/3 left-0 w-1/3 h-1/3 z-10 active:bg-black/30 active:scale-95 transition-transform rounded-l-sm" />
+                   <button onClick={() => handleDpad('RIGHT')} className="absolute top-1/3 right-0 w-1/3 h-1/3 z-10 active:bg-black/30 active:scale-95 transition-transform rounded-r-sm" />
                </div>
           </div>
           <div className="absolute top-6 right-1 flex gap-5 transform -rotate-12">
                <div className="flex flex-col items-center gap-1 mt-6">
-                   <button onClick={handleButtonB} className="w-12 h-12 rounded-full bg-[#d33c3c] border-b-4 border-[#8f2121] active:border-b-0 active:translate-y-1 transition-all shadow-lg text-[#5e1616] font-bold text-sm pixel-font flex justify-center items-center">B</button>
+                   <button onClick={handleButtonB} className="w-12 h-12 rounded-full bg-[#d33c3c] border-[2.5px] border-black active:translate-y-1 transition-all text-white font-bold text-sm pixel-font flex justify-center items-center" style={{ boxShadow: `3px 3px 0 ${INK}` }}>B</button>
                </div>
                <div className="flex flex-col items-center gap-1">
-                   <button onClick={handleButtonA} className="w-12 h-12 rounded-full bg-[#d33c3c] border-b-4 border-[#8f2121] active:border-b-0 active:translate-y-1 transition-all shadow-lg text-[#5e1616] font-bold text-sm pixel-font flex justify-center items-center">A</button>
+                   <button onClick={handleButtonA} className="w-12 h-12 rounded-full bg-[#d33c3c] border-[2.5px] border-black active:translate-y-1 transition-all text-white font-bold text-sm pixel-font flex justify-center items-center" style={{ boxShadow: `3px 3px 0 ${INK}` }}>A</button>
                </div>
           </div>
           <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex gap-4">
                <div className="flex flex-col items-center">
-                   <button onClick={handleStart} className="w-16 h-4 bg-[#999] rounded-full transform rotate-[-25deg] border border-gray-600 active:scale-95 shadow-sm"></button>
+                   <button onClick={handleStart} className="w-16 h-4 bg-[#999] rounded-full transform rotate-[-25deg] border-2 border-black active:scale-95"></button>
                    <span className={`text-[9px] font-bold ${activeColor.text} mt-1 uppercase tracking-wider font-sans opacity-70 transform rotate-[-27deg] translate-x-2`}>Select</span>
                </div>
                <div className="flex flex-col items-center">
-                   <button onClick={handleStart} className="w-16 h-4 bg-[#999] rounded-full transform rotate-[-25deg] border border-gray-600 active:scale-95 shadow-sm"></button>
+                   <button onClick={handleStart} className="w-16 h-4 bg-[#999] rounded-full transform rotate-[-25deg] border-2 border-black active:scale-95"></button>
                    <span className={`text-[9px] font-bold ${activeColor.text} mt-1 uppercase tracking-wider font-sans opacity-70 transform rotate-[-27deg] translate-x-2`}>Start</span>
                </div>
           </div>
@@ -448,6 +493,7 @@ export default function WebStoryEditor() {
   const [isSaving, setIsSaving] = useState(false);
   const [songs, setSongs] = useState(SONGS_LIBRARY); 
   const [isUploading, setIsUploading] = useState(false);
+  const [copied, setCopied] = useState(false); // fungsi tambahan: feedback copy link
   const [storyData, setStoryData] = useState({
      title: "HAPPY BIRTHDAY",
      subtitle: "PRESS START BUTTON",
@@ -626,44 +672,81 @@ export default function WebStoryEditor() {
     }
   };
 
+  // fungsi tambahan (tidak mengubah yang lama)
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(generatedLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const TAB_COLORS: Record<string, string> = {
+    message: CORAL,
+    design: LILAC,
+    music: YELLOW,
+    gallery: MINT,
+  };
+
+  const inputClass =
+    "w-full rounded-2xl px-4 py-3 text-sm outline-none font-bold transition-all placeholder:font-medium placeholder:text-black/30 focus:-translate-y-0.5";
+  const inputStyle = { background: CREAM, border: `2.5px solid ${INK}`, color: INK, boxShadow: `3px 3px 0 ${INK}` } as const;
+  const labelClass = "block text-[10px] font-black uppercase tracking-[0.18em] mb-2 ml-1";
+
   return (
-    <div className="h-screen overflow-hidden bg-[#FAFAF9] flex flex-col md:flex-row text-[#1C1917] font-sans">
+    <div className="h-screen overflow-hidden flex flex-col md:flex-row font-sans" style={{ background: CREAM, color: INK }}>
        <style dangerouslySetInnerHTML={{__html: `
           @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Boldonse&family=Archivo+Black&family=DM+Sans:opsz,wght@9..40,400;500;700;900&display=swap');
           .pixel-font { font-family: 'Press Start 2P', cursive; }
           .font-pixel { font-family: 'Press Start 2P', cursive; }
+          .dozo-display { font-family: 'Boldonse', 'Archivo Black', sans-serif; }
           .animate-spin-slow { animation: spin 3s linear infinite; }
           @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-          /* Custom Scrollbar for modern feel */
-          ::-webkit-scrollbar { width: 6px; }
+          @keyframes dozo-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+          .dozo-marquee { animation: dozo-marquee 22s linear infinite; }
+          @keyframes dozo-float { 0%,100% { transform: translateY(0) rotate(-4deg);} 50% { transform: translateY(-12px) rotate(4deg);} }
+          .dozo-float { animation: dozo-float 6s ease-in-out infinite; }
+          /* Custom Scrollbar */
+          ::-webkit-scrollbar { width: 8px; }
           ::-webkit-scrollbar-track { background: transparent; }
-          ::-webkit-scrollbar-thumb { background: #e5e5e5; border-radius: 3px; }
-          ::-webkit-scrollbar-thumb { background: #d4d4d4; }
+          ::-webkit-scrollbar-thumb { background: #111111; border-radius: 99px; }
       `}} />
 
        {/* --- LEFT PANEL: EDITOR (SCROLLABLE INDEPENDENTLY) --- */}
-       <div className="w-full md:w-1/3 h-full overflow-y-auto bg-white border-r border-stone-200 shadow-xl z-20 relative">
+       <div className="w-full md:w-1/3 h-full overflow-y-auto z-20 relative" style={{ background: CREAM, borderRight: `3px solid ${INK}` }}>
+
           <div className="p-6 md:p-8 max-w-lg mx-auto min-h-full flex flex-col">
               {/* REPLACED Link with <a> */}
-              <a href="/" className="inline-flex items-center gap-2 text-[10px] font-bold text-stone-400 hover:text-stone-900 uppercase tracking-widest mb-8 transition-colors group">
+              <a
+                href="/"
+                className="inline-flex items-center gap-2 self-start text-[10px] font-black uppercase tracking-[0.2em] mb-8 px-4 py-2 rounded-full transition-all group hover:-translate-y-0.5"
+                style={{ background: CREAM, border: `2.5px solid ${INK}`, boxShadow: `4px 4px 0 ${INK}` }}
+              >
                  <ArrowLeft size={12} className="group-hover:-translate-x-1 transition-transform" /> Back to Dashboard
               </a>
               
               <div className="flex items-center gap-3 mb-2">
-                 <div className="p-2 bg-amber-100 rounded-lg text-amber-600">
+                 <div className="p-2.5 rounded-2xl" style={{ background: YELLOW, border: `2.5px solid ${INK}`, boxShadow: `3px 3px 0 ${INK}` }}>
                     <Gamepad2 size={20} />
                  </div>
-                 <h1 className="text-lg font-bold pixel-font text-stone-800 leading-tight">CARTRIDGE EDITOR</h1>
+                 <h1 className="dozo-display text-xl font-black leading-tight uppercase">Cartridge Editor</h1>
               </div>
-              <p className="text-stone-500 mb-8 text-xs font-medium pl-12">Craft your digital retro story.</p>
+              <p className="mb-8 text-xs font-bold pl-14 opacity-60">Craft your digital retro story. ✿</p>
 
               {/* TABS (SEGMENTED CONTROL STYLE) */}
-              <div className="flex p-1 bg-stone-100 rounded-xl mb-8 sticky top-0 z-10 shadow-sm backdrop-blur-sm bg-stone-100/90">
+              <div
+                className="flex gap-1 p-1.5 rounded-2xl mb-8 sticky top-9 z-20"
+                style={{ background: CREAM, border: `2.5px solid ${INK}`, boxShadow: `5px 5px 0 ${INK}` }}
+              >
                  {['message', 'design', 'music', 'gallery'].map((tab) => (
                     <button 
                         key={tab} 
                         onClick={() => setActiveTab(tab as any)} 
-                        className={`flex-1 py-2 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all duration-200 ${activeTab === tab ? 'bg-white text-amber-600 shadow-sm scale-100' : 'text-stone-400 hover:text-stone-600'}`}
+                        className="flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all duration-200"
+                        style={
+                          activeTab === tab
+                            ? { background: TAB_COLORS[tab], border: `2px solid ${INK}`, boxShadow: `2px 2px 0 ${INK}` }
+                            : { border: "2px solid transparent", opacity: 0.5 }
+                        }
                     >
                         {tab}
                     </button>
@@ -675,32 +758,41 @@ export default function WebStoryEditor() {
                  {activeTab === 'message' && (
                      <div className="space-y-5 animate-in slide-in-from-left-2 duration-300">
                         <div className="group">
-                            <label className="block text-[10px] font-bold text-stone-400 uppercase mb-1.5 ml-1">Title (Max 15 chars)</label>
-                            <input type="text" value={storyData.title} onChange={(e) => handleChange('title', e.target.value)} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all font-medium text-stone-700" placeholder="e.g. HAPPY BIRTHDAY" maxLength={20} />
+                            <label className={labelClass}>Title (Max 15 chars)</label>
+                            <input type="text" value={storyData.title} onChange={(e) => handleChange('title', e.target.value)} className={inputClass} style={inputStyle} placeholder="e.g. HAPPY BIRTHDAY" maxLength={20} />
                         </div>
                         <div className="group">
-                            <label className="block text-[10px] font-bold text-stone-400 uppercase mb-1.5 ml-1">Subtitle</label>
-                            <input type="text" value={storyData.subtitle} onChange={(e) => handleChange('subtitle', e.target.value)} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all font-medium text-stone-700" placeholder="e.g. PRESS START" maxLength={25} />
+                            <label className={labelClass}>Subtitle</label>
+                            <input type="text" value={storyData.subtitle} onChange={(e) => handleChange('subtitle', e.target.value)} className={inputClass} style={inputStyle} placeholder="e.g. PRESS START" maxLength={25} />
                         </div>
                         <div className="group">
-                            <label className="block text-[10px] font-bold text-stone-400 uppercase mb-1.5 ml-1">Message Body</label>
-                            <textarea rows={6} value={storyData.message} onChange={(e) => handleChange('message', e.target.value)} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all font-medium text-stone-700 resize-none leading-relaxed" placeholder="Write your heartfelt message here..." />
+                            <label className={labelClass}>Message Body</label>
+                            <textarea rows={6} value={storyData.message} onChange={(e) => handleChange('message', e.target.value)} className={`${inputClass} resize-none leading-relaxed`} style={inputStyle} placeholder="Write your heartfelt message here..." />
                         </div>
                         <div className="group">
-                            <label className="block text-[10px] font-bold text-stone-400 uppercase mb-1.5 ml-1">Sender Name</label>
-                            <input type="text" value={storyData.sender} onChange={(e) => handleChange('sender', e.target.value)} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-amber-100 focus:border-amber-400 transition-all font-medium text-stone-700" placeholder="e.g. Your Bestie" />
+                            <label className={labelClass}>Sender Name</label>
+                            <input type="text" value={storyData.sender} onChange={(e) => handleChange('sender', e.target.value)} className={inputClass} style={inputStyle} placeholder="e.g. Your Bestie" />
                         </div>
                      </div>
                  )}
                  {activeTab === 'design' && (
                      <div className="space-y-6 animate-in slide-in-from-left-2 duration-300">
                         <div>
-                            <label className="block text-[10px] font-bold text-stone-400 uppercase mb-3 ml-1">Select Console Color</label>
+                            <label className={labelClass}>Select Console Color</label>
                             <div className="grid grid-cols-2 gap-3">
                             {GAMEBOY_COLORS.map((color) => (
-                                <div key={color.id} onClick={() => handleChange('color', color.id)} className={`cursor-pointer rounded-xl p-3 flex items-center gap-3 border-2 transition-all hover:scale-[1.02] active:scale-[0.98] ${storyData.color === color.id ? 'border-amber-400 bg-amber-50/50 shadow-md ring-2 ring-amber-100' : 'border-transparent bg-stone-50 hover:bg-white hover:border-stone-200'}`}>
-                                    <div className={`w-8 h-8 rounded-full shadow-inner border ${color.bg} ${color.border}`}></div>
-                                    <span className={`text-xs font-bold ${storyData.color === color.id ? 'text-stone-800' : 'text-stone-500'}`}>{color.label}</span>
+                                <div
+                                  key={color.id}
+                                  onClick={() => handleChange('color', color.id)}
+                                  className="cursor-pointer rounded-2xl p-3 flex items-center gap-3 transition-all hover:-translate-y-0.5 active:translate-y-0"
+                                  style={{
+                                    background: storyData.color === color.id ? LILAC : CREAM,
+                                    border: `2.5px solid ${INK}`,
+                                    boxShadow: storyData.color === color.id ? `5px 5px 0 ${INK}` : `3px 3px 0 ${INK}`,
+                                  }}
+                                >
+                                    <div className={`w-8 h-8 rounded-full border-2 border-black ${color.bg}`}></div>
+                                    <span className="text-[11px] font-black uppercase tracking-wide">{color.label}</span>
                                 </div>
                             ))}
                             </div>
@@ -711,32 +803,36 @@ export default function WebStoryEditor() {
                     <div className="space-y-6 animate-in slide-in-from-left-2 duration-300">
                         
                         {/* INPUT UPLOAD BARU */}
-                        <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.1)] space-y-4 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-3 opacity-10"><Music size={60} /></div>
-                            <div className="flex items-center gap-2 mb-2 border-b border-stone-100 pb-3 relative z-10">
-                                <div className="p-1.5 bg-amber-100 rounded-md text-amber-600"><Upload size={14} /></div>
-                                <span className="text-xs font-bold text-stone-700 uppercase tracking-wide">Upload Custom Track</span>
+                        <div className="p-5 rounded-3xl space-y-4 relative overflow-hidden" style={{ background: CREAM, border: `3px solid ${INK}`, boxShadow: `8px 8px 0 ${INK}` }}>
+                            <div className="absolute -top-3 -right-3 p-6 opacity-10"><Music size={70} /></div>
+                            <div className="flex items-center gap-2 mb-2 pb-3 relative z-10" style={{ borderBottom: `2px dashed ${INK}` }}>
+                                <div className="p-1.5 rounded-lg" style={{ background: YELLOW, border: `2px solid ${INK}` }}><Upload size={14} /></div>
+                                <span className="text-xs font-black uppercase tracking-wide">Upload Custom Track</span>
                             </div>
 
                             {/* Input Judul */}
                             <div className="relative z-10">
-                                <label className="block text-[10px] font-bold text-stone-400 uppercase mb-1.5 ml-1">Track Title (Optional)</label>
+                                <label className={labelClass}>Track Title (Optional)</label>
                                 <input 
                                     type="text" 
                                     value={tempSongTitle}
                                     onChange={(e) => setTempSongTitle(e.target.value)}
                                     placeholder="e.g. Our Favorite Song"
-                                    className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2.5 text-xs focus:bg-white focus:ring-2 focus:ring-amber-100 focus:border-amber-400 outline-none transition-all font-medium"
+                                    className={inputClass}
+                                    style={inputStyle}
                                 />
                             </div>
 
                             <div className="flex gap-3 relative z-10">
                                 {/* Input File Audio */}
                                 <div className="flex-1">
-                                    <label className="block text-[10px] font-bold text-stone-400 uppercase mb-1.5 ml-1">Audio File</label>
-                                    <label className={`flex flex-col items-center justify-center gap-2 w-full h-28 border-2 border-dashed rounded-xl cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] ${tempAudioFile ? 'bg-green-50 border-green-400' : 'bg-stone-50 border-stone-300 hover:bg-white hover:border-amber-400'}`}>
-                                        <Music size={24} className={tempAudioFile ? "text-green-600" : "text-stone-400"} />
-                                        <span className="text-[10px] text-center px-2 truncate w-full font-bold text-stone-500">
+                                    <label className={labelClass}>Audio File</label>
+                                    <label
+                                      className="flex flex-col items-center justify-center gap-2 w-full h-28 rounded-2xl cursor-pointer transition-all hover:-translate-y-0.5"
+                                      style={{ background: tempAudioFile ? MINT : CREAM, border: `2.5px dashed ${INK}`, boxShadow: `4px 4px 0 ${INK}` }}
+                                    >
+                                        <Music size={24} />
+                                        <span className="text-[10px] text-center px-2 truncate w-full font-black uppercase">
                                             {tempAudioFile ? tempAudioFile.name : "Select MP3"}
                                         </span>
                                         <input type="file" accept="audio/*" className="hidden" onChange={(e) => setTempAudioFile(e.target.files?.[0] || null)} />
@@ -745,14 +841,17 @@ export default function WebStoryEditor() {
 
                                 {/* Input File Cover */}
                                 <div className="w-28">
-                                    <label className="block text-[10px] font-bold text-stone-400 uppercase mb-1.5 ml-1">Cover Art</label>
-                                    <label className={`flex flex-col items-center justify-center gap-2 w-full h-28 border-2 border-dashed rounded-xl cursor-pointer transition-all overflow-hidden relative hover:scale-[1.02] active:scale-[0.98] ${tempCoverFile ? 'border-green-400' : 'bg-stone-50 border-stone-300 hover:bg-white hover:border-amber-400'}`}>
+                                    <label className={labelClass}>Cover Art</label>
+                                    <label
+                                      className="flex flex-col items-center justify-center gap-2 w-full h-28 rounded-2xl cursor-pointer transition-all overflow-hidden relative hover:-translate-y-0.5"
+                                      style={{ background: tempCoverFile ? MINT : CREAM, border: `2.5px dashed ${INK}`, boxShadow: `4px 4px 0 ${INK}` }}
+                                    >
                                         {tempCoverFile ? (
-                                            <img src={URL.createObjectURL(tempCoverFile)} className="absolute inset-0 w-full h-full object-cover opacity-80" alt="preview" />
+                                            <img src={URL.createObjectURL(tempCoverFile)} className="absolute inset-0 w-full h-full object-cover" alt="preview" />
                                         ) : (
                                             <>
-                                                <ImageIcon size={24} className="text-stone-400" />
-                                                <span className="text-[9px] font-bold text-stone-500">Image</span>
+                                                <ImageIcon size={24} />
+                                                <span className="text-[9px] font-black uppercase">Image</span>
                                             </>
                                         )}
                                         <input type="file" accept="image/*" className="hidden" onChange={(e) => setTempCoverFile(e.target.files?.[0] || null)} />
@@ -764,7 +863,8 @@ export default function WebStoryEditor() {
                             <button 
                                 onClick={handleCombinedUpload} 
                                 disabled={isUploading || !tempAudioFile}
-                                className="w-full py-3 bg-stone-800 text-white rounded-xl text-xs font-bold hover:bg-black disabled:bg-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg relative z-10"
+                                className="w-full py-3 rounded-full text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 relative z-10 disabled:opacity-40 disabled:cursor-not-allowed enabled:hover:-translate-y-0.5 enabled:active:translate-y-0"
+                                style={{ background: INK, color: CREAM, border: `2.5px solid ${INK}`, boxShadow: `5px 5px 0 ${CORAL}` }}
                             >
                                 {isUploading ? <Loader2 className="animate-spin" size={14}/> : <Plus size={14}/>}
                                 {isUploading ? "Uploading..." : "Add to Library"}
@@ -773,25 +873,30 @@ export default function WebStoryEditor() {
 
                         {/* LIST LAGU */}
                         <div>
-                            <label className="block text-[10px] font-bold text-stone-400 uppercase mb-3 ml-1">Your Library</label>
-                            <div className="space-y-2.5">
+                            <label className={labelClass}>Your Library</label>
+                            <div className="space-y-3">
                                 {songs.map((song) => (
                                     <div 
                                         key={song.id} 
                                         onClick={() => handleChange('music', song.id)} 
-                                        className={`p-2.5 rounded-xl border cursor-pointer flex items-center justify-between transition-all group ${storyData.music === song.id ? 'bg-white border-amber-400 shadow-md ring-1 ring-amber-100' : 'bg-white border-stone-100 hover:border-stone-300 hover:shadow-sm'}`}
+                                        className="p-3 rounded-2xl cursor-pointer flex items-center justify-between transition-all hover:-translate-y-0.5"
+                                        style={{
+                                          background: storyData.music === song.id ? YELLOW : CREAM,
+                                          border: `2.5px solid ${INK}`,
+                                          boxShadow: storyData.music === song.id ? `5px 5px 0 ${INK}` : `3px 3px 0 ${INK}`,
+                                        }}
                                     >
                                         <div className="flex items-center gap-3 overflow-hidden">
-                                            <div className="w-10 h-10 bg-stone-100 rounded-lg flex-shrink-0 overflow-hidden border border-stone-100 shadow-inner">
+                                            <div className="w-10 h-10 rounded-xl flex-shrink-0 overflow-hidden" style={{ border: `2px solid ${INK}`, background: CREAM }}>
                                                 <img src={song.cover} className="w-full h-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')} alt="cover" />
                                             </div>
                                             <div className="flex flex-col overflow-hidden">
-                                                <span className={`text-xs font-bold truncate ${storyData.music === song.id ? 'text-stone-800' : 'text-stone-600'}`}>{song.title}</span>
-                                                <span className="text-[10px] text-stone-400 truncate font-medium">{song.artist}</span>
+                                                <span className="text-xs font-black truncate uppercase">{song.title}</span>
+                                                <span className="text-[10px] truncate font-bold opacity-60">{song.artist}</span>
                                             </div>
                                         </div>
                                         {storyData.music === song.id && (
-                                            <div className="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center text-white shadow-sm animate-in zoom-in duration-200">
+                                            <div className="w-7 h-7 rounded-full flex items-center justify-center animate-in zoom-in duration-200" style={{ background: INK, color: CREAM, border: `2px solid ${INK}` }}>
                                                 <Check size={12} strokeWidth={3} />
                                             </div>
                                         )}
@@ -805,15 +910,18 @@ export default function WebStoryEditor() {
 
                  {activeTab === 'gallery' && (
                      <div className="space-y-6 animate-in slide-in-from-left-2 duration-300">
-                         <label className={`flex flex-col items-center justify-center gap-3 w-full p-8 border-2 border-dashed rounded-2xl cursor-pointer transition-all group bg-stone-50 ${storyData.gallery.length >= 3 ? 'border-red-200 opacity-50 cursor-not-allowed' : 'border-stone-300 hover:bg-white hover:border-amber-400 hover:scale-[1.01]'}`}>
-                            <div className="p-3 bg-stone-200 rounded-full text-stone-500 group-hover:bg-amber-100 group-hover:text-amber-600 transition-colors">
+                         <label
+                           className={`flex flex-col items-center justify-center gap-3 w-full p-8 rounded-3xl cursor-pointer transition-all group ${storyData.gallery.length >= 3 ? 'opacity-50 cursor-not-allowed' : 'hover:-translate-y-1'}`}
+                           style={{ background: storyData.gallery.length >= 3 ? "#F3D6D1" : MINT, border: `3px dashed ${INK}`, boxShadow: `6px 6px 0 ${INK}` }}
+                         >
+                            <div className="p-3 rounded-full" style={{ background: CREAM, border: `2.5px solid ${INK}`, boxShadow: `3px 3px 0 ${INK}` }}>
                                 <Upload size={24} />
                             </div>
                             <div className="text-center">
-                                <span className="text-sm font-bold text-stone-600 block group-hover:text-stone-800">
+                                <span className="text-sm font-black uppercase block tracking-wide">
                                     {storyData.gallery.length >= 3 ? "Gallery Full (3/3)" : "Click to Upload Photo"}
                                 </span>
-                                <span className="text-[10px] text-stone-400 font-medium">
+                                <span className="text-[10px] font-bold opacity-70">
                                     {storyData.gallery.length >= 3 ? "Delete a photo to add more" : "JPG/PNG • Max 20MB • Limit 3"}
                                 </span>
                             </div>
@@ -821,39 +929,56 @@ export default function WebStoryEditor() {
                          </label>
                         
                         <div>
-                            <label className="block text-[10px] font-bold text-stone-400 uppercase mb-3 ml-1">Gallery Preview ({storyData.gallery.length}/3)</label>
-                            <div className="grid grid-cols-2 gap-3">
+                            <label className={labelClass}>Gallery Preview ({storyData.gallery.length}/3)</label>
+                            {storyData.gallery.length === 0 ? (
+                              <div className="rounded-2xl p-6 text-center" style={{ background: CREAM, border: `2.5px dashed ${INK}` }}>
+                                <div className="text-2xl mb-1">📷</div>
+                                <p className="text-[11px] font-black uppercase tracking-wide">No photos yet</p>
+                                <p className="text-[10px] font-bold opacity-60">Upload up to 3 cute moments</p>
+                              </div>
+                            ) : (
+                            <div className="grid grid-cols-2 gap-4">
                             {storyData.gallery.map((img, idx) => (
-                                <div key={idx} className="relative group aspect-square rounded-2xl overflow-hidden border-2 border-white shadow-md bg-stone-100">
+                                <div key={idx} className="relative group aspect-square rounded-2xl overflow-hidden" style={{ border: `2.5px solid ${INK}`, boxShadow: `5px 5px 0 ${INK}`, background: CREAM }}>
                                     <img src={img} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
-                                        <button onClick={() => handleRemovePhoto(idx)} className="bg-white text-red-500 p-2 rounded-full shadow-lg hover:bg-red-50 transition-colors transform hover:scale-110"><Trash2 size={16} /></button>
+                                    <div className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full text-[9px] font-black" style={{ background: YELLOW, border: `2px solid ${INK}` }}>#{String(idx + 1).padStart(2, "0")}</div>
+                                    <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                        <button onClick={() => handleRemovePhoto(idx)} className="p-2 rounded-full transition-transform hover:scale-110" style={{ background: CORAL, border: `2.5px solid ${INK}`, boxShadow: `3px 3px 0 ${INK}` }}><Trash2 size={16} /></button>
                                     </div>
                                 </div>
                             ))}
                             </div>
+                            )}
                         </div>
                      </div>
                  )}
               </div>
 
               {/* ACTION FOOTER */}
-              <div className="mt-8 pt-6 border-t border-stone-100 sticky bottom-0 bg-white/95 backdrop-blur-sm z-20 pb-2">
+              <div className="mt-8 pt-6 sticky bottom-0 z-20 pb-3" style={{ background: CREAM, borderTop: `3px solid ${INK}` }}>
                   {!generatedLink ? (
-                      <button onClick={handlePublish} disabled={isSaving} className="w-full py-4 bg-gradient-to-r from-stone-800 to-stone-900 text-white rounded-xl font-bold text-sm hover:from-black hover:to-black transition-all shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed transform hover:-translate-y-0.5 active:translate-y-0">
+                      <button
+                        onClick={handlePublish}
+                        disabled={isSaving}
+                        className="w-full py-4 rounded-full font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed enabled:hover:-translate-y-1 enabled:active:translate-y-0"
+                        style={{ background: INK, color: CREAM, border: `3px solid ${INK}`, boxShadow: `6px 6px 0 ${CORAL}` }}
+                      >
                         {isSaving ? <><Loader2 className="animate-spin" size={16}/> Saving...</> : "Publish & Generate Link"} 
-                        {!isSaving && <Sparkles size={16} className="text-amber-300" />}
+                        {!isSaving && <Sparkles size={16} style={{ color: YELLOW }} />}
                       </button>
                   ) : (
-                      <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-5 animate-in slide-in-from-bottom duration-300 shadow-lg">
-                         <div className="flex items-center gap-2 text-emerald-700 font-bold text-sm mb-3"><Check size={18} className="text-emerald-500" /> Story Published!</div>
+                      <div className="rounded-3xl p-5 animate-in slide-in-from-bottom duration-300 relative" style={{ background: MINT, border: `3px solid ${INK}`, boxShadow: `6px 6px 0 ${INK}` }}>
+                         <div className="absolute -top-3 -right-2 px-3 py-1 rounded-full text-[9px] font-black uppercase rotate-6" style={{ background: YELLOW, border: `2.5px solid ${INK}` }}>Yay! ✿</div>
+                         <div className="flex items-center gap-2 font-black text-sm mb-3 uppercase tracking-wide"><Check size={18} /> Story Published!</div>
                          <div className="flex gap-2 mb-3">
-                            <input readOnly value={generatedLink} className="flex-1 bg-white border border-emerald-200 rounded-xl px-3 py-2 text-xs text-stone-600 font-medium select-all" />
-                            <button onClick={() => navigator.clipboard.writeText(generatedLink)} className="p-2.5 bg-white border border-emerald-200 rounded-xl text-emerald-600 hover:bg-emerald-100 transition-colors"><LinkIcon size={16} /></button>
+                            <input readOnly value={generatedLink} className="flex-1 rounded-full px-3 py-2 text-xs font-bold select-all" style={{ background: CREAM, border: `2.5px solid ${INK}` }} />
+                            <button onClick={handleCopyLink} className="p-2.5 rounded-full transition-transform hover:-translate-y-0.5" style={{ background: copied ? YELLOW : CREAM, border: `2.5px solid ${INK}`, boxShadow: `3px 3px 0 ${INK}` }}>
+                              {copied ? <Check size={16} /> : <LinkIcon size={16} />}
+                            </button>
                          </div>
                          <div className="flex gap-2">
-                             <a href={generatedLink} target="_blank" className="flex-1 py-2 text-center text-xs font-bold text-white bg-emerald-500 rounded-lg hover:bg-emerald-600 transition-colors shadow-sm">View Story</a>
-                             <button onClick={() => setGeneratedLink("")} className="flex-1 py-2 text-center text-xs font-bold text-emerald-600 bg-white border border-emerald-200 rounded-lg hover:bg-emerald-50 transition-colors">New Story</button>
+                             <a href={generatedLink} target="_blank" className="flex-1 py-2 text-center text-xs font-black uppercase rounded-full transition-transform hover:-translate-y-0.5" style={{ background: INK, color: CREAM, border: `2.5px solid ${INK}` }}>View Story</a>
+                             <button onClick={() => setGeneratedLink("")} className="flex-1 py-2 text-center text-xs font-black uppercase rounded-full transition-transform hover:-translate-y-0.5" style={{ background: CREAM, border: `2.5px solid ${INK}`, boxShadow: `3px 3px 0 ${INK}` }}>New Story</button>
                          </div>
                       </div>
                   )}
@@ -862,13 +987,16 @@ export default function WebStoryEditor() {
        </div>
 
        {/* --- RIGHT PANEL: PREVIEW (SCROLLABLE INDEPENDENTLY) --- */}
-       <div className="w-full md:w-2/3 h-full overflow-y-auto bg-[#e0f2fe] flex items-center justify-center p-8 relative">
-           <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] fixed" />
-           <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-blue-400/20 rounded-full blur-3xl fixed" />
+       <div className="w-full md:w-2/3 h-full overflow-y-auto flex items-center justify-center p-8 relative" style={{ background: SKY }}>
+           <div className="absolute top-[-8%] right-[-6%] w-96 h-96 rounded-full fixed dozo-float" style={{ background: LILAC, border: `3px solid ${INK}` }} />
+           <div className="absolute bottom-[-12%] left-[-8%] w-80 h-80 rounded-full fixed" style={{ background: MINT, border: `3px solid ${INK}` }} />
+           <div className="absolute top-24 left-14 text-4xl fixed dozo-float select-none">✿</div>
+           <div className="absolute bottom-24 right-20 text-4xl fixed dozo-float select-none">★</div>
+
            <div className="relative z-10 flex flex-col items-center my-auto min-h-[700px] justify-center -mt-30">
-               <span className="mb-6 px-4 py-1.5 bg-white/60 backdrop-blur rounded-full text-[10px] font-bold text-sky-700 uppercase tracking-widest border border-white shadow-sm ring-1 ring-white/50">Interactive Preview</span>
+               <span className="mb-6 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em]" style={{ background: YELLOW, border: `2.5px solid ${INK}`, boxShadow: `4px 4px 0 ${INK}` }}>Interactive Preview</span>
                <GameboyPreview data={storyData} songs={songs} />
-               <p className="mt-8 text-[10px] text-stone-400 font-bold tracking-widest uppercase text-center max-w-xs bg-white/40 px-4 py-2 rounded-full backdrop-blur-sm border border-white/20">D-Pad: Navigate • A: Select • B: Back</p>
+               <p className="mt-8 text-[10px] font-black tracking-[0.18em] uppercase text-center max-w-xs px-4 py-2 rounded-full" style={{ background: CREAM, border: `2.5px solid ${INK}`, boxShadow: `4px 4px 0 ${INK}` }}>D-Pad: Navigate • A: Select • B: Back</p>
            </div>
        </div>
     </div>

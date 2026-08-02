@@ -251,18 +251,19 @@ const placeFood = () => {
   };
 
   return (
-    <div className={`relative ${activeColor.bg} rounded-[2rem] w-[340px] h-[600px] p-5 flex flex-col shadow-2xl border-4 ${activeColor.border} select-none transition-colors duration-300`}>
+    <div className={`relative ${activeColor.bg} rounded-[2.5rem] w-[340px] h-[600px] p-5 flex flex-col shadow-[12px_12px_0_0_#000] border-[3px] border-black select-none transition-colors duration-300`}>
+
       {/* Header */}
       <div className="flex justify-between items-center mb-3 px-1">
         <div className="flex flex-col items-center">
              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_5px_red]"></div>
-             <span className={`text-[6px] font-bold ${activeColor.text} mt-0.5 font-sans`}>BATTERY</span>
+             <span className={`text-[6px] font-bold ${activeColor.text} mt-0.5 dozo-body`}>BATTERY</span>
         </div>
-        <div className={`font-serif font-bold text-xs ${activeColor.text} italic opacity-80`}>CARDIFY </div>
+        <div className={`dozo-display text-[10px] uppercase ${activeColor.text} opacity-80`}>CARDIFY </div>
       </div>
       
       {/* Screen Container */}
-      <div className="bg-[#788a82] p-2.5 rounded-md border-2 border-gray-400 relative mb-4 shadow-inner">
+      <div className="bg-[#788a82] p-2.5 rounded-xl border-[2.5px] border-black relative mb-4 shadow-[4px_4px_0_0_#000]">
          <div className="flex justify-between items-center px-1 mb-0.5">
              <div className="flex gap-0.5">
                 <div className="w-1 h-1 rounded-full bg-red-500/80"></div>
@@ -416,37 +417,69 @@ const placeFood = () => {
       <div className="relative h-[220px]">
           {/* D-PAD */}
           <div className="absolute top-4 left-4 w-[110px] h-[110px]">
-               <div className="relative w-full h-full">
-                   <div className="absolute top-0 left-1/3 w-1/3 h-full bg-[#333] rounded-sm shadow-md"></div>
-                   <div className="absolute top-1/3 left-0 w-full h-1/3 bg-[#333] rounded-sm shadow-md"></div>
-                   <div className="absolute top-1/3 left-1/3 w-1/3 h-1/3 bg-[#2a2a2a] rounded-full"></div>
-                   {/* Buttons */}
-                   <button onClick={() => handleDpad('UP')} className="absolute top-0 left-1/3 w-1/3 h-1/3 z-10 active:bg-white/10 rounded-t-sm" />
-                   <button onClick={() => handleDpad('DOWN')} className="absolute bottom-0 left-1/3 w-1/3 h-1/3 z-10 active:bg-white/10 rounded-b-sm" />
-                   <button onClick={() => handleDpad('LEFT')} className="absolute top-1/3 left-0 w-1/3 h-1/3 z-10 active:bg-white/10 rounded-l-sm" />
-                   <button onClick={() => handleDpad('RIGHT')} className="absolute top-1/3 right-0 w-1/3 h-1/3 z-10 active:bg-white/10 rounded-r-sm" />
+               <div className="relative w-full h-full" style={{ filter: "drop-shadow(2px 4px 3px rgba(0,0,0,0.45))" }}>
+                   {/* Vertical arm */}
+                   <div
+                     className="absolute top-0 left-1/3 w-1/3 h-full rounded-[3px]"
+                     style={{
+                       background: "linear-gradient(155deg, #4a4a4a 0%, #2c2c2c 45%, #1a1a1a 100%)",
+                       boxShadow: "inset 0 1px 1px rgba(255,255,255,0.25), inset 0 -3px 4px rgba(0,0,0,0.55)",
+                     }}
+                   />
+                   {/* Horizontal arm */}
+                   <div
+                     className="absolute top-1/3 left-0 w-full h-1/3 rounded-[3px]"
+                     style={{
+                       background: "linear-gradient(155deg, #4a4a4a 0%, #2c2c2c 45%, #1a1a1a 100%)",
+                       boxShadow: "inset 0 1px 1px rgba(255,255,255,0.25), inset 0 -3px 4px rgba(0,0,0,0.55)",
+                     }}
+                   />
+                   {/* Center pivot dome */}
+                   <div
+                     className="absolute top-1/3 left-1/3 w-1/3 h-1/3 rounded-full"
+                     style={{
+                       background: "radial-gradient(circle at 35% 30%, #565656 0%, #232323 65%, #141414 100%)",
+                       boxShadow: "inset 0 1px 2px rgba(255,255,255,0.3), inset 0 -2px 3px rgba(0,0,0,0.6)",
+                     }}
+                   />
+
+                   {/* Panah dekoratif tiap arah — murni visual, pointer-events-none */}
+                   <ArrowUp size={11} strokeWidth={3} className="absolute top-[8%] left-1/2 -translate-x-1/2 text-white/40 pointer-events-none" />
+                   <ArrowDown size={11} strokeWidth={3} className="absolute bottom-[8%] left-1/2 -translate-x-1/2 text-white/40 pointer-events-none" />
+                   <IconArrowLeft size={11} strokeWidth={3} className="absolute left-[8%] top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+                   <IconArrowRight size={11} strokeWidth={3} className="absolute right-[8%] top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+
+                   {/* Highlight tipis di tepi atas tiap arm biar kesan plastik mengkilap */}
+                   <div className="absolute top-0 left-1/3 w-1/3 h-[3px] bg-white/20 rounded-full pointer-events-none" />
+                   <div className="absolute top-1/3 left-0 w-[3px] h-1/3 bg-white/20 rounded-full pointer-events-none" />
+
+                   {/* 4 tombol klik — geometri & onClick sama persis, cuma tambah efek tekan 3D */}
+                   <button onClick={() => handleDpad('UP')} className="absolute top-0 left-1/3 w-1/3 h-1/3 z-10 active:bg-black/30 active:scale-95 transition-transform rounded-t-sm" />
+                   <button onClick={() => handleDpad('DOWN')} className="absolute bottom-0 left-1/3 w-1/3 h-1/3 z-10 active:bg-black/30 active:scale-95 transition-transform rounded-b-sm" />
+                   <button onClick={() => handleDpad('LEFT')} className="absolute top-1/3 left-0 w-1/3 h-1/3 z-10 active:bg-black/30 active:scale-95 transition-transform rounded-l-sm" />
+                   <button onClick={() => handleDpad('RIGHT')} className="absolute top-1/3 right-0 w-1/3 h-1/3 z-10 active:bg-black/30 active:scale-95 transition-transform rounded-r-sm" />
                </div>
           </div>
 
           {/* A B Buttons */}
           <div className="absolute top-6 right-1 flex gap-5 transform -rotate-12">
                <div className="flex flex-col items-center gap-1 mt-6">
-                   <button onClick={handleButtonB} className="w-12 h-12 rounded-full bg-[#d33c3c] border-b-4 border-[#8f2121] active:border-b-0 active:translate-y-1 transition-all shadow-lg text-[#5e1616] font-bold text-sm pixel-font flex justify-center items-center">B</button>
+                   <button onClick={handleButtonB} className="w-12 h-12 rounded-full bg-[#FF8A72] border-[2.5px] border-black active:translate-y-1 transition-all shadow-[4px_4px_0_0_#000] active:shadow-[1px_1px_0_0_#000] text-black font-black text-sm dozo-body flex justify-center items-center">B</button>
                </div>
                <div className="flex flex-col items-center gap-1">
-                   <button onClick={handleButtonA} className="w-12 h-12 rounded-full bg-[#d33c3c] border-b-4 border-[#8f2121] active:border-b-0 active:translate-y-1 transition-all shadow-lg text-[#5e1616] font-bold text-sm pixel-font flex justify-center items-center">A</button>
+                   <button onClick={handleButtonA} className="w-12 h-12 rounded-full bg-[#FF8A72] border-[2.5px] border-black active:translate-y-1 transition-all shadow-[4px_4px_0_0_#000] active:shadow-[1px_1px_0_0_#000] text-black font-black text-sm dozo-body flex justify-center items-center">A</button>
                </div>
           </div>
 
           {/* Start Select */}
           <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex gap-4">
                <div className="flex flex-col items-center">
-                   <button onClick={handleStart} className="w-16 h-4 bg-[#999] rounded-full transform rotate-[-25deg] border border-gray-600 active:scale-95 shadow-sm"></button>
-                   <span className={`text-[9px] font-bold ${activeColor.text} mt-1 uppercase tracking-wider font-sans opacity-70 transform rotate-[-27deg] translate-x-2`}>Select</span>
+                   <button onClick={handleStart} className="w-16 h-4 bg-[#FFFDF5] rounded-full transform rotate-[-25deg] border-[2.5px] border-black active:scale-95 shadow-[2px_2px_0_0_#000]"></button>
+                   <span className={`text-[9px] font-bold ${activeColor.text} mt-1 uppercase tracking-wider dozo-body opacity-70 transform rotate-[-27deg] translate-x-2`}>Select</span>
                </div>
                <div className="flex flex-col items-center">
-                   <button onClick={handleStart} className="w-16 h-4 bg-[#999] rounded-full transform rotate-[-25deg] border border-gray-600 active:scale-95 shadow-sm"></button>
-                   <span className={`text-[9px] font-bold ${activeColor.text} mt-1 uppercase tracking-wider font-sans opacity-70 transform rotate-[-27deg] translate-x-2`}>Start</span>
+                   <button onClick={handleStart} className="w-16 h-4 bg-[#FFFDF5] rounded-full transform rotate-[-25deg] border-[2.5px] border-black active:scale-95 shadow-[2px_2px_0_0_#000]"></button>
+                   <span className={`text-[9px] font-bold ${activeColor.text} mt-1 uppercase tracking-wider dozo-body opacity-70 transform rotate-[-27deg] translate-x-2`}>Start</span>
                </div>
           </div>
           
@@ -504,54 +537,76 @@ export default function WebStoryViewerPage() {
     }
   }, []);
 
+  const styleTag = (
+    <style dangerouslySetInnerHTML={{__html: `
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Boldonse&family=DM+Sans:wght@400;500;700;900&display=swap');
+        .pixel-font { font-family: 'Press Start 2P', cursive; }
+        .font-pixel { font-family: 'Press Start 2P', cursive; }
+        .dozo-display { font-family: 'Boldonse', 'Archivo Black', sans-serif; }
+        .dozo-body { font-family: 'DM Sans', sans-serif; }
+        .animate-spin-slow { animation: spin 3s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes dozo-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        .dozo-marquee { animation: dozo-marquee 18s linear infinite; }
+    `}} />
+  );
+
+  const Ticker = () => (
+    <div className="fixed top-0 left-0 right-0 z-40 bg-[#F6C445] border-b-[2.5px] border-black overflow-hidden">
+    </div>
+  );
+
   if (loading) return (
-      <div className="min-h-screen flex items-center justify-center bg-stone-100">
-         <Loader2 className="animate-spin text-stone-400" size={32} />
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#BFE7DA] p-4">
+         {styleTag}
+         <Ticker />
+         <div className="bg-[#FFFDF5] border-[2.5px] border-black rounded-3xl px-8 py-7 shadow-[6px_6px_0_0_#000] flex flex-col items-center gap-3">
+            <div className="w-14 h-14 rounded-full bg-[#F6C445] border-[2.5px] border-black flex items-center justify-center shadow-[3px_3px_0_0_#000]">
+              <Loader2 className="animate-spin text-black" size={24} />
+            </div>
+            <p className="dozo-body text-[11px] font-black uppercase tracking-[0.2em] text-black">Loading story…</p>
+         </div>
       </div>
   );
 
   if (error || !data) return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-stone-100 p-4 text-center font-sans">
-         <h1 className="text-xl font-bold text-stone-800 mb-2">Story Not Found</h1>
-         <p className="text-stone-500 mb-6 text-sm">Cerita tidak ditemukan atau link salah.</p>
-         <a href="/" className="px-6 py-2 bg-stone-900 text-white rounded-full text-xs font-bold uppercase tracking-wider hover:bg-black">
-             Buat Sendiri
-         </a>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#BFE7DA] p-4 text-center">
+         {styleTag}
+         <Ticker />
+         <div className="relative bg-[#FFFDF5] border-[2.5px] border-black rounded-[2rem] px-8 py-10 max-w-sm shadow-[10px_10px_0_0_#000]">
+            <div className="absolute -top-4 -right-4 rotate-12 bg-[#FF8A72] border-[2.5px] border-black rounded-full px-3 py-1 shadow-[3px_3px_0_0_#000]">
+              <span className="dozo-body text-[10px] font-black uppercase tracking-widest text-black">oops!</span>
+            </div>
+            <div className="mx-auto mb-5 w-16 h-16 rounded-2xl bg-[#C9C4F0] border-[2.5px] border-black flex items-center justify-center shadow-[4px_4px_0_0_#000]">
+              <Gamepad2 size={28} className="text-black" />
+            </div>
+            <h1 className="dozo-display text-xl uppercase text-black mb-3 leading-tight">Story Not Found</h1>
+            <p className="dozo-body text-sm text-black/60 mb-7">Cerita tidak ditemukan atau link salah.</p>
+            <a href="/" className="inline-block px-7 py-3 bg-black text-white rounded-full text-[11px] dozo-body font-black uppercase tracking-[0.2em] border-[2.5px] border-black shadow-[5px_5px_0_0_#F6C445] hover:translate-y-0.5 hover:shadow-[3px_3px_0_0_#F6C445] transition-all">
+                Buat Sendiri
+            </a>
+         </div>
       </div>
   );
 
   return (
-    <div className="min-h-screen w-full bg-[#FAFAF9] flex items-center justify-center p-4 overflow-hidden relative">
+    <div className="min-h-screen w-full bg-[#BFE7DA] flex items-center justify-center p-4 pt-24 overflow-hidden relative">
        {/* Inject Font */}
-       <style dangerouslySetInnerHTML={{__html: `
-          @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-          .pixel-font { font-family: 'Press Start 2P', cursive; }
-          .font-pixel { font-family: 'Press Start 2P', cursive; }
-          .animate-spin-slow { animation: spin 3s linear infinite; }
-          @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-      `}} />
+       {styleTag}
+       <Ticker />
 
         {/* Decorative Background */}
         <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
-            <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-100/50 rounded-full blur-[100px]" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-100/50 rounded-full blur-[100px]" />
+            <div className="absolute top-[8%] left-[6%] w-40 h-40 rounded-full bg-[#F6C445]/60 border-[2.5px] border-black/10" />
+            <div className="absolute bottom-[10%] right-[8%] w-52 h-52 rounded-[3rem] rotate-12 bg-[#C9C4F0]/60 border-[2.5px] border-black/10" />
+            <div className="absolute top-[20%] right-[14%] dozo-display text-4xl text-black/10 select-none">✿</div>
+            <div className="absolute bottom-[22%] left-[16%] dozo-display text-3xl text-black/10 select-none">★</div>
         </div>
 
         <div className="relative z-10 flex flex-col items-center">
-            {/* Back Button */}
-            <div className="absolute top-0 left-0 -mt-12 md:-ml-24">
-                <a href="/" className="flex items-center gap-2 text-xs font-bold text-stone-400 hover:text-stone-800 transition-colors uppercase tracking-widest bg-white/50 backdrop-blur px-4 py-2 rounded-full">
-                    <ArrowLeft size={12} /> Make Your Own
-                </a>
-            </div>
 
             {/* Viewer Component */}
             <GameboyViewer data={data} />
-            
-            <p className="mt-8 text-[10px] text-stone-400 font-bold tracking-[0.2em] uppercase opacity-60">
-                Created with Cardify
-            </p>
         </div>
     </div>
   );
