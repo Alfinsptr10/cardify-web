@@ -1,12 +1,24 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import { useSession, signOut } from "next-auth/react";
+import Link from "next/link";
 // MOCK IMPORTS REPLACEMENT: Use standard HTML/React components
-import { 
-  ArrowRight, Gift, User, LogOut, Settings, ChevronDown, 
+import {
+  ArrowRight, Gift, User, LogOut, Settings, ChevronDown, Sparkles,
   Scale, CheckCircle, AlertTriangle, FileText, Ban, Mail, Smartphone, Image as ImageIcon,
-  Menu, X, Instagram, MessageCircle
+  Menu, X, Instagram, MessageCircle, Heart, Twitter, Facebook, Linkedin, Youtube, Globe,
 } from "lucide-react";
+
+/* ============ DŌZO STYLE TOKENS ============ */
+const INK = "#1C1917";
+const CREAM = "#FFFDF5";
+const MINT = "#84D4A4";
+const SKY = "#BFE0F5";
+const YELLOW = "#F6C445";
+const CORAL = "#F3B8CC";
+const LILAC = "#CFC4F0";
 
 // --- MAIN CONTENT ---
 export default function TermsPage() {
@@ -15,8 +27,13 @@ export default function TermsPage() {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("acceptance");
   const [userData, setUserData] = useState<{ name: string; email: string; image: string | null } | null>(null);
-  
+
   const profileMenuRef = useRef<HTMLDivElement>(null);
+  const [decorations, setDecorations] = useState<any[]>([]);
+  const { data: session, status } = useSession();
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [galleryPage, setGalleryPage] = useState(0);
 
   // Efek Samping: Cek Login & Scroll
   useEffect(() => {
@@ -28,8 +45,8 @@ export default function TermsPage() {
       if (isManualLogin === "true") {
         setUserData({
           name: localStorage.getItem("userName") || "User",
-          email: localStorage.getItem("userEmail") || "user@cardify.id", 
-          image: null, 
+          email: localStorage.getItem("userEmail") || "user@cardify.id",
+          image: null,
         });
       }
     }
@@ -42,7 +59,7 @@ export default function TermsPage() {
 
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
-      
+
       const sections = ['acceptance', 'usage', 'content', 'termination', 'disclaimer'];
       for (const section of sections) {
         const element = document.getElementById(section);
@@ -65,6 +82,11 @@ export default function TermsPage() {
     };
   }, []);
 
+  const initiateLogout = () => {
+    setShowProfileMenu(false);
+    setShowLogoutConfirm(true);
+  };
+
   const handleLogout = async () => {
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("userName");
@@ -84,299 +106,614 @@ export default function TermsPage() {
   };
 
   return (
-    <div className={`min-h-screen w-full bg-[#FAFAF9] text-[#1C1917] flex flex-col font-sans`}>
-      
+    <div className="flex min-h-screen w-full flex-col font-sans" style={{ background: CREAM, color: INK }}>
+
       {/* INJECT FONTS */}
       <style dangerouslySetInnerHTML={{__html: `
-          @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Boldonse&family=DM+Sans:opsz,wght@9..40,400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
           .font-dm-sans { font-family: 'DM Sans', sans-serif; }
-          .font-playfair { font-family: 'Playfair Display', serif; }
           .font-sans { font-family: 'DM Sans', sans-serif; }
+          .font-display { font-family: 'Boldonse', 'Archivo Black', sans-serif; }
+          .font-serif-it { font-family: 'Instrument Serif', serif; font-style: italic; }
       `}} />
 
-      {/* --- NAVBAR (UPDATED: Match Home & Privacy) --- */}
-      <nav className={`fixed z-50 w-full transition-all duration-300 border-b ${scrolled ? "bg-[#FAFAF9]/90 backdrop-blur-xl border-stone-200 shadow-sm py-3" : "bg-transparent border-transparent py-5"}`}>
-        <div className="max-w-7xl mx-auto px-6 flex justify-between items-center relative">
-          
+      {/* --- ANNOUNCEMENT TICKER --- */}
+            <div className="relative z-[60] w-full bg-[#1C1917] text-[#FDFBF3] overflow-hidden py-2.5 select-none">
+              <motion.div
+                className="flex whitespace-nowrap w-max"
+                animate={{ x: ["0%", "-50%"] }}
+                transition={{ duration: 26, repeat: Infinity, ease: "linear" }}
+              >
+                {[...Array(2)].map((_, i) => (
+                  <div key={i} className="flex items-center gap-8 px-4 text-[11px] font-bold uppercase tracking-widest">
+                    <span className="flex items-center gap-2"><Sparkles size={12} className="text-[#F6C445]" /> New — Photobooth is live, snap &amp; send in seconds</span>
+                    <span className="text-stone-600">•</span>
+                    <span>Free templates every week</span>
+                    <span className="text-stone-600">•</span>
+                    <span>Ships worldwide as a shareable link</span>
+                    <span className="text-stone-600">•</span>
+                    <span className="flex items-center gap-2"><Heart size={12} className="text-[#F3B8CC] fill-[#F3B8CC]" /> Made with love for Gen Z &amp; couples</span>
+                    <span className="text-stone-600">•</span>
+                  </div>
+                ))}
+              </motion.div>
+            </div>
+
+      {/* --- NAVBAR --- */}
+      <nav
+        className={`relative z-50 w-full border-b-[2.5px] transition-all duration-300 ${scrolled ? "py-3 shadow-[0_5px_0_0_#1C1917]" : "py-5"}`}
+        style={{ background: CREAM, borderColor: INK }}
+      >
+        <div className="relative mx-auto flex max-w-7xl items-center justify-between px-6">
+
           {/* Logo Brand */}
-          <a href="/" className="flex items-center gap-2.5 cursor-pointer group">
-            <div className="w-9 h-9 bg-[#1C1917] rounded-xl flex items-center justify-center text-white shadow-lg group-hover:rotate-12 transition-transform duration-300">
-               <Gift size={18} strokeWidth={2.5} className="text-amber-400" />
+          <Link href="/" className="group flex cursor-pointer items-center gap-2.5">
+            <div
+              className="flex h-10 w-10 items-center justify-center rounded-2xl border-[2.5px] p-1.5 shadow-[3px_3px_0_0_#F6C445] transition-all duration-300 group-hover:rotate-12 group-hover:shadow-[5px_5px_0_0_#F6C445]"
+              style={{ background: INK, borderColor: INK }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo-cardify.svg" alt="Cardify" className="h-full w-full object-contain" />
             </div>
-            <span className={`text-2xl font-bold tracking-tight font-playfair italic text-[#1C1917]`}>Cardify.</span>
-          </a>
-          
+            <div className="leading-none">
+              <div className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: INK }}>
+                A CARD WITH A STORY
+              </div>
+              <div className="font-display text-2xl font-black italic tracking-[-0.02em]" style={{ color: INK }}>
+                cardify
+              </div>
+            </div>
+          </Link>
+
           {/* Navigation Links - Centered */}
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-stone-600 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            
-            {/* Templates Dropdown */}
-            <div className="relative group h-full flex items-center cursor-pointer">
-                <a href="/templates" className="hover:text-[#1C1917] transition-colors relative py-2 flex items-center gap-1 text-[#1C1917]">
-                  Templates
-                  <ChevronDown size={14} className="opacity-50 group-hover:opacity-100 transition-transform duration-300 group-hover:rotate-180 text-amber-600" />
-                </a>
-                
-                {/* Dropdown Menu */}
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-72 bg-white rounded-2xl shadow-xl border border-stone-100 p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top translate-y-2 group-hover:translate-y-0 z-50">
-                   <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-t border-l border-stone-100 transform rotate-45"></div>
-                   <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-2 px-2">Create New</p>
+          <div className="absolute left-1/2 top-1/2 hidden h-full -translate-x-1/2 -translate-y-1/2 items-center gap-8 text-sm font-black uppercase tracking-wide md:flex" style={{ color: INK }}>
 
-                   <a href="/web-story" className="flex items-start gap-3 p-3 rounded-xl hover:bg-stone-50 transition-colors group/item relative z-10 mb-1">
-                      <div className="w-10 h-10 rounded-full bg-rose-50 flex-shrink-0 flex items-center justify-center text-rose-500 group-hover/item:bg-rose-500 group-hover/item:text-white transition-all shadow-sm">
-                         <Smartphone size={18} />
-                      </div>
-                      <div>
-                         <p className="text-sm font-bold text-stone-800 group-hover/item:text-rose-600 transition-colors">Web Story</p>
-                         <p className="text-[10px] text-stone-500 font-medium leading-tight mt-0.5">Interactive, Music, Animations</p>
-                      </div>
-                   </a>
+            {/* 1. Templates Dropdown */}
+            <div className="group relative flex h-full cursor-pointer items-center">
+              <Link href="/templates" className="flex items-center gap-1 py-2 transition-transform group-hover:-translate-y-0.5">
+                Templates
+                <ChevronDown size={14} strokeWidth={3} className="transition-transform duration-300 group-hover:rotate-180" />
+              </Link>
 
-                   <a href="/templates?filter=card-image" className="flex items-start gap-3 p-3 rounded-xl hover:bg-stone-50 transition-colors group/item relative z-10">
-                      <div className="w-10 h-10 rounded-full bg-amber-50 flex-shrink-0 flex items-center justify-center text-amber-500 group-hover/item:bg-amber-500 group-hover/item:text-white transition-all shadow-sm">
-                         <ImageIcon size={18} />
-                      </div>
-                      <div>
-                         <p className="text-sm font-bold text-stone-800 group-hover/item:text-amber-600 transition-colors">Card Image</p>
-                         <p className="text-[10px] text-stone-500 font-medium leading-tight mt-0.5">Static, Printable, Classic</p>
-                      </div>
-                   </a>
-                </div>
+              {/* Dropdown Menu */}
+              <div
+                className="invisible absolute left-1/2 top-full z-50 mt-4 w-72 origin-top -translate-x-1/2 translate-y-2 rounded-3xl border-[2.5px] p-3 normal-case opacity-0 shadow-[6px_6px_0_0_#1C1917] transition-all duration-300 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100"
+                style={{ background: CREAM, borderColor: INK }}
+              >
+                <p className="mb-2 px-2 text-[10px] font-black uppercase tracking-wider opacity-60">Create New</p>
+
+                <Link href="/web-story" className="group/item relative z-10 mb-1 flex items-start gap-3 rounded-2xl p-3 transition-colors hover:bg-[#F3B8CC]/40">
+                  <div
+                    className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border-[2.5px] shadow-[2px_2px_0_0_#1C1917]"
+                    style={{ background: CORAL, borderColor: INK, color: INK }}
+                  >
+                    <Smartphone size={18} strokeWidth={2.5} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-black">Web Story</p>
+                    <p className="mt-0.5 text-[10px] font-bold normal-case leading-tight opacity-70">Interactive, Music, Animations</p>
+                  </div>
+                </Link>
+
+                <Link href="/templates?filter=card-image" className="group/item relative z-10 flex items-start gap-3 rounded-2xl p-3 transition-colors hover:bg-[#F6C445]/40">
+                  <div
+                    className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border-[2.5px] shadow-[2px_2px_0_0_#1C1917]"
+                    style={{ background: YELLOW, borderColor: INK, color: INK }}
+                  >
+                    <ImageIcon size={18} strokeWidth={2.5} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-black">Card Image</p>
+                    <p className="mt-0.5 text-[10px] font-bold normal-case leading-tight opacity-70">Static, Printable, Classic</p>
+                  </div>
+                </Link>
+              </div>
             </div>
-            
-            <a href="/#features" className="hover:text-[#1C1917] transition-colors">Features</a>
-            <a href="/about" className="hover:text-[#1C1917] transition-colors">About</a>
-            <a href="mailto:cardify.official.id@gmail.com" className="hover:text-[#1C1917] transition-colors">Contact</a>
+
+            {/* 2. Features */}
+            <Link href="/features" className="group relative transition-transform hover:-translate-y-0.5">
+              Features
+              <span className="absolute -bottom-1 left-0 h-[3px] w-0 transition-all group-hover:w-full" style={{ background: INK }}></span>
+            </Link>
+
+            {/* 3. About */}
+            <Link href="/about" className="group relative transition-transform hover:-translate-y-0.5">
+              About
+              <span className="absolute -bottom-1 left-0 h-[3px] w-0 transition-all group-hover:w-full" style={{ background: INK }}></span>
+            </Link>
+
+            {/* 4. Contact */}
+            <Link href="/contact" className="group relative transition-transform hover:-translate-y-0.5">
+              Contact
+              <span className="absolute -bottom-1 left-0 h-[3px] w-0 transition-all group-hover:w-full" style={{ background: INK }}></span>
+            </Link>
           </div>
 
           {/* Auth Actions */}
           <div className="flex items-center gap-4">
-            {userData ? (
+
+            {session ? (
+              // --- LOGGED IN STATE ---
               <div className="relative" ref={profileMenuRef}>
-                <button onClick={() => setShowProfileMenu(!showProfileMenu)} className="flex items-center gap-3 pl-1 pr-4 py-1 rounded-full bg-white border border-stone-200 shadow-sm hover:shadow-md transition-all duration-300 group">
-                  {userData.image ? (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img src={userData.image} alt={userData.name} width={34} height={34} className="rounded-full border border-stone-100" />
+                <button
+                  onClick={() => setShowProfileMenu(!showProfileMenu)}
+                  className="group flex items-center gap-3 rounded-full border-[2.5px] py-1 pl-1 pr-4 shadow-[3px_3px_0_0_#1C1917] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_0_#1C1917]"
+                  style={{ background: CREAM, borderColor: INK }}
+                >
+                  {session?.user?.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={session.user.image}
+                      alt={session.user.name || "User"}
+                      width={34}
+                      height={34}
+                      className="rounded-full border-2"
+                      style={{ borderColor: INK }}
+                    />
                   ) : (
-                    <div className="w-[34px] h-[34px] bg-gradient-to-tr from-amber-100 to-orange-50 rounded-full flex items-center justify-center border border-white text-[#1C1917] shadow-inner"><User size={16} /></div>
+                    <div
+                      className="flex h-[34px] w-[34px] items-center justify-center rounded-full border-2"
+                      style={{ background: YELLOW, borderColor: INK, color: INK }}
+                    >
+                      <User size={16} strokeWidth={2.5} />
+                    </div>
                   )}
-                  <div className="hidden sm:block text-left">
-                      <span className="text-xs font-bold text-stone-800 block max-w-[80px] truncate">{userData.name}</span>
-                      <span className="text-[9px] text-stone-400 font-bold uppercase tracking-wider">Free Plan</span>
+                  <div className="hidden text-left sm:block">
+                    <span className="block max-w-[80px] truncate text-xs font-black leading-tight">
+                      {session?.user?.name || "User"}
+                    </span>
+                    <span className="text-[9px] font-black uppercase leading-none tracking-wider opacity-60">Free Plan</span>
                   </div>
-                  <ChevronDown size={14} className={`text-stone-400 transition-transform duration-300 group-hover:text-amber-600 ${showProfileMenu ? 'rotate-180' : ''}`} />
+                  <ChevronDown size={14} strokeWidth={3} className={`transition-transform duration-300 ${showProfileMenu ? 'rotate-180' : ''}`} />
                 </button>
+
+                {/* Dropdown Menu */}
                 {showProfileMenu && (
-                  <div className="absolute top-full right-0 mt-3 w-72 bg-white rounded-2xl shadow-2xl border border-stone-100 p-2 overflow-hidden animate-in fade-in zoom-in-95 origin-top-right">
-                    <div className="p-4 bg-stone-50/50 rounded-xl mb-2 border border-stone-100">
-                      <p className="text-sm font-bold text-stone-900 truncate">{userData.name}</p>
-                      <p className="text-xs text-stone-500 truncate font-medium">{userData.email}</p>
+                  <div
+                    className="absolute right-0 top-full mt-3 w-72 origin-top-right overflow-hidden rounded-3xl border-[2.5px] p-2 shadow-[6px_6px_0_0_#1C1917] duration-200 animate-in fade-in zoom-in-95"
+                    style={{ background: CREAM, borderColor: INK }}
+                  >
+                    <div className="mb-2 rounded-2xl border-[2.5px] p-4" style={{ background: SKY, borderColor: INK }}>
+                      <p className="truncate text-sm font-black">{session?.user?.name}</p>
+                      <p className="truncate text-xs font-bold opacity-70">{session?.user?.email}</p>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <button className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-stone-50 rounded-xl transition-all font-medium"><User size={16} /> Profile</button>
-                      <button className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-stone-50 rounded-xl transition-all font-medium"><Settings size={16} /> Preferences</button>
-                      <div className="h-px bg-stone-100 my-1 mx-2"></div>
-                      <button onClick={handleLogout} className="flex items-center gap-3 w-full p-2.5 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-all font-medium"><LogOut size={16} /> Sign Out</button>
+                      <Link href="/account" className="group flex w-full items-center gap-3 rounded-2xl p-2.5 text-sm font-bold transition-all hover:bg-[#F6C445]/40">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-xl border-2 transition-all group-hover:shadow-[2px_2px_0_0_#1C1917]" style={{ background: YELLOW, borderColor: INK, color: INK }}><User size={16} strokeWidth={2.5} /></div>
+                        Profile &amp; Account
+                      </Link>
+                      <button className="group flex w-full items-center gap-3 rounded-2xl p-2.5 text-sm font-bold transition-all hover:bg-[#BFE0F5]/50">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-xl border-2 transition-all group-hover:shadow-[2px_2px_0_0_#1C1917]" style={{ background: SKY, borderColor: INK, color: INK }}><Settings size={16} strokeWidth={2.5} /></div>
+                        Preferences
+                      </button>
+                      <div className="mx-2 my-1 h-[2px]" style={{ background: INK, opacity: 0.15 }}></div>
+                      <button onClick={initiateLogout} className="group flex w-full items-center gap-3 rounded-2xl p-2.5 text-sm font-bold transition-all hover:bg-[#F3B8CC]/50">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-xl border-2 transition-all group-hover:shadow-[2px_2px_0_0_#1C1917]" style={{ background: CORAL, borderColor: INK, color: INK }}><LogOut size={16} strokeWidth={2.5} /></div>
+                        Sign Out
+                      </button>
                     </div>
                   </div>
                 )}
               </div>
             ) : (
+              // --- LOGGED OUT STATE ---
               <div className="flex items-center gap-6">
-                <a href="/login" className="hidden md:flex text-sm font-bold text-stone-600 hover:text-black transition-colors">Log in</a>
-                <a href="/register" className="hidden md:flex text-sm font-bold text-stone-600 hover:text-black transition-colors">Sign Up</a>
+                <Link href="/login" className="hidden text-sm font-black uppercase tracking-wide transition-transform hover:-translate-y-0.5 md:flex" style={{ color: INK }}>
+                  Log in
+                </Link>
+                <Link href="/register" className="hidden text-sm font-black uppercase tracking-wide transition-transform hover:-translate-y-0.5 md:flex" style={{ color: INK }}>
+                  Sign Up
+                </Link>
               </div>
             )}
-            <a href="/templates" className="px-6 py-2.5 rounded-full bg-[#1C1917] text-white text-sm font-bold hover:bg-black hover:scale-105 hover:shadow-xl hover:shadow-amber-900/10 transition-all flex items-center gap-2">
-              Start Creating <ArrowRight size={16} strokeWidth={2.5} className="text-amber-400" />
-            </a>
+
+            {/* CTA Button */}
+            <Link
+              href="/templates"
+              className="flex items-center gap-2 rounded-full border-[2.5px] px-5 py-2.5 text-sm font-black uppercase tracking-wide shadow-[4px_4px_0_0_#1C1917] transition-all hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#1C1917]"
+              style={{ background: INK, borderColor: INK, color: CREAM }}
+            >
+              Start Creating
+              <ArrowRight size={16} strokeWidth={3} style={{ color: YELLOW }} />
+            </Link>
           </div>
         </div>
       </nav>
 
       {/* --- HERO HEADER --- */}
-      <header className="pt-40 pb-20 px-6 relative z-10 bg-white border-b border-stone-100">
-         <div className="max-w-4xl mx-auto text-center space-y-6">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-stone-50 rounded-2xl mb-2 text-stone-800 shadow-sm border border-stone-100">
-               <Scale size={32} />
+      <header
+        className="relative z-10 overflow-hidden border-b-[2.5px] px-6 pb-20 pt-20"
+        style={{ background: MINT, borderColor: INK }}
+      >
+        {/* chunky blobs */}
+        <div className="pointer-events-none absolute -left-10 top-10 h-40 w-40 rounded-full border-[2.5px] opacity-70" style={{ background: LILAC, borderColor: INK }} />
+        <div className="pointer-events-none absolute -right-12 bottom-0 h-48 w-48 rounded-full border-[2.5px] opacity-70" style={{ background: SKY, borderColor: INK }} />
+
+        <div className="relative mx-auto max-w-4xl space-y-6 text-center">
+          <div className="relative mx-auto inline-flex items-center justify-center">
+            <div
+              className="flex h-20 w-20 items-center justify-center rounded-3xl border-[2.5px] shadow-[5px_5px_0_0_#1C1917]"
+              style={{ background: YELLOW, borderColor: INK, color: INK }}
+            >
+              <Scale size={34} strokeWidth={2.5} />
             </div>
-            <h1 className={`text-4xl md:text-6xl font-bold text-[#1C1917] font-playfair`}>Terms of Service</h1>
-            <p className="text-lg text-stone-500 max-w-2xl mx-auto leading-relaxed">
-               Please read these terms and conditions carefully before using Cardify's services.
-            </p>
-            <p className="text-xs font-bold text-stone-400 uppercase tracking-widest pt-4">Last Updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-         </div>
+            <span
+              className="absolute -right-16 -top-3 rotate-[8deg] rounded-full border-[2.5px] px-3 py-1 text-[10px] font-black uppercase tracking-widest shadow-[3px_3px_0_0_#1C1917]"
+              style={{ background: CREAM, borderColor: INK, color: INK }}
+            >
+              Legal ✿
+            </span>
+          </div>
+
+          <h1 className="font-display text-4xl font-black uppercase leading-[1.05] tracking-[-0.02em] md:text-6xl" style={{ color: INK }}>
+            Terms of Service
+          </h1>
+
+          <p className="mx-auto max-w-2xl text-lg font-bold leading-relaxed" style={{ color: INK }}>
+            Please read these terms and conditions carefully before using{" "}
+            <span className="font-serif-it">Cardify&apos;s</span> services.
+          </p>
+
+          <p
+            className="mx-auto inline-block rounded-full border-[2.5px] px-4 py-1.5 text-xs font-black uppercase tracking-widest shadow-[3px_3px_0_0_#1C1917]"
+            style={{ background: CREAM, borderColor: INK, color: INK }}
+          >
+            Last Updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+          </p>
+        </div>
       </header>
 
       {/* --- MAIN CONTENT AREA --- */}
-      <div className="flex-grow bg-[#FAFAF9]">
-         <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 lg:grid-cols-12 gap-12">
-            
-            {/* SIDEBAR NAVIGATION */}
-            <aside className="hidden lg:block lg:col-span-3">
-               <div className="sticky top-32 space-y-1">
-                  <p className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-4 pl-4">On this page</p>
-                  {[
-                    { id: 'acceptance', label: '1. Acceptance of Terms' },
-                    { id: 'usage', label: '2. Acceptable Use' },
-                    { id: 'content', label: '3. User Content' },
-                    { id: 'termination', label: '4. Termination' },
-                    { id: 'disclaimer', label: '5. Disclaimer' },
-                  ].map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => scrollToSection(item.id)}
-                      className={`block w-full text-left px-4 py-2.5 text-sm font-medium rounded-lg transition-all ${
-                        activeSection === item.id 
-                          ? "bg-white text-amber-700 shadow-sm border border-stone-100" 
-                          : "text-stone-500 hover:text-stone-900 hover:bg-stone-100"
-                      }`}
-                    >
-                      {item.label}
-                    </button>
-                  ))}
-               </div>
-            </aside>
+      <div className="flex-grow" style={{ background: CREAM }}>
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-6 py-16 lg:grid-cols-12">
 
-            {/* CONTENT BODY */}
-            <div className="lg:col-span-8 lg:col-start-5 space-y-12">
-               
-               {/* Section 1 */}
-               <section id="acceptance" className="scroll-mt-32">
-                  <div className="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-4 mb-6 pb-6 border-b border-stone-100">
-                       <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center text-amber-600"><CheckCircle size={20} /></div>
-                       <h2 className={`text-2xl font-bold font-playfair`}>1. Acceptance of Terms</h2>
-                    </div>
-                    <p className="text-stone-600 leading-relaxed">
-                       By accessing or using <strong>Cardify</strong>, you agree to be bound by these Terms of Service. If you disagree with any part of the terms, then you may not access the service.
-                    </p>
-                  </div>
-               </section>
-
-               {/* Section 2 */}
-               <section id="usage" className="scroll-mt-32">
-                  <div className="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-4 mb-6 pb-6 border-b border-stone-100">
-                       <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600"><FileText size={20} /></div>
-                       <h2 className={`text-2xl font-bold font-playfair`}>2. Acceptable Use</h2>
-                    </div>
-                    <p className="text-stone-600 mb-4">You agree not to use the service to:</p>
-                    <ul className="list-none pl-0 space-y-3">
-                       <li className="flex items-start gap-3">
-                          <Ban size={18} className="text-red-500 mt-1 flex-shrink-0" />
-                          <span className="text-stone-600">Upload content that is illegal, harmful, or violates any third-party rights.</span>
-                       </li>
-                       <li className="flex items-start gap-3">
-                          <Ban size={18} className="text-red-500 mt-1 flex-shrink-0" />
-                          <span className="text-stone-600">Attempt to gain unauthorized access to our systems or user accounts.</span>
-                       </li>
-                       <li className="flex items-start gap-3">
-                          <Ban size={18} className="text-red-500 mt-1 flex-shrink-0" />
-                          <span className="text-stone-600">Use the service for spamming or any commercial solicitation without consent.</span>
-                       </li>
-                    </ul>
-                  </div>
-               </section>
-
-               {/* Section 3 */}
-               <section id="content" className="scroll-mt-32">
-                  <div className="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-4 mb-6 pb-6 border-b border-stone-100">
-                       <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600"><Settings size={20} /></div>
-                       <h2 className={`text-2xl font-bold font-playfair`}>3. User Content</h2>
-                    </div>
-                    <p className="text-stone-600 leading-relaxed">
-                       You retain ownership of any content (text, images) you upload to Cardify. However, by uploading, you grant us a license to use, store, and display your content solely for the purpose of providing the service to you (e.g., generating your card).
-                    </p>
-                  </div>
-               </section>
-
-               {/* Section 4 */}
-               <section id="termination" className="scroll-mt-32">
-                  <div className="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-4 mb-6 pb-6 border-b border-stone-100">
-                       <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600"><AlertTriangle size={20} /></div>
-                       <h2 className={`text-2xl font-bold font-playfair`}>4. Termination</h2>
-                    </div>
-                    <p className="text-stone-600 leading-relaxed">
-                       We may terminate or suspend your account immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms. Upon termination, your right to use the Service will cease immediately.
-                    </p>
-                  </div>
-               </section>
-
-               {/* Section 5 */}
-               <section id="disclaimer" className="scroll-mt-32">
-                  <div className="bg-[#1C1917] text-white p-10 rounded-[2rem] shadow-xl text-center">
-                     <h2 className={`text-3xl font-bold mb-4 font-playfair`}>5. Disclaimer</h2>
-                     <p className="text-stone-400 mb-8 max-w-lg mx-auto">
-                        The service is provided on an "AS IS" and "AS AVAILABLE" basis. Cardify makes no warranties, expressed or implied, regarding the reliability or availability of the service.
-                     </p>
-                     <a href="mailto:cardify.official.id@gmail.com" className="inline-flex items-center gap-3 px-8 py-4 bg-white text-black rounded-full font-bold hover:bg-amber-400 transition-all shadow-lg hover:shadow-amber-400/20 hover:-translate-y-1">
-                        <Mail size={20} />
-                        Contact Support
-                     </a>
-                  </div>
-               </section>
-
+          {/* SIDEBAR NAVIGATION */}
+          <aside className="hidden lg:col-span-3 lg:block">
+            <div className="sticky top-32 space-y-2">
+              <p className="mb-4 pl-2 text-xs font-black uppercase tracking-widest opacity-60">On this page</p>
+              {[
+                { id: 'acceptance', label: '1. Acceptance of Terms', tint: YELLOW },
+                { id: 'usage', label: '2. Acceptable Use', tint: SKY },
+                { id: 'content', label: '3. User Content', tint: MINT },
+                { id: 'termination', label: '4. Termination', tint: CORAL },
+                { id: 'disclaimer', label: '5. Disclaimer', tint: LILAC },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
+                  className={`block w-full rounded-2xl border-[2.5px] px-4 py-2.5 text-left text-sm font-black transition-all ${
+                    activeSection === item.id
+                      ? "shadow-[4px_4px_0_0_#1C1917] -translate-y-0.5"
+                      : "shadow-[2px_2px_0_0_#1C1917] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_0_#1C1917]"
+                  }`}
+                  style={{
+                    background: activeSection === item.id ? item.tint : CREAM,
+                    borderColor: INK,
+                    color: INK,
+                  }}
+                >
+                  {item.label}
+                </button>
+              ))}
             </div>
-         </div>
+          </aside>
+
+          {/* CONTENT BODY */}
+          <div className="space-y-10 lg:col-span-8 lg:col-start-5">
+
+            {/* Section 1 */}
+            <section id="acceptance" className="scroll-mt-32">
+              <div
+                className="rounded-[2rem] border-[2.5px] p-8 shadow-[6px_6px_0_0_#1C1917] transition-all hover:-translate-y-1 hover:shadow-[9px_9px_0_0_#1C1917]"
+                style={{ background: CREAM, borderColor: INK }}
+              >
+                <div className="mb-6 flex items-center gap-4 border-b-[2.5px] pb-6" style={{ borderColor: INK }}>
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full border-[2.5px] shadow-[3px_3px_0_0_#1C1917]" style={{ background: YELLOW, borderColor: INK, color: INK }}><CheckCircle size={20} strokeWidth={2.5} /></div>
+                  <h2 className="font-display text-xl font-black uppercase tracking-tight md:text-2xl">1. Acceptance of Terms</h2>
+                </div>
+                <p className="font-medium leading-relaxed">
+                  By accessing or using <strong>Cardify</strong>, you agree to be bound by these Terms of Service. If you disagree with any part of the terms, then you may not access the service.
+                </p>
+              </div>
+            </section>
+
+            {/* Section 2 */}
+            <section id="usage" className="scroll-mt-32">
+              <div
+                className="rounded-[2rem] border-[2.5px] p-8 shadow-[6px_6px_0_0_#1C1917] transition-all hover:-translate-y-1 hover:shadow-[9px_9px_0_0_#1C1917]"
+                style={{ background: CREAM, borderColor: INK }}
+              >
+                <div className="mb-6 flex items-center gap-4 border-b-[2.5px] pb-6" style={{ borderColor: INK }}>
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full border-[2.5px] shadow-[3px_3px_0_0_#1C1917]" style={{ background: SKY, borderColor: INK, color: INK }}><FileText size={20} strokeWidth={2.5} /></div>
+                  <h2 className="font-display text-xl font-black uppercase tracking-tight md:text-2xl">2. Acceptable Use</h2>
+                </div>
+                <p className="mb-4 font-bold">You agree not to use the service to:</p>
+                <ul className="list-none space-y-3 pl-0">
+                  {[
+                    "Upload content that is illegal, harmful, or violates any third-party rights.",
+                    "Attempt to gain unauthorized access to our systems or user accounts.",
+                    "Use the service for spamming or any commercial solicitation without consent.",
+                  ].map((text) => (
+                    <li
+                      key={text}
+                      className="flex items-start gap-3 rounded-2xl border-[2.5px] p-3"
+                      style={{ background: "#FFF", borderColor: INK }}
+                    >
+                      <div className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full border-2" style={{ background: CORAL, borderColor: INK, color: INK }}>
+                        <Ban size={14} strokeWidth={2.8} />
+                      </div>
+                      <span className="font-medium">{text}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+
+            {/* Section 3 */}
+            <section id="content" className="scroll-mt-32">
+              <div
+                className="rounded-[2rem] border-[2.5px] p-8 shadow-[6px_6px_0_0_#1C1917] transition-all hover:-translate-y-1 hover:shadow-[9px_9px_0_0_#1C1917]"
+                style={{ background: CREAM, borderColor: INK }}
+              >
+                <div className="mb-6 flex items-center gap-4 border-b-[2.5px] pb-6" style={{ borderColor: INK }}>
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full border-[2.5px] shadow-[3px_3px_0_0_#1C1917]" style={{ background: MINT, borderColor: INK, color: INK }}><Settings size={20} strokeWidth={2.5} /></div>
+                  <h2 className="font-display text-xl font-black uppercase tracking-tight md:text-2xl">3. User Content</h2>
+                </div>
+                <p className="font-medium leading-relaxed">
+                  You retain ownership of any content (text, images) you upload to Cardify. However, by uploading, you grant us a license to use, store, and display your content solely for the purpose of providing the service to you (e.g., generating your card).
+                </p>
+              </div>
+            </section>
+
+            {/* Section 4 */}
+            <section id="termination" className="scroll-mt-32">
+              <div
+                className="rounded-[2rem] border-[2.5px] p-8 shadow-[6px_6px_0_0_#1C1917] transition-all hover:-translate-y-1 hover:shadow-[9px_9px_0_0_#1C1917]"
+                style={{ background: CREAM, borderColor: INK }}
+              >
+                <div className="mb-6 flex items-center gap-4 border-b-[2.5px] pb-6" style={{ borderColor: INK }}>
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full border-[2.5px] shadow-[3px_3px_0_0_#1C1917]" style={{ background: CORAL, borderColor: INK, color: INK }}><AlertTriangle size={20} strokeWidth={2.5} /></div>
+                  <h2 className="font-display text-xl font-black uppercase tracking-tight md:text-2xl">4. Termination</h2>
+                </div>
+                <p className="font-medium leading-relaxed">
+                  We may terminate or suspend your account immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms. Upon termination, your right to use the Service will cease immediately.
+                </p>
+              </div>
+            </section>
+
+            {/* Section 5 */}
+            <section id="disclaimer" className="scroll-mt-32">
+              <div
+                className="relative overflow-hidden rounded-[2rem] border-[2.5px] p-10 text-center shadow-[8px_8px_0_0_#1C1917]"
+                style={{ background: LILAC, borderColor: INK }}
+              >
+                <span
+                  className="absolute right-5 top-5 rotate-[10deg] rounded-full border-[2.5px] px-3 py-1 text-[10px] font-black uppercase tracking-widest shadow-[3px_3px_0_0_#1C1917]"
+                  style={{ background: YELLOW, borderColor: INK, color: INK }}
+                >
+                  As is ✿
+                </span>
+                <h2 className="font-display mb-4 text-2xl font-black uppercase md:text-3xl" style={{ color: INK }}>5. Disclaimer</h2>
+                <p className="mx-auto mb-8 max-w-lg font-bold leading-relaxed" style={{ color: INK }}>
+                  The service is provided on an &quot;AS IS&quot; and &quot;AS AVAILABLE&quot; basis. Cardify makes no warranties, expressed or implied, regarding the reliability or availability of the service.
+                </p>
+                <a
+                  href="mailto:cardify.official.id@gmail.com"
+                  className="inline-flex items-center gap-3 rounded-full border-[2.5px] px-8 py-4 font-black uppercase tracking-wide shadow-[5px_5px_0_0_#1C1917] transition-all hover:-translate-y-1 hover:shadow-[8px_8px_0_0_#1C1917]"
+                  style={{ background: INK, borderColor: INK, color: CREAM }}
+                >
+                  <Mail size={20} strokeWidth={2.5} style={{ color: YELLOW }} />
+                  Contact Support
+                </a>
+              </div>
+            </section>
+
+          </div>
+        </div>
       </div>
 
+      {/* --- POPUP KONFIRMASI LOGOUT --- */}
+      {showLogoutConfirm && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center px-4"
+          style={{ background: "rgba(28,25,23,0.55)" }}
+          onClick={() => setShowLogoutConfirm(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="relative w-full max-w-sm rounded-[2rem] border-[2.5px] p-8 text-center shadow-[8px_8px_0_0_#1C1917]"
+            style={{ background: CREAM, borderColor: INK }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span
+              className="absolute -right-3 -top-3 rotate-[10deg] rounded-full border-[2.5px] px-3 py-1 text-[10px] font-black uppercase tracking-widest shadow-[3px_3px_0_0_#1C1917]"
+              style={{ background: YELLOW, borderColor: INK, color: INK }}
+            >
+              Bye-bye!
+            </span>
+
+            <div
+              className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border-[2.5px] shadow-[4px_4px_0_0_#1C1917]"
+              style={{ background: CORAL, borderColor: INK, color: INK }}
+            >
+              <LogOut size={26} strokeWidth={2.5} />
+            </div>
+
+            <h3 className="font-display mb-2 text-xl font-black uppercase" style={{ color: INK }}>Sign out?</h3>
+            <p className="mb-7 text-sm font-bold leading-relaxed opacity-70" style={{ color: INK }}>
+              You&apos;ll need to log in again to keep making cards.
+            </p>
+
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="flex-1 rounded-full border-[2.5px] px-5 py-3 text-sm font-black uppercase tracking-wide shadow-[4px_4px_0_0_#1C1917] transition-all hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#1C1917]"
+                style={{ background: CREAM, borderColor: INK, color: INK }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex-1 rounded-full border-[2.5px] px-5 py-3 text-sm font-black uppercase tracking-wide shadow-[4px_4px_0_0_#1C1917] transition-all hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#1C1917]"
+                style={{ background: INK, borderColor: INK, color: CREAM }}
+              >
+                Sign Out
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
       {/* --- FOOTER (UPDATED: Match Home & Privacy) --- */}
-      <footer className="relative isolate w-full bg-[#1C1917] text-stone-400 py-12 border-t border-stone-800 overflow-hidden">
-         <div className="max-w-7xl mx-auto px-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
-               <div className="md:col-span-1 space-y-4">
-                  <div className="flex items-center gap-2">
-                     <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-[#1C1917]">
-                        <Gift size={16} className="text-amber-500" />
-                     </div>
-                     <span className={`text-2xl font-bold text-white font-playfair italic`}>Cardify.</span>
-                  </div>
-                  <p className="text-sm text-stone-500 leading-relaxed font-medium">
-                     The modern way to celebrate. Creating digital moments that last forever.
-                  </p>
-               </div>
-               
-               <div>
-                  <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest">Product</h4>
-                  <ul className="space-y-4 text-sm text-stone-500 font-medium">
-                     <li><a href="/templates" className="hover:text-white cursor-pointer transition-colors">Templates</a></li>
-                     <li><a href="/showcase" className="hover:text-white cursor-pointer transition-colors">Showcase</a></li>
-                  </ul>
-               </div>
+      <footer
+        className="relative isolate w-full overflow-hidden border-t-[2.5px] px-6 py-12"
+        style={{
+          background: MINT, // MINT
+          borderColor: INK, // INK
+        }}
+      >
+        <div className="mx-auto max-w-7xl">
 
-               <div>
-                  <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest">Company</h4>
-                  <ul className="space-y-4 text-sm text-stone-500 font-medium">
-                     <li><a href="/about" className="hover:text-white cursor-pointer transition-colors">About</a></li>
-                     <li><a href="/careers" className="hover:text-white cursor-pointer transition-colors">Careers</a></li>
-                     <li><a href="/blog" className="hover:text-white cursor-pointer transition-colors">Blog</a></li>
-                  </ul>
-               </div>
+          <div className="mb-12 grid grid-cols-2 gap-10 md:grid-cols-4">
 
-               <div>
-                  <h4 className="font-bold text-white mb-6 uppercase text-xs tracking-widest">Connect</h4>
-                  <div className="flex flex-col gap-4">
-                     <a href="https://instagram.com/alfinnsptr" target="_blank" className="flex items-center gap-3 text-sm text-stone-500 hover:text-[#E1306C] transition-colors group">
-                        <div className="w-8 h-8 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center group-hover:border-[#E1306C] transition-colors"><Instagram size={16} /></div>
-                        <span className="font-medium">Instagram</span>
-                     </a>
-                     <a href="https://wa.me/6289501847804" target="_blank" className="flex items-center gap-3 text-sm text-stone-500 hover:text-[#25D366] transition-colors group">
-                        <div className="w-8 h-8 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center group-hover:border-[#25D366] transition-colors"><MessageCircle size={16} /></div>
-                        <span className="font-medium">WhatsApp</span>
-                     </a>
+            {/* Brand */}
+            <div className="col-span-2 md:col-span-1">
+
+              <div className="mb-4 flex items-center gap-3">
+
+                <div
+                  className="flex h-10 w-10 items-center justify-center rounded-full border-[2.5px]"
+                  style={{ background: INK, borderColor: INK }}
+                >
+                  <img src="/logo-cardify.svg" alt="Cardify" className="h-8 w-8 object-contain" />
+                </div>
+
+                <div className="leading-none">
+                  <div className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: INK }}>
+                    A CARD WITH A STORY
                   </div>
-               </div>
+
+                  <div className="font-display text-2xl font-black italic tracking-[-0.02em]" style={{ color: INK }}>
+                    cardify
+                  </div>
+                </div>
+
+              </div>
+
+              <p className="text-sm font-medium leading-relaxed" style={{ color: INK }}>
+                The modern way to celebrate.
+                Digital moments that last forever.
+              </p>
+
             </div>
-            <div className="border-t border-stone-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-               <p className="text-xs text-stone-500 font-medium">© 2025 Cardify Inc. All rights reserved.</p>
-               <div className="flex gap-8 text-xs text-stone-500 font-bold">
-                  <a href="/privacy-policy" className="cursor-pointer hover:text-white transition-colors">Privacy Policy</a>
-                  <a href="/terms" className="cursor-pointer text-white font-bold transition-colors">Terms of Service</a>
-               </div>
+
+            {/* Product */}
+            <div>
+              <h4 className="mb-4 text-xs font-black uppercase tracking-widest" style={{ color: INK }}>
+                Product
+              </h4>
+              <ul className="space-y-2 text-sm font-bold">
+                <li>
+                  <Link href="/templates" className="transition-opacity hover:opacity-60" style={{ color: INK }}>
+                    Templates
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/showcase" className="transition-opacity hover:opacity-60" style={{ color: INK }}>
+                    Showcase
+                  </Link>
+                </li>
+              </ul>
             </div>
-         </div>
+
+            {/* Company */}
+            <div>
+              <h4 className="mb-4 text-xs font-black uppercase tracking-widest" style={{ color: INK }}>
+                Company
+              </h4>
+              <ul className="space-y-2 text-sm font-bold">
+                <li>
+                  <Link href="/about" className="hover:opacity-60" style={{ color: INK }}>
+                    About
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/careers" className="hover:opacity-60" style={{ color: INK }}>
+                    Careers
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/blog" className="hover:opacity-60" style={{ color: INK }}>
+                    Blog
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Connect */}
+            <div>
+              <h4 className="mb-4 text-xs font-black uppercase tracking-widest" style={{ color: INK }}>
+                Connect
+              </h4>
+              <div className="flex flex-col gap-3">
+                <a
+                  href="https://instagram.com/alfinnsptr"
+                  target="_blank"
+                  className="flex items-center gap-3 hover:opacity-60"
+                  style={{ color: INK }}
+                >
+                  <div
+                    className="flex h-8 w-8 items-center justify-center rounded-full border-2"
+                    style={{ background: CREAM, borderColor: INK }}
+                  >
+                    <Instagram size={14} strokeWidth={2.5} />
+                  </div>
+                  <span className="text-sm font-bold">Instagram</span>
+                </a>
+
+                <a
+                  href="https://wa.me/6289501847804"
+                  target="_blank"
+                  className="flex items-center gap-3 hover:opacity-60"
+                  style={{ color: INK }}
+                >
+                  <div
+                    className="flex h-8 w-8 items-center justify-center rounded-full border-2"
+                    style={{ background: CREAM, borderColor: INK }}
+                  >
+                    <MessageCircle size={14} strokeWidth={2.5} />
+                  </div>
+                  <span className="text-sm font-bold">WhatsApp</span>
+                </a>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Bottom */}
+          <div
+            className="flex flex-col items-center justify-between gap-3 border-t-[2.5px] pt-6 md:flex-row"
+            style={{ borderColor: INK }}
+          >
+           <p
+  className="text-xs font-black uppercase tracking-wider"
+  style={{ color: INK }}
+>
+  © 2025 Cardify · Made with love
+</p>
+
+            <div className="flex gap-6 text-xs font-black uppercase tracking-wider" style={{ color: INK }}>
+              <Link href="/privacy-policy" className="hover:opacity-60">
+                Privacy
+              </Link>
+              <Link href="/terms" className="hover:opacity-60" style={{ color: "#FFFFFF" }}>
+                Terms
+              </Link>
+            </div>
+          </div>
+
+        </div>
       </footer>
 
     </div>

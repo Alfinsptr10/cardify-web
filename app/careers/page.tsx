@@ -158,7 +158,7 @@ export default function CareersPage() {
           <Link href="/" className="flex items-center gap-2.5 cursor-pointer group">
             <div className="w-9 h-9 bg-[#1C1917] rounded-xl flex items-center justify-center border-[2.5px] border-[#1C1917] shadow-[3px_3px_0_0_#F6C445] group-hover:rotate-12 group-hover:shadow-[5px_5px_0_0_#F6C445] transition-all duration-300 p-1.5">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.svg" alt="Cardify" className="w-full h-full object-contain" />
+              <img src="/logo-cardify.svg" alt="Cardify" className="w-full h-full object-contain" />
             </div>
             <div className="leading-none">
               <div className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1C1917]">
@@ -384,7 +384,7 @@ export default function CareersPage() {
                   className="flex h-10 w-10 items-center justify-center rounded-full border-[2.5px]"
                   style={{ background: INK, borderColor: INK }}
                 >
-                  <img src="/logo.svg" alt="Cardify" className="h-5 w-5 object-contain" />
+                  <img src="/logo-cardify.svg" alt="Cardify" className="h-5 w-5 object-contain" />
                 </div>
 
                 <div className="leading-none">

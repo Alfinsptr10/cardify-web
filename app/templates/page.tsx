@@ -103,7 +103,7 @@ export default function TemplatesPage() {
       title: "Our Story",
       category: "web-story",
       description: "Interactive story with music and animations.",
-      image: "/field.jpeg", 
+      image: "/web-story.png", 
       tag: "New",
       color: "bg-sky-100 text-sky-600"
     },
@@ -143,7 +143,7 @@ export default function TemplatesPage() {
       title: "Gameboy Journey",
       category: "web-story",
       description: "Relive the adventure with pixel art and chiptune music.",
-      image: "/gameboy-story.jpg",
+      image: "/gameboy-journey.png",
       tag: "Featured",
       color: "bg-green-100 text-green-600"
    },
@@ -235,7 +235,7 @@ export default function TemplatesPage() {
           <Link href="/" className="flex items-center gap-2.5 cursor-pointer group">
             <div className="w-9 h-9 bg-[#1C1917] rounded-xl flex items-center justify-center shadow-[3px_3px_0_0_#F6C445] group-hover:rotate-12 group-hover:shadow-[4px_4px_0_0_#F6C445] transition-all duration-300 p-1.5">
                {/* eslint-disable-next-line @next/next/no-img-element */}
-               <img src="/logo.svg" alt="Cardify" className="w-full h-full object-contain" />
+               <img src="/logo-cardify.svg" alt="Cardify" className="w-full h-full object-contain" />
             </div>
             <div className="leading-none">
   <div
@@ -433,11 +433,12 @@ export default function TemplatesPage() {
                   <motion.div variants={staggerItem} className="bg-white rounded-[1.75rem] border-2 border-[#1C1917] overflow-hidden hover:-translate-y-1.5 hover:shadow-[6px_6px_0_0_#1C1917] transition-all duration-300 h-full flex flex-col">
                      {/* Image Container */}
                      <div className="relative aspect-[4/3] bg-stone-100 overflow-hidden border-b-2 border-[#1C1917]">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        {/* Image menggunakan layout 'fill' sehingga tidak perlu menambahkan width/height; parent sudah memiliki aspect dan relative */}
                         <Image 
                            src={template.image} 
                            alt={template.title} 
-                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                           fill
+                           className="object-cover group-hover:scale-105 transition-transform duration-700"
                         />
                         <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm border-2 border-[#1C1917] ${template.color} bg-white/90 backdrop-blur font-sans`}>
                            {template.tag}
@@ -504,9 +505,9 @@ export default function TemplatesPage() {
             }}
           >
             <img
-              src="/logo.svg"
+              src="/logo-cardify.svg"
               alt="Cardify"
-              className="h-5 w-5 object-contain"
+              className="h-8 w-8 object-contain"
             />
           </div>
 
@@ -686,11 +687,11 @@ export default function TemplatesPage() {
     >
 
       <p
-        className="text-xs font-black uppercase tracking-wider"
-        style={{ color: "#1C1917" }}
-      >
-        © {new Date().getFullYear()} Cardify · Made with love
-      </p>
+  className="text-xs font-black uppercase tracking-wider"
+  style={{ color: "#1C1917" }}
+>
+  © 2025 Cardify · Made with love
+</p>
 
       <div
         className="flex gap-6 text-xs font-black uppercase tracking-wider"

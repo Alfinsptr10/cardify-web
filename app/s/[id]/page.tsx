@@ -12,8 +12,7 @@ import { getAuth, signInAnonymously } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 
 // --- KONFIGURASI BACKGROUND MANUAL ---
-// Ganti default menjadi field.jpeg agar sama dengan editor
-const MANUAL_BG_IMAGE = "/field.jpeg"; 
+const MANUAL_BG_IMAGE = "/web-story-bg.png"; 
 
 // --- MOCK FONTS (Untuk Preview) ---
 const dmSans = { className: "font-dm-sans" };

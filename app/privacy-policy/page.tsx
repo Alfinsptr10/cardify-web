@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
 // MOCK IMPORTS REPLACEMENT: Use standard HTML/React components
 import { 
@@ -130,15 +131,29 @@ export default function PrivacyPage() {
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center relative">
           
           {/* Logo Brand */}
-          <a href="/" className="flex items-center gap-2.5 cursor-pointer group">
-            <div className="w-9 h-9 bg-[#1C1917] rounded-xl flex items-center justify-center text-[#F6C445] shadow-[3px_3px_0_0_#F6C445] group-hover:rotate-12 group-hover:shadow-[4px_4px_0_0_#F6C445] transition-all duration-300">
-               <Gift size={18} strokeWidth={2.5} />
+          <Link href="/" className="flex items-center gap-2.5 cursor-pointer group">
+                      <div className="w-9 h-9 bg-[#1C1917] rounded-xl flex items-center justify-center shadow-[3px_3px_0_0_#F6C445] group-hover:rotate-12 group-hover:shadow-[4px_4px_0_0_#F6C445] transition-all duration-300 p-1.5">
+                         {/* eslint-disable-next-line @next/next/no-img-element */}
+                         <img src="/logo-cardify.svg" alt="Cardify" className="w-full h-full object-contain" />
+                      </div>
+                      <div className="leading-none">
+            <div
+              className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1C1917]"
+            >
+              A CARD WITH A STORY
             </div>
-            <div className="flex flex-col leading-none">
-              <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-stone-400">A card with a story</span>
-              <span className="text-xl font-bold tracking-tight font-playfair italic text-[#1C1917]">cardify</span>
+          
+            <div
+              className="text-2xl font-black italic tracking-[-0.02em]"
+              style={{
+                fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+                color: "#1C1917",
+              }}
+            >
+              cardify
             </div>
-          </a>
+          </div>
+                    </Link>
           
           {/* Navigation Links - Centered */}
           <div className="hidden md:flex items-center gap-8 text-sm font-bold uppercase tracking-wide text-stone-600 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -176,7 +191,7 @@ export default function PrivacyPage() {
                 </div>
             </div>
             
-            <a href="/#features" className="hover:text-[#1C1917] transition-colors">Features</a>
+            <a href="/features" className="hover:text-[#1C1917] transition-colors">Features</a>
             <a href="/about" className="hover:text-[#1C1917] transition-colors">About</a>
             <a href="/contact" className="hover:text-[#1C1917] transition-colors">Contact</a>
           </div>
@@ -418,9 +433,9 @@ export default function PrivacyPage() {
             }}
           >
             <img
-              src="/logo.svg"
+              src="/logo-cardify.svg"
               alt="Cardify"
-              className="h-5 w-5 object-contain"
+              className="h-8 w-8 object-contain"
             />
           </div>
 
@@ -600,11 +615,11 @@ export default function PrivacyPage() {
     >
 
       <p
-        className="text-xs font-black uppercase tracking-wider"
-        style={{ color: "#1C1917" }}
-      >
-        © {new Date().getFullYear()} Cardify · Made with love
-      </p>
+  className="text-xs font-black uppercase tracking-wider"
+  style={{ color: "#1C1917" }}
+>
+  © 2025 Cardify · Made with love
+</p>
 
       <div
         className="flex gap-6 text-xs font-black uppercase tracking-wider"
@@ -614,6 +629,7 @@ export default function PrivacyPage() {
         <a
           href="/privacy-policy"
           className="hover:opacity-60"
+          style={{ color: "#FFFFFF" }}
         >
           Privacy
         </a>

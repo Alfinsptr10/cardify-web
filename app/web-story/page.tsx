@@ -15,7 +15,7 @@ import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken }
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 
 // --- KONFIGURASI BACKGROUND (EDITOR) ---
-// Ganti background editor menjadi field.jpeg
+
 const EDITOR_BG_IMAGE = "/web-story-bg.png";
 
 // --- MOCK FONTS (Standard CSS Classes replacement) ---

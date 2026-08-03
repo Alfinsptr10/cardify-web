@@ -262,7 +262,7 @@ function HomeContent() {
               style={{ background: INK, borderColor: INK, boxShadow: `3px 3px 0 0 ${YELLOW}` }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.svg" alt="Cardify" className="w-full h-full object-contain" />
+              <img src="/logo-cardify.svg" alt="Cardify" className="w-full h-full object-contain" />
             </div>
             <div className="leading-none">
               <div className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: INK }}>
@@ -652,7 +652,7 @@ function HomeContent() {
             <div className="col-span-2 md:col-span-1">
               <div className="mb-4 flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full border-[2.5px]" style={{ background: INK, borderColor: INK }}>
-                  <img src="/logo.svg" alt="Cardify" className="h-5 w-5 object-contain" />
+                  <img src="/logo-cardify.svg" alt="Cardify" className="h-5 w-5 object-contain" />
                 </div>
                 <div className="leading-none">
                   <div className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: INK }}>

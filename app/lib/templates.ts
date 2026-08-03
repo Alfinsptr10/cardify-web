@@ -59,7 +59,7 @@ export const TEMPLATES: TemplateMeta[] = [
     href: "/web-story",
     title: "Our Story",
     description: "Interactive story with music and animations.",
-    image: "/field.jpeg",
+    image: "/web-story-bg.png",
     tag: "New",
     format: "web-story",
     occasions: ["anniversary", "wedding", "general"],

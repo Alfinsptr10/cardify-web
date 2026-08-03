@@ -102,9 +102,9 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: "/logo.svg",
-    shortcut: "/logo.svg",
-    apple: "/logo.svg",
+    icon: "/logo-cardify-web.svg",
+    shortcut: "/logo-cardify-web.svg",
+    apple: "/logo-cardify-web.svg",
   },
   verification: {
     google: "A3gLShkxD4zgasfXrEUnJ1cvalZoNi3j4XzGVEeNV68",

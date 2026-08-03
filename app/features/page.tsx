@@ -140,7 +140,7 @@ function FeaturesContent() {
           <Link href="/" className="flex items-center gap-2.5 cursor-pointer group">
             <div className="w-9 h-9 bg-[#1C1917] rounded-xl flex items-center justify-center shadow-[3px_3px_0_0_#F6C445] group-hover:rotate-12 group-hover:shadow-[4px_4px_0_0_#F6C445] transition-all duration-300 p-1.5">
                {/* eslint-disable-next-line @next/next/no-img-element */}
-               <img src="/logo.svg" alt="Cardify" className="w-full h-full object-contain" />
+               <img src="/logo-cardify.svg" alt="Cardify" className="w-full h-full object-contain" />
             </div>
             <div className="leading-none">
   <div
@@ -510,9 +510,9 @@ function FeaturesContent() {
             }}
           >
             <img
-              src="/logo.svg"
+              src="/logo-cardify.svg"
               alt="Cardify"
-              className="h-5 w-5 object-contain"
+              className="h-8 w-8 object-contain"
             />
           </div>
 
@@ -692,11 +692,11 @@ function FeaturesContent() {
     >
 
       <p
-        className="text-xs font-black uppercase tracking-wider"
-        style={{ color: "#1C1917" }}
-      >
-        © {new Date().getFullYear()} Cardify · Made with love
-      </p>
+  className="text-xs font-black uppercase tracking-wider"
+  style={{ color: "#1C1917" }}
+>
+  © 2025 Cardify · Made with love
+</p>
 
       <div
         className="flex gap-6 text-xs font-black uppercase tracking-wider"
