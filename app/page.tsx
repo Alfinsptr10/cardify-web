@@ -54,7 +54,7 @@ function HomeContent() {
   const galleryItems = [
     { href: "/gameboy-app", img: "/gameboy-journey.png", alt: "Gameboy Journey", badge: "Hot", badgeClass: "bg-purple-500/90 text-white", title: "Gameboy Journey", titleHover: "group-hover:text-purple-700", desc: "Interactive handheld story with 8-bit charm.", cta: "Create Story" },
     { href: "/web-story", img: "/web-story.png", alt: "Web Story", badge: "New", badgeClass: "bg-sky-500/90 text-white", title: "Web Story", titleHover: "group-hover:text-amber-700", desc: "Interactive story with music.", cta: "Create Story" },
-    { href: "/templates/minimalist", img: "/minimalist.png", alt: "Minimalist", badge: "Popular", badgeClass: "bg-white/90 text-stone-800", title: "Modern Minimalist", titleHover: "group-hover:text-stone-600", desc: "Clean typography focus.", cta: "Use Template" },
+    { href: "/photobooth", img: "/photobooth.png", alt: "Photobooth", badge: "Popular", badgeClass: "bg-white/90 text-stone-800", title: "Photobooth", titleHover: "group-hover:text-stone-600", desc: "Snap and share moments.", cta: "Use Template" },
     { href: "/templates/postcard", img: "/postcard.png", alt: "Classic Postcard", badge: "Classic", badgeClass: "bg-white/90 text-stone-800", title: "Classic Postcard", titleHover: "group-hover:text-stone-600", desc: "Warm greetings, old style.", cta: "Use Template" },
     { href: "/templates/newspaper", img: "/newspaper.png", alt: "Vintage Newspaper", badge: "New", badgeClass: "bg-white/90 text-stone-800", title: "Vintage Press", titleHover: "group-hover:text-stone-600", desc: "Headline news aesthetic.", cta: "Use Template" },
   ];

@@ -100,7 +100,7 @@ export default function TemplatesPage() {
     {
       id: 2,
       href: "/web-story",
-      title: "Our Story",
+      title: "Web Story",
       category: "web-story",
       description: "Interactive story with music and animations.",
       image: "/web-story.png", 
@@ -163,7 +163,7 @@ export default function TemplatesPage() {
       title: "Photobooth Studio",
       category: "card-image",
       description: "Live photo capture with custom frames, tones, and text.",
-      image: "/template/camera.png",
+      image: "/photobooth.png",
       tag: "Interactive",
       color: "bg-amber-100 text-amber-600"
    }
@@ -365,7 +365,7 @@ export default function TemplatesPage() {
             initial="hidden"
             animate="show"
          >
-             <motion.div variants={staggerItem} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1C1917] text-[#F6C445] text-[11px] font-black uppercase tracking-widest mb-8 shadow-sm -rotate-2 font-sans">
+             <motion.div variants={staggerItem} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1C1917] text-[#F6C445] text-[11px] font-black uppercase tracking-widest mb-8 shadow-sm -rotate-0 font-sans">
                 <Sparkles size={12} />
                 Curated Library
              </motion.div>
