@@ -124,7 +124,7 @@ function AboutContent() {
         >
           {[...Array(2)].map((_, i) => (
             <div key={i} className="flex items-center gap-8 px-4 text-[11px] font-bold uppercase tracking-widest">
-              <span className="flex items-center gap-2"><Sparkles size={12} className="text-[#F6C445]" /> New — Photobooth is live, snap &amp; send in seconds</span>
+              <span className="flex items-center gap-2"><Sparkles size={12} className="text-[#F6C445]" /> New Photobooth is live, snap &amp; send in seconds</span>
               <span className="text-stone-600">•</span>
               <span>Free templates every week</span>
               <span className="text-stone-600">•</span>
@@ -141,29 +141,33 @@ function AboutContent() {
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center relative">
           
           {/* Logo Brand */}
-          <Link href="/" className="flex items-center gap-2.5 cursor-pointer group">
-            <div className="w-9 h-9 bg-[#1C1917] rounded-xl flex items-center justify-center shadow-[3px_3px_0_0_#F6C445] group-hover:rotate-12 group-hover:shadow-[4px_4px_0_0_#F6C445] transition-all duration-300 p-1.5">
-               {/* eslint-disable-next-line @next/next/no-img-element */}
-               <img src="/logo-cardify.svg" alt="Cardify" className="w-full h-full object-contain" />
+          <Link href="/" className="flex items-center gap-5 cursor-pointer group">
+                      <motion.div
+                         className="w-10 h-10"
+                         whileHover={{ rotate: 8, scale: 1.06 }}
+                         transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                      >
+                         {/* eslint-disable-next-line @next/next/no-img-element */}
+                         <img src="/logo-cardify.svg" alt="Cardify" className="w-full h-full object-contain scale-135" />
+                      </motion.div>
+                      <div className="leading-none">
+            <div
+              className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1C1917]"
+            >
+              A CARD WITH A STORY
             </div>
-            <div className="leading-none">
-  <div
-    className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1C1917]"
-  >
-    A CARD WITH A STORY
-  </div>
-
-  <div
-    className="text-2xl font-black italic tracking-[-0.02em]"
-    style={{
-      fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
-      color: "#1C1917",
-    }}
-  >
-    cardify
-  </div>
-</div>
-          </Link>
+          
+            <div
+              className="text-2xl font-black italic tracking-[-0.02em]"
+              style={{
+                fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+                color: "#1C1917",
+              }}
+            >
+              cardify
+            </div>
+          </div>
+                    </Link>
           
           {/* Navigation Links */}
           <div className="hidden md:flex items-center gap-8 text-sm font-bold uppercase tracking-wide text-stone-600 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -269,7 +273,6 @@ function AboutContent() {
             initial="hidden"
             animate="show"
          >
-            <motion.span variants={staggerItem} className="inline-block py-1.5 px-4 rounded-full bg-[#1C1917] text-[#F6C445] text-xs font-black tracking-widest uppercase mb-2 -rotate-2 font-sans">Our Story</motion.span>
             <motion.h1
                variants={staggerItem}
                className="text-6xl md:text-6xl text-[#111111] font-boldonse font-black italic leading-tight"
@@ -292,22 +295,21 @@ function AboutContent() {
             variants={staggerContainer}
          >
             <motion.div variants={staggerItem} className="aspect-[4/5] bg-stone-200 rounded-3xl overflow-hidden relative border-2 border-[#1C1917] shadow-[6px_6px_0_0_#1C1917] transform md:translate-y-12 md:-rotate-2 hover:rotate-0 hover:-translate-y-1 transition-all duration-300">
-               <Image src="/retro-gameboy.png" alt="Retro 8-bit" fill className="object-cover hover:scale-105 transition-transform duration-700" />
+               <Image src="/gameboy-journey.png" alt="Game Boy Journey" fill className="object-cover hover:scale-105 transition-transform duration-700" />
             </motion.div>
             <motion.div variants={staggerItem} className="aspect-[4/5] bg-stone-200 rounded-3xl overflow-hidden relative border-2 border-[#1C1917] shadow-[6px_6px_0_0_#1C1917] z-10 hover:-translate-y-1 transition-all duration-300">
                <Image src="/newspaper.png" alt="Newspaper" fill className="object-cover hover:scale-105 transition-transform duration-700" />
             </motion.div>
             <motion.div variants={staggerItem} className="aspect-[4/5] bg-stone-200 rounded-3xl overflow-hidden relative border-2 border-[#1C1917] shadow-[6px_6px_0_0_#1C1917] transform md:translate-y-12 md:rotate-2 hover:rotate-0 hover:-translate-y-1 transition-all duration-300">
-               <Image src="/retro-gameboy-2.png" alt="Retro" fill className="object-cover hover:scale-105 transition-transform duration-700" />
+               <Image src="/photobooth.png" alt="Retro" fill className="object-cover hover:scale-105 transition-transform duration-700" />
             </motion.div>
          </motion.div>
       </section>
 
       {/* --- VISION & VALUES (Mint paper) --- */}
-      <section className="py-24 bg-[#B8E3C9] border-t-4 border-[#111111]">
+      <section className="py-24 bg-[#B8E3C9] border-t-0 border-[#111111]">
          <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-16 max-w-2xl mx-auto">
-               <span className="text-[11px] font-black text-[#1C1917]/50 uppercase tracking-[0.3em] mb-3 block font-sans">— What We Believe —</span>
                <motion.h2
                   initial={{ opacity: 0, y: 24 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -331,7 +333,8 @@ function AboutContent() {
                   <div className="w-14 h-14 bg-[#F6C445] rounded-2xl flex items-center justify-center mx-auto text-[#1C1917] mb-4 border-2 border-[#1C1917]">
                      <Zap size={28} />
                   </div>
-                  <h3 className="text-2xl font-black text-[#1C1917] font-boldonse">Fast &amp; Easy</h3>
+                  {/* Diubah menggunakan font-boldonse font-black italic */}
+                  <h3 className="text-2xl font-boldonse font-black italic text-[#1C1917]">Fast &amp; Easy</h3>
                   <p className="text-stone-500 leading-relaxed text-sm">
                      No design skills required. Just pick a template, write your message, and send it in seconds.
                   </p>
@@ -340,7 +343,8 @@ function AboutContent() {
                   <div className="w-14 h-14 bg-[#BFE0F5] rounded-2xl flex items-center justify-center mx-auto text-[#1C1917] mb-4 border-2 border-[#1C1917]">
                      <Globe size={28} />
                   </div>
-                  <h3 className="text-2xl font-black text-[#1C1917] font-boldonse">Without Limits</h3>
+                  {/* Diubah menggunakan font-boldonse font-black italic */}
+                  <h3 className="text-2xl font-boldonse font-black italic text-[#1C1917]">Without Limits</h3>
                   <p className="text-stone-500 leading-relaxed text-sm">
                      Send greeting cards to friends across the city or family across the globe. Digital brings us closer.
                   </p>
@@ -349,7 +353,8 @@ function AboutContent() {
                   <div className="w-14 h-14 bg-[#F3B8CC] rounded-2xl flex items-center justify-center mx-auto text-[#1C1917] mb-4 border-2 border-[#1C1917]">
                      <ShieldCheck size={28} />
                   </div>
-                  <h3 className="text-2xl font-black text-[#1C1917] font-boldonse">Secure Privacy</h3>
+                  {/* Diubah menggunakan font-boldonse font-black italic */}
+                  <h3 className="text-2xl font-boldonse font-black italic text-[#1C1917]">Secure Privacy</h3>
                   <p className="text-stone-500 leading-relaxed text-sm">
                      Your data and messages are our priority. We ensure the security of every user's information.
                   </p>
@@ -361,7 +366,6 @@ function AboutContent() {
       {/* --- THE TEAM (Sky paper) --- */}
       <section className="py-24 bg-[#BFE0F5] border-t-4 border-[#111111]">
          <div className="max-w-5xl mx-auto px-6 text-center">
-            <span className="text-[11px] font-black text-[#1C1917]/50 uppercase tracking-[0.3em] mb-3 block font-sans">— The Person Behind It —</span>
             <motion.h2
                initial={{ opacity: 0, y: 24 }}
                whileInView={{ opacity: 1, y: 0 }}
@@ -403,8 +407,8 @@ function AboutContent() {
                
                <div className="space-y-6">
                   <div>
-                     <h3 className="text-3xl font-bold text-[#1C1917] font-playfair">Alfin Saputra</h3>
-                     <p className="text-[#1C1917] bg-[#F6C445] inline-block px-2.5 py-0.5 rounded-full font-black text-xs tracking-wide uppercase mt-2 border-2 border-[#1C1917]">Founder &amp; Developer</p>
+                     <h3 className="text-3xl font-boldonse font-black italic text-[#1C1917]">Alfin Saputra</h3>
+                     <p className="text-[#1C1917] font-black text-xs tracking-wide uppercase mt-2">Founder &amp; Developer</p>
                   </div>
                   <p className="text-stone-500 leading-relaxed">
                      "I built Cardify with one goal: to help people express their feelings in a unique and meaningful way in this digital era. Thank you for being part of our journey."
@@ -434,40 +438,33 @@ function AboutContent() {
       {/* Brand */}
       <div className="col-span-2 md:col-span-1">
 
-        <div className="mb-4 flex items-center gap-3">
-
-          <div
-            className="flex h-10 w-10 items-center justify-center rounded-full border-[2.5px]"
-            style={{
-              background: "#1C1917",
-              borderColor: "#1C1917",
-            }}
-          >
-            <img
-              src="/logo-cardify.svg"
-              alt="Cardify"
-              className="h-8 w-8 object-contain"
-            />
-          </div>
-
-          <div className="leading-none">
-  <div
-    className="text-[9px] font-black uppercase tracking-[0.2em]"
-    style={{ color: "#1C1917" }}
-  >
-    A CARD WITH A STORY
+         <div className="mb-4 flex items-start gap-1">
+  <div className="w-20 h-20 flex items-center justify-center overflow-visible">
+    <img
+      src="/logo-cardify.svg"
+      alt="Cardify"
+      className="w-full h-full object-contain -mt-11 scale-70 drop-shadow-[0_2px_3px_rgba(28,25,23,0.25)]"
+    />
   </div>
 
-  <div
-    className="text-2xl font-black italic tracking-[-0.02em]"
-    style={{
-      fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
-      color: "#1C1917",
-    }}
-  >
-    cardify
+  <div className="leading-none">
+    <div
+      className="text-[9px] font-black uppercase tracking-[0.2em]"
+      style={{ color: "#1C1917" }}
+    >
+      A CARD WITH A STORY
+    </div>
+
+    <div
+      className="text-2xl font-black italic tracking-[-0.02em]"
+      style={{
+        fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+        color: "#1C1917",
+      }}
+    >
+      cardify
+    </div>
   </div>
-</div>
 
         </div>
 
@@ -626,11 +623,11 @@ function AboutContent() {
     >
 
       <p
-        className="text-xs font-black uppercase tracking-wider"
-        style={{ color: "#1C1917" }}
-      >
-        © {new Date().getFullYear()} Cardify · Made with love
-      </p>
+  className="text-xs font-black uppercase tracking-wider"
+  style={{ color: "#1C1917" }}
+>
+  © 2025 Cardify · Made with love
+</p>
 
       <div
         className="flex gap-6 text-xs font-black uppercase tracking-wider"

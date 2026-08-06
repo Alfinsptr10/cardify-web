@@ -94,7 +94,6 @@ export default function TemplatesPage() {
       category: "card-image",
       description: "Nostalgic console aesthetic for gamers.",
       image: "/retro-gameboy.png",
-      tag: "Best Seller",
       color: "bg-purple-100 text-purple-600"
     },
     {
@@ -104,7 +103,6 @@ export default function TemplatesPage() {
       category: "web-story",
       description: "Interactive story with music and animations.",
       image: "/web-story.png", 
-      tag: "New",
       color: "bg-sky-100 text-sky-600"
     },
     {
@@ -114,7 +112,6 @@ export default function TemplatesPage() {
       category: "card-image",
       description: "Clean typography focused design.",
       image: "/minimalist.png",
-      tag: "Popular",
       color: "bg-stone-100 text-stone-600"
     },
     {
@@ -124,7 +121,6 @@ export default function TemplatesPage() {
       category: "card-image",
       description: "Warm vintage greeting style.",
       image: "/postcard.png",
-      tag: "Classic",
       color: "bg-amber-100 text-amber-600"
     },
     {
@@ -134,7 +130,6 @@ export default function TemplatesPage() {
       category: "card-image",
       description: "Headline news aesthetic.",
       image: "/newspaper.png",
-      tag: "Unique",
       color: "bg-slate-100 text-slate-600"
     },
    {
@@ -144,7 +139,6 @@ export default function TemplatesPage() {
       category: "web-story",
       description: "Relive the adventure with pixel art and chiptune music.",
       image: "/gameboy-journey.png",
-      tag: "Featured",
       color: "bg-green-100 text-green-600"
    },
    {
@@ -154,7 +148,6 @@ export default function TemplatesPage() {
       category: "web-story",
       description: "A nostalgic scrapbook with interactive elements.",
       image: "/web-story.png",
-      tag: "Creative",
       color: "bg-pink-100 text-pink-600"
    },
    {
@@ -164,7 +157,6 @@ export default function TemplatesPage() {
       category: "card-image",
       description: "Live photo capture with custom frames, tones, and text.",
       image: "/photobooth.png",
-      tag: "Interactive",
       color: "bg-amber-100 text-amber-600"
    }
   ];
@@ -232,29 +224,33 @@ export default function TemplatesPage() {
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center relative">
           
           {/* Logo Brand */}
-          <Link href="/" className="flex items-center gap-2.5 cursor-pointer group">
-            <div className="w-9 h-9 bg-[#1C1917] rounded-xl flex items-center justify-center shadow-[3px_3px_0_0_#F6C445] group-hover:rotate-12 group-hover:shadow-[4px_4px_0_0_#F6C445] transition-all duration-300 p-1.5">
-               {/* eslint-disable-next-line @next/next/no-img-element */}
-               <img src="/logo-cardify.svg" alt="Cardify" className="w-full h-full object-contain" />
+          <Link href="/" className="flex items-center gap-5 cursor-pointer group">
+                      <motion.div
+                         className="w-10 h-10"
+                         whileHover={{ rotate: 8, scale: 1.06 }}
+                         transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                      >
+                         {/* eslint-disable-next-line @next/next/no-img-element */}
+                         <img src="/logo-cardify.svg" alt="Cardify" className="w-full h-full object-contain scale-135" />
+                      </motion.div>
+                      <div className="leading-none">
+            <div
+              className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1C1917]"
+            >
+              A CARD WITH A STORY
             </div>
-            <div className="leading-none">
-  <div
-    className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1C1917]"
-  >
-    A CARD WITH A STORY
-  </div>
-
-  <div
-    className="text-2xl font-black italic tracking-[-0.02em]"
-    style={{
-      fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
-      color: "#1C1917",
-    }}
-  >
-    cardify
-  </div>
-</div>
-          </Link>
+          
+            <div
+              className="text-2xl font-black italic tracking-[-0.02em]"
+              style={{
+                fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+                color: "#1C1917",
+              }}
+            >
+              cardify
+            </div>
+          </div>
+                    </Link>
           
           {/* Navigation Links - Centered */}
           <div className="hidden md:flex items-center gap-8 text-sm font-bold uppercase tracking-wide text-stone-600 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -364,12 +360,7 @@ export default function TemplatesPage() {
             variants={staggerContainer}
             initial="hidden"
             animate="show"
-         >
-             <motion.div variants={staggerItem} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1C1917] text-[#F6C445] text-[11px] font-black uppercase tracking-widest mb-8 shadow-sm -rotate-0 font-sans">
-                <Sparkles size={12} />
-                Curated Library
-             </motion.div>
-             
+         >   
              <motion.h1
                 variants={staggerItem}
                 className="text-6xl md:text-7xl text-[#111111] font-boldonse font-black italic mb-4"
@@ -440,9 +431,6 @@ export default function TemplatesPage() {
                            fill
                            className="object-cover group-hover:scale-105 transition-transform duration-700"
                         />
-                        <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm border-2 border-[#1C1917] ${template.color} bg-white/90 backdrop-blur font-sans`}>
-                           {template.tag}
-                        </div>
                         
                         {/* Hover Overlay */}
                         <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
@@ -495,40 +483,33 @@ export default function TemplatesPage() {
       {/* Brand */}
       <div className="col-span-2 md:col-span-1">
 
-        <div className="mb-4 flex items-center gap-3">
-
-          <div
-            className="flex h-10 w-10 items-center justify-center rounded-full border-[2.5px]"
-            style={{
-              background: "#1C1917",
-              borderColor: "#1C1917",
-            }}
-          >
-            <img
-              src="/logo-cardify.svg"
-              alt="Cardify"
-              className="h-8 w-8 object-contain"
-            />
-          </div>
-
-          <div className="leading-none">
-  <div
-    className="text-[9px] font-black uppercase tracking-[0.2em]"
-    style={{ color: "#1C1917" }}
-  >
-    A CARD WITH A STORY
+         <div className="mb-4 flex items-start gap-1">
+  <div className="w-20 h-20 flex items-center justify-center overflow-visible">
+    <img
+      src="/logo-cardify.svg"
+      alt="Cardify"
+      className="w-full h-full object-contain -mt-11 scale-70 drop-shadow-[0_2px_3px_rgba(28,25,23,0.25)]"
+    />
   </div>
 
-  <div
-    className="text-2xl font-black italic tracking-[-0.02em]"
-    style={{
-      fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
-      color: "#1C1917",
-    }}
-  >
-    cardify
+  <div className="leading-none">
+    <div
+      className="text-[9px] font-black uppercase tracking-[0.2em]"
+      style={{ color: "#1C1917" }}
+    >
+      A CARD WITH A STORY
+    </div>
+
+    <div
+      className="text-2xl font-black italic tracking-[-0.02em]"
+      style={{
+        fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+        color: "#1C1917",
+      }}
+    >
+      cardify
+    </div>
   </div>
-</div>
 
         </div>
 

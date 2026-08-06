@@ -155,23 +155,33 @@ export default function CareersPage() {
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center relative">
 
           {/* Logo Brand */}
-          <Link href="/" className="flex items-center gap-2.5 cursor-pointer group">
-            <div className="w-9 h-9 bg-[#1C1917] rounded-xl flex items-center justify-center border-[2.5px] border-[#1C1917] shadow-[3px_3px_0_0_#F6C445] group-hover:rotate-12 group-hover:shadow-[5px_5px_0_0_#F6C445] transition-all duration-300 p-1.5">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo-cardify.svg" alt="Cardify" className="w-full h-full object-contain" />
-            </div>
-            <div className="leading-none">
-              <div className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1C1917]">
-                A CARD WITH A STORY
-              </div>
-              <div
-                className="text-2xl font-black italic tracking-[-0.02em]"
-                style={{ fontFamily: "'Boldonse', 'Archivo Black', sans-serif", color: INK }}
-              >
-                cardify
-              </div>
-            </div>
-          </Link>
+          <Link href="/" className="flex items-center gap-5 cursor-pointer group">
+                                <motion.div
+                                   className="w-10 h-10"
+                                   whileHover={{ rotate: 8, scale: 1.06 }}
+                                   transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                >
+                                   {/* eslint-disable-next-line @next/next/no-img-element */}
+                                   <img src="/logo-cardify.svg" alt="Cardify" className="w-full h-full object-contain scale-135" />
+                                </motion.div>
+                                <div className="leading-none">
+                      <div
+                        className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1C1917]"
+                      >
+                        A CARD WITH A STORY
+                      </div>
+                    
+                      <div
+                        className="text-2xl font-black italic tracking-[-0.02em]"
+                        style={{
+                          fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+                          color: "#1C1917",
+                        }}
+                      >
+                        cardify
+                      </div>
+                    </div>
+                              </Link>
 
           {/* Navigation Links - Centered */}
           <div className="hidden md:flex items-center gap-8 text-sm font-bold uppercase tracking-wide text-stone-600 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-full">
@@ -287,10 +297,6 @@ export default function CareersPage() {
           animate="show"
           variants={staggerContainer}
         >
-          <motion.span variants={staggerItem} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1C1917] text-[#F6C445] text-[11px] font-black uppercase tracking-widest border-[2.5px] border-[#1C1917] shadow-[3px_3px_0_0_#D8C9F2] -rotate-0 font-sans">
-            <Briefcase size={12} strokeWidth={3} />
-            Join Us
-          </motion.span>
           <motion.h1 variants={staggerItem} className="text-6xl md:text-7xl text-[#1C1917] font-boldonse font-black italic leading-tight" style={{ letterSpacing: "-0.02em" }}>
             Build the Future of Digital Gifting
           </motion.h1>
@@ -342,11 +348,6 @@ export default function CareersPage() {
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="relative bg-white rounded-[2.5rem] border-[3px] border-[#1C1917] shadow-[10px_10px_0_0_#1C1917] overflow-hidden p-12 text-center"
           >
-            {/* stiker sudut */}
-            <div className="absolute top-4 right-8 rotate-6 rounded-full border-[2.5px] border-[#1C1917] bg-[#F6C445] px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-[#1C1917] shadow-[3px_3px_0_0_#1C1917]">
-              Stay tuned ✿
-            </div>
-
             <div className="w-20 h-20 bg-[#D8C9F2] rounded-full flex items-center justify-center mx-auto mb-6 text-[#1C1917] border-[3px] border-[#1C1917] shadow-[4px_4px_0_0_#1C1917]">
               <Coffee size={36} strokeWidth={2.5} />
             </div>
@@ -358,7 +359,7 @@ export default function CareersPage() {
             <div className="p-6 bg-[#FDFBF3] rounded-3xl inline-block border-[2.5px] border-[#1C1917] shadow-[5px_5px_0_0_#1C1917]">
               <p className="text-sm text-[#1C1917] font-bold mb-3">Interested in joining us in the future?</p>
               <a href="mailto:cardify.official.id@gmail.com" className="inline-flex items-center gap-2 rounded-full border-[2.5px] border-[#1C1917] bg-[#1C1917] px-5 py-2.5 text-sm font-black uppercase tracking-wide text-[#FDFBF3] shadow-[4px_4px_0_0_#F6C445] transition-all hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#F6C445] active:translate-y-0 active:shadow-[2px_2px_0_0_#F6C445]">
-                Send us your resume <ArrowRight size={16} strokeWidth={3} className="text-[#F6C445]" />
+                Send us your resume 
               </a>
             </div>
           </motion.div>
@@ -376,28 +377,35 @@ export default function CareersPage() {
           <div className="mb-12 grid grid-cols-2 gap-10 md:grid-cols-4">
 
             {/* Brand */}
-            <div className="col-span-2 md:col-span-1">
+      <div className="col-span-2 md:col-span-1">
 
-              <div className="mb-4 flex items-center gap-3">
+         <div className="mb-4 flex items-start gap-1">
+  <div className="w-20 h-20 flex items-center justify-center overflow-visible">
+    <img
+      src="/logo-cardify.svg"
+      alt="Cardify"
+      className="w-full h-full object-contain -mt-11 scale-70 drop-shadow-[0_2px_3px_rgba(28,25,23,0.25)]"
+    />
+  </div>
 
-                <div
-                  className="flex h-10 w-10 items-center justify-center rounded-full border-[2.5px]"
-                  style={{ background: INK, borderColor: INK }}
-                >
-                  <img src="/logo-cardify.svg" alt="Cardify" className="h-5 w-5 object-contain" />
-                </div>
+  <div className="leading-none">
+    <div
+      className="text-[9px] font-black uppercase tracking-[0.2em]"
+      style={{ color: "#1C1917" }}
+    >
+      A CARD WITH A STORY
+    </div>
 
-                <div className="leading-none">
-                  <div className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: INK }}>
-                    A CARD WITH A STORY
-                  </div>
-                  <div
-                    className="text-2xl font-black italic tracking-[-0.02em]"
-                    style={{ fontFamily: "'Boldonse', 'Archivo Black', sans-serif", color: INK }}
-                  >
-                    cardify
-                  </div>
-                </div>
+    <div
+      className="text-2xl font-black italic tracking-[-0.02em]"
+      style={{
+        fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+        color: "#1C1917",
+      }}
+    >
+      cardify
+    </div>
+  </div>
 
               </div>
 
@@ -492,9 +500,12 @@ export default function CareersPage() {
             className="flex flex-col items-center justify-between gap-3 border-t-[2.5px] pt-6 md:flex-row"
             style={{ borderColor: INK }}
           >
-            <p className="text-xs font-black uppercase tracking-wider" style={{ color: INK }}>
-              © {new Date().getFullYear()} Cardify · Made with love
-            </p>
+            <p
+  className="text-xs font-black uppercase tracking-wider"
+  style={{ color: "#1C1917" }}
+>
+  © 2025 Cardify · Made with love
+</p>
             <div className="flex gap-6 text-xs font-black uppercase tracking-wider" style={{ color: INK }}>
               <a href="/privacy-policy" className="hover:opacity-60">Privacy</a>
               <a href="/terms" className="hover:opacity-60">Terms</a>

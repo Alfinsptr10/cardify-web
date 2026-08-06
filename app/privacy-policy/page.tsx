@@ -131,29 +131,33 @@ export default function PrivacyPage() {
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center relative">
           
           {/* Logo Brand */}
-          <Link href="/" className="flex items-center gap-2.5 cursor-pointer group">
-                      <div className="w-9 h-9 bg-[#1C1917] rounded-xl flex items-center justify-center shadow-[3px_3px_0_0_#F6C445] group-hover:rotate-12 group-hover:shadow-[4px_4px_0_0_#F6C445] transition-all duration-300 p-1.5">
-                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                         <img src="/logo-cardify.svg" alt="Cardify" className="w-full h-full object-contain" />
+          <Link href="/" className="flex items-center gap-5 cursor-pointer group">
+                                <motion.div
+                                   className="w-10 h-10"
+                                   whileHover={{ rotate: 8, scale: 1.06 }}
+                                   transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                >
+                                   {/* eslint-disable-next-line @next/next/no-img-element */}
+                                   <img src="/logo-cardify.svg" alt="Cardify" className="w-full h-full object-contain scale-135" />
+                                </motion.div>
+                                <div className="leading-none">
+                      <div
+                        className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1C1917]"
+                      >
+                        A CARD WITH A STORY
                       </div>
-                      <div className="leading-none">
-            <div
-              className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1C1917]"
-            >
-              A CARD WITH A STORY
-            </div>
-          
-            <div
-              className="text-2xl font-black italic tracking-[-0.02em]"
-              style={{
-                fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
-                color: "#1C1917",
-              }}
-            >
-              cardify
-            </div>
-          </div>
-                    </Link>
+                    
+                      <div
+                        className="text-2xl font-black italic tracking-[-0.02em]"
+                        style={{
+                          fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+                          color: "#1C1917",
+                        }}
+                      >
+                        cardify
+                      </div>
+                    </div>
+                              </Link>
           
           {/* Navigation Links - Centered */}
           <div className="hidden md:flex items-center gap-8 text-sm font-bold uppercase tracking-wide text-stone-600 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -265,6 +269,25 @@ export default function PrivacyPage() {
             </motion.p>
             <motion.p variants={fadeUp} className="text-xs font-black text-[#1C1917]/50 uppercase tracking-widest pt-4 font-sans">Last Updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</motion.p>
          </motion.div>
+         {/* --- PEEPING MORTY TEPAT DI GARIS HITAM BAWAH --- */}
+         <div 
+            className="absolute left-5 md:left-10 z-30 pointer-events-none"
+            style={{ bottom: "-129.5px" }}
+         >
+            <motion.div 
+               initial={{ y: 30, opacity: 0 }}
+               animate={{ y: 0, opacity: 1 }}
+               transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
+               className="w-56 h-56 md:w-80 md:h-80 relative"
+            >
+               {/* eslint-disable-next-line @next/next/no-img-element */}
+               <img 
+                  src="/morty.svg" 
+                  alt="Peeping Morty" 
+                  className="w-full h-full object-contain"
+               />
+            </motion.div>
+         </div>
       </header>
 
       {/* --- MAIN CONTENT AREA --- */}
@@ -423,40 +446,33 @@ export default function PrivacyPage() {
       {/* Brand */}
       <div className="col-span-2 md:col-span-1">
 
-        <div className="mb-4 flex items-center gap-3">
-
-          <div
-            className="flex h-10 w-10 items-center justify-center rounded-full border-[2.5px]"
-            style={{
-              background: "#1C1917",
-              borderColor: "#1C1917",
-            }}
-          >
-            <img
-              src="/logo-cardify.svg"
-              alt="Cardify"
-              className="h-8 w-8 object-contain"
-            />
-          </div>
-
-          <div className="leading-none">
-  <div
-    className="text-[9px] font-black uppercase tracking-[0.2em]"
-    style={{ color: "#1C1917" }}
-  >
-    A CARD WITH A STORY
+         <div className="mb-4 flex items-start gap-1">
+  <div className="w-20 h-20 flex items-center justify-center overflow-visible">
+    <img
+      src="/logo-cardify.svg"
+      alt="Cardify"
+      className="w-full h-full object-contain -mt-11 scale-70 drop-shadow-[0_2px_3px_rgba(28,25,23,0.25)]"
+    />
   </div>
 
-  <div
-    className="text-2xl font-black italic tracking-[-0.02em]"
-    style={{
-      fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
-      color: "#1C1917",
-    }}
-  >
-    cardify
+  <div className="leading-none">
+    <div
+      className="text-[9px] font-black uppercase tracking-[0.2em]"
+      style={{ color: "#1C1917" }}
+    >
+      A CARD WITH A STORY
+    </div>
+
+    <div
+      className="text-2xl font-black italic tracking-[-0.02em]"
+      style={{
+        fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+        color: "#1C1917",
+      }}
+    >
+      cardify
+    </div>
   </div>
-</div>
 
         </div>
 

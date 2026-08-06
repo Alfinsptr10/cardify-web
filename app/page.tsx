@@ -3,7 +3,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect, useRef, type MouseEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, useMotionValue, useSpring, useTransform, type Variants } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform, useReducedMotion, type Variants } from "framer-motion";
 // MOCK IMPORTS REPLACEMENT
 import { 
   ArrowRight, ArrowLeft, Sparkles, Gift, Heart, Phone, Star, PenTool, Play, 
@@ -31,6 +31,48 @@ const staggerItem: Variants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } },
 };
 
+// Headline hero: fokus dari blur, kayak tulisan yang baru "muncul" di kartu
+const blurUp: Variants = {
+  hidden: { opacity: 0, y: 24, filter: "blur(10px)" },
+  show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } },
+};
+
+// Badge "For You": efek "stempel" — muncul dari kecil+miring lalu settle
+const stampPop: Variants = {
+  hidden: { opacity: 0, scale: 0.4, rotate: -18 },
+  show: { opacity: 1, scale: 1, rotate: -2, transition: { type: "spring", stiffness: 260, damping: 14 } },
+};
+
+// Container generik buat card grid, stagger tiap child
+const cardStagger: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.09, delayChildren: 0.05 } },
+};
+
+// What's New: "stiker ditempel" — scale+rotate pop, arah miring gantian per index dihitung di pemanggilan
+const stickerItem = (i: number): Variants => ({
+  hidden: { opacity: 0, scale: 0.85, y: 18, rotate: i % 2 === 0 ? -4 : 4 },
+  show: { opacity: 1, scale: 1, y: 0, rotate: i % 2 === 0 ? -1 : 1, transition: { type: "spring", stiffness: 220, damping: 18 } },
+});
+
+// Features: "kartu dibagikan" — slide naik + rotasi tipis gantian
+const dealItem = (i: number): Variants => ({
+  hidden: { opacity: 0, y: 26, rotate: i % 2 === 0 ? -3 : 3 },
+  show: { opacity: 1, y: 0, rotate: 0, transition: { duration: 0.5, ease: "easeOut" } },
+});
+
+// Testimonials: "notes digeser" — dari kiri/kanan gantian
+const slideNote = (i: number): Variants => ({
+  hidden: { opacity: 0, x: i % 2 === 0 ? -28 : 28 },
+  show: { opacity: 1, x: 0, transition: { duration: 0.5, ease: "easeOut" } },
+});
+
+// Gallery: "foto diletakkan di meja" — lift dari bawah + skala, miring dikit gantian
+const paperLay = (i: number): Variants => ({
+  hidden: { opacity: 0, y: 30, scale: 0.94, rotate: i % 2 === 0 ? -1.5 : 1.5 },
+  show: { opacity: 1, y: 0, scale: 1, rotate: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } },
+});
+
 // --- WRAPPER SESSION (Mock) ---
 export default function Home() {
   return (
@@ -52,11 +94,11 @@ function HomeContent() {
   // Data 5 kartu "Find Your Style" — href/gambar/badge/teks semua dipertahankan
   // persis dari versi lama, cuma sekarang didata-kan biar bisa dirender seragam + dipaginasi
   const galleryItems = [
-    { href: "/gameboy-app", img: "/gameboy-journey.png", alt: "Gameboy Journey", badge: "Hot", badgeClass: "bg-purple-500/90 text-white", title: "Gameboy Journey", titleHover: "group-hover:text-purple-700", desc: "Interactive handheld story with 8-bit charm.", cta: "Create Story" },
-    { href: "/web-story", img: "/web-story.png", alt: "Web Story", badge: "New", badgeClass: "bg-sky-500/90 text-white", title: "Web Story", titleHover: "group-hover:text-amber-700", desc: "Interactive story with music.", cta: "Create Story" },
-    { href: "/photobooth", img: "/photobooth.png", alt: "Photobooth", badge: "Popular", badgeClass: "bg-white/90 text-stone-800", title: "Photobooth", titleHover: "group-hover:text-stone-600", desc: "Snap and share moments.", cta: "Use Template" },
-    { href: "/templates/postcard", img: "/postcard.png", alt: "Classic Postcard", badge: "Classic", badgeClass: "bg-white/90 text-stone-800", title: "Classic Postcard", titleHover: "group-hover:text-stone-600", desc: "Warm greetings, old style.", cta: "Use Template" },
-    { href: "/templates/newspaper", img: "/newspaper.png", alt: "Vintage Newspaper", badge: "New", badgeClass: "bg-white/90 text-stone-800", title: "Vintage Press", titleHover: "group-hover:text-stone-600", desc: "Headline news aesthetic.", cta: "Use Template" },
+    { href: "/gameboy-app", img: "/gameboy-journey.png", alt: "Gameboy Journey", title: "Gameboy Journey", titleHover: "group-hover:text-purple-700", desc: "Interactive handheld story with 8-bit charm.", cta: "Create Story" },
+    { href: "/web-story", img: "/web-story.png", alt: "Web Story", title: "Web Story", titleHover: "group-hover:text-amber-700", desc: "Interactive story with music.", cta: "Create Story" },
+    { href: "/photobooth", img: "/photobooth.png", alt: "Photobooth", title: "Photobooth", titleHover: "group-hover:text-stone-600", desc: "Capture memories in style.", cta: "Use Template" },
+    { href: "/templates/postcard", img: "/postcard.png", alt: "Classic Postcard", title: "Classic Postcard", titleHover: "group-hover:text-stone-600", desc: "Warm greetings, old style.", cta: "Use Template" },
+    { href: "/templates/newspaper", img: "/newspaper.png", alt: "Vintage Newspaper", title: "Vintage Press", titleHover: "group-hover:text-stone-600", desc: "Headline news aesthetic.", cta: "Use Template" },
   ];
   const GALLERY_PER_PAGE = 3;
   const galleryTotalPages = Math.ceil(galleryItems.length / GALLERY_PER_PAGE);
@@ -71,6 +113,7 @@ function HomeContent() {
   const heroSpringY = useSpring(heroMouseY, { stiffness: 120, damping: 20, mass: 0.5 });
 
   const handleHeroMouseMove = (e: MouseEvent<HTMLElement>) => {
+    if (prefersReducedMotion) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const relX = (e.clientX - rect.left) / rect.width - 0.5; // -0.5 .. 0.5
     const relY = (e.clientY - rect.top) / rect.height - 0.5;
@@ -93,15 +136,33 @@ function HomeContent() {
 
   // Konten FAQ — copy statis, tidak terhubung ke logic/route manapun
   const faqs = [
-    { q: "Is Cardify free to use?", a: "Yes — most templates are free. Premium templates and export options come with paid plans." },
+    { q: "Is Cardify free to use?", a: "Yes most templates are free. Premium templates and export options come with paid plans." },
     { q: "Can I add my own photos?", a: "Absolutely. Every template lets you drop in your own photos, or snap a new one with Photobooth." },
-    { q: "How do I share my card?", a: "Send it as a link, download it as an image, or print it as a real postcard — whichever fits the moment." },
+    { q: "How do I share my card?", a: "Send it as a link, download it as an image, or print it as a real postcard whichever fits the moment." },
     { q: "Does it work on mobile?", a: "Yes, Cardify is fully responsive and works great on phones, tablets, and desktop." },
     { q: "Can I collaborate with someone?", a: "You can share the editing link with a friend so you can put a card together, together." },
   ];
   
   
   const profileMenuRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useReducedMotion();
+
+  // Magnetic CTA — tombol "Start Creating" hero ngikutin kursor dikit pas di-hover
+  const magneticX = useMotionValue(0);
+  const magneticY = useMotionValue(0);
+  const magneticSpringX = useSpring(magneticX, { stiffness: 200, damping: 15, mass: 0.4 });
+  const magneticSpringY = useSpring(magneticY, { stiffness: 200, damping: 15, mass: 0.4 });
+
+  const handleMagneticMove = (e: MouseEvent<HTMLElement>) => {
+    if (prefersReducedMotion) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    magneticX.set((e.clientX - rect.left - rect.width / 2) * 0.35);
+    magneticY.set((e.clientY - rect.top - rect.height / 2) * 0.35);
+  };
+  const handleMagneticLeave = () => {
+    magneticX.set(0);
+    magneticY.set(0);
+  };
 
   // Efek Samping: Cek Login, Animasi Background, & Scroll Listener
   useEffect(() => {
@@ -233,7 +294,7 @@ const handleLogout = async () => {
         >
           {[...Array(2)].map((_, i) => (
             <div key={i} className="flex items-center gap-8 px-4 text-[11px] font-bold uppercase tracking-widest">
-              <span className="flex items-center gap-2"><Sparkles size={12} className="text-[#F6C445]" /> New — Photobooth is live, snap &amp; send in seconds</span>
+              <span className="flex items-center gap-2"><Sparkles size={12} className="text-[#F6C445]" /> New Photobooth is live, snap &amp; send in seconds</span>
               <span className="text-stone-600">•</span>
               <span>Free templates every week</span>
               <span className="text-stone-600">•</span>
@@ -272,11 +333,15 @@ const handleLogout = async () => {
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center relative">
           
           {/* Logo Brand */}
-          <Link href="/" className="flex items-center gap-2.5 cursor-pointer group">
-                      <div className="w-9 h-9 bg-[#1C1917] rounded-xl flex items-center justify-center shadow-[3px_3px_0_0_#F6C445] group-hover:rotate-12 group-hover:shadow-[4px_4px_0_0_#F6C445] transition-all duration-300 p-1.5">
+          <Link href="/" className="flex items-center gap-5 cursor-pointer group">
+                      <motion.div
+                         className="w-10 h-10"
+                         whileHover={{ rotate: 8, scale: 1.06 }}
+                         transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                      >
                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                         <img src="/logo-cardify.svg" alt="Cardify" className="w-full h-full object-contain" />
-                      </div>
+                         <img src="/logo-cardify.svg" alt="Cardify" className="w-full h-full object-contain scale-135" />
+                      </motion.div>
                       <div className="leading-none">
             <div
               className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1C1917]"
@@ -447,14 +512,9 @@ const handleLogout = async () => {
                initial="hidden"
                animate="show"
             >
-               {/* Badge — "FOR YOU": DM Sans, font-black, uppercase, tracking-widest, text-xs */}
-               <motion.div variants={staggerItem} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1C1917] text-[#F6C445] text-xs font-black uppercase tracking-widest shadow-sm -rotate-2 font-sans">
-                  <Sparkles size={12} />
-                  For You
-               </motion.div>
-
+               {/* Badge — "FOR YOU": efek stempel */}
                <motion.h1
-                  variants={staggerItem}
+                  variants={blurUp}
                   className="text-[18vw] md:text-[7rem] lg:text-[9rem] text-[#111111] font-boldonse font-black uppercase"
                   style={{ lineHeight: 0.85, letterSpacing: "-0.03em" }}
                >
@@ -469,27 +529,30 @@ const handleLogout = async () => {
   className="mt-6 flex flex-wrap items-center gap-3"
 >
   <SpeechBubble color="#F3B8CC" rotate={-3}>
-    Happy
+    <span className="font-black">Happy</span>
   </SpeechBubble>
 
   <SpeechBubble color="#BFE0F5" rotate={4}>
-    Thank You
+    <span className="font-black">Thank You</span>
   </SpeechBubble>
 
   <SpeechBubble color="#DCCBFF" rotate={-2}>
-    Miss You
+    <span className="font-black">Miss You</span>
   </SpeechBubble>
 </motion.div>
                
                <motion.p variants={staggerItem} className="text-lg md:text-xl text-[#1C1917]/70 leading-relaxed max-w-lg font-medium">
-                 Cardify makes beautiful, personal, aesthetic digital greeting cards. Choose a template, add photos, share the memory — in seconds.
+                 Cardify makes beautiful, personal, aesthetic digital greeting cards. Choose a template, add photos, share the memory in seconds.
                </motion.p>
 
                {/* UPDATED CTA BUTTONS LOGIC (unchanged) */}
                <motion.div variants={staggerItem} className="flex flex-wrap items-center gap-4 pt-2">
                   <motion.a 
                      href={session ? "/templates" : "/register"} 
-                     whileHover={{ y: -4, boxShadow: "6px 6px 0 0 rgba(28,25,23,0.3)" }}
+                     onMouseMove={handleMagneticMove}
+                     onMouseLeave={handleMagneticLeave}
+                     style={{ x: magneticSpringX, y: magneticSpringY }}
+                     whileHover={{ boxShadow: "6px 6px 0 0 rgba(28,25,23,0.3)" }}
                      whileTap={{ scale: 0.97 }}
                      className="px-8 py-4 rounded-full bg-[#1C1917] text-[#FDFBF3] font-bold tracking-wide shadow-[4px_4px_0_0_rgba(28,25,23,0.2)] flex items-center gap-3 border-2 border-[#1C1917]"
                   >
@@ -521,6 +584,7 @@ const handleLogout = async () => {
             </motion.div>
 
             {/* Right: Visual Illustration */}
+            {/* Right: Visual Illustration */}
             <motion.div
                className="lg:col-span-5 relative h-[480px] md:h-[560px] flex items-center justify-center"
                initial={{ opacity: 0, scale: 0.85 }}
@@ -529,19 +593,26 @@ const handleLogout = async () => {
             >
                <motion.div style={{ x: phoneX, y: phoneY }}>
                  <motion.div
-   className="relative z-10 w-72 md:w-80 aspect-[9/16] bg-[#FDFBF3] rounded-[2.5rem] shadow-2xl border-[8px] border-[#1C1917] overflow-hidden"
-   animate={{ rotate: [-4, -1, -4], y: [0, -10, 0] }}
-   transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-   whileHover={{ rotate: 0, scale: 1.05 }}
->
-   <Image 
-      src="/gameboy-greetings.png" 
-      alt="Cardify Editor Interface showing Gameboy template" // Alt text dioptimasi untuk screen reader
-      fill // Mengisi container aspect-[9/16]
-      sizes="(max-width: 768px) 18rem, 20rem" // Lebar dari w-72 (18rem) / md:w-80 (20rem)
-      priority // WAJIB untuk hero image LCP SEO
-      className="object-cover"
-   />
+                    className="relative z-10 w-72 md:w-80 aspect-[9/16] bg-[#FDFBF3] rounded-[2.5rem] shadow-[10px_10px_0_0_#1C1917] border-[6px] border-[#1C1917] overflow-hidden"
+                    animate={{ 
+                      y: [0, -12, 0], 
+                      rotate: [-2, 1, -2] 
+                    }}
+                    transition={{ 
+                      duration: 7, 
+                      repeat: Infinity, 
+                      ease: "easeInOut" 
+                    }}
+                    whileHover={{ scale: 1.02, rotate: 0 }}
+                 >
+                    <Image 
+                       src="/gameboy-greetings.png" 
+                       alt="Cardify Editor Interface showing Gameboy template" 
+                       fill 
+                       sizes="(max-width: 768px) 18rem, 20rem" 
+                       priority 
+                       className="object-cover"
+                    />
                     
                     {/* Dynamic Island style element */}
                     <div className="absolute top-6 left-1/2 -translate-x-1/2 w-24 h-7 bg-black rounded-full flex items-center justify-center gap-2 px-3 shadow-lg">
@@ -566,41 +637,43 @@ const handleLogout = async () => {
                </motion.div>
                <motion.div
                   style={{ x: badgeFarX, y: badgeFarY }}
-                  className="absolute top-1/3 -right-4 md:-right-10 z-20"
+                  className="absolute top-1/3 -right-2 md:-right-6 z-20 pointer-events-none"
                >
                  <motion.div
-                    className="bg-[#FDFBF3] backdrop-blur px-4 py-2 rounded-full shadow-xl border-2 border-[#1C1917] text-[10px] font-bold uppercase tracking-wide"
-                    animate={{ y: [0, -8, 0] }}
-                    transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                    className="bg-[#FDFBF3] text-[#1C1917] px-4 py-2 rounded-xl shadow-[3px_3px_0_0_#1C1917] border-2 border-[#1C1917] text-[11px] font-black uppercase tracking-wider rotate-[3deg]"
+                    animate={{ y: [0, -6, 0], rotate: [3, 5, 3] }}
+                    transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
                  >
-                    ✦ 12,340 sent today
+                    <span className="text-[#D9A400] mr-1">✦</span> 12.340 sent today
                  </motion.div>
                </motion.div>
                <motion.div
                   style={{ x: badgeNearX, y: badgeNearY }}
-                  className="absolute bottom-1/3 -left-4 md:-left-10 z-20"
+                  className="absolute bottom-1/3 -left-2 md:-left-6 z-20 pointer-events-none"
                >
                  <motion.div
-                    className="bg-[#FDFBF3] backdrop-blur px-4 py-2 rounded-full shadow-xl border-2 border-[#1C1917] text-[10px] font-bold uppercase tracking-wide"
-                    animate={{ y: [0, 8, 0] }}
-                    transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
+                    className="bg-[#1C1917] text-[#FDFBF3] px-4 py-2 rounded-xl shadow-[3px_3px_0_0_rgba(0,0,0,0.2)] border-2 border-[#1C1917] text-[11px] font-black uppercase tracking-wider rotate-[-3deg]"
+                    animate={{ y: [0, 6, 0], rotate: [-3, -5, -3] }}
+                    transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
                  >
-                    ♦ 200+ Templates
+                    <span className="text-[#F6C445] mr-1">♦</span> 200+ templates
                  </motion.div>
                </motion.div>
                <motion.div
                   style={{ x: badgeNearX, y: badgeNearY }}
-                  className="absolute bottom-6 -left-2 md:-left-6 z-20"
+                  className="absolute bottom-6 -left-2 md:-left-6 z-20 pointer-events-none"
                >
                  <motion.div
-                    className="bg-white/90 backdrop-blur p-3 rounded-2xl shadow-xl border-2 border-[#1C1917] flex items-center gap-2"
-                    animate={{ y: [0, -8, 0] }}
+                    className="bg-[#FDFBF3] p-3 rounded-2xl shadow-[3px_3px_0_0_#1C1917] border-2 border-[#1C1917] flex items-center gap-3 rotate-[-2deg]"
+                    animate={{ y: [0, -6, 0], rotate: [-2, 0, -2] }}
                     transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
                  >
-                    <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 border border-green-200"><CheckCircle2 size={16} /></div>
+                    <div className="w-8 h-8 rounded-full bg-[#A9D6BC] flex items-center justify-center text-[#1C1917] border-2 border-[#1C1917] shadow-[2px_2px_0_0_#1C1917]">
+                       <CheckCircle2 size={16} strokeWidth={2.5} />
+                    </div>
                     <div>
-                       <p className="text-[10px] font-bold text-stone-900">Message Sent!</p>
-                       <p className="text-[9px] text-stone-500 font-medium">Just now to Sarah</p>
+                       <p className="text-[11px] font-black text-[#1C1917] uppercase tracking-wide leading-tight">Message Sent!</p>
+                       <p className="text-[10px] text-stone-600 font-bold leading-none mt-0.5">Just now to Sarah</p>
                     </div>
                  </motion.div>
                </motion.div>
@@ -619,7 +692,6 @@ const handleLogout = async () => {
 <section className="py-24 bg-[#B8E3C9] overflow-hidden border-t-3 border-[#111111]">
    <div className="max-w-7xl mx-auto px-6">
       <div className="text-center mb-14 max-w-2xl mx-auto">
-         <span className="text-[11px] font-black text-[#1C1917]/50 uppercase tracking-[0.3em] mb-3 block font-sans">— A gift with a story —</span>
          <motion.h2
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -632,20 +704,20 @@ const handleLogout = async () => {
          </motion.h2>
          <p className="mt-3 text-[14px] font-bold font-sans text-[#1C1917]/60">最新ニュース &amp; トピックス</p>
       </div>
-      <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}>
+      <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" initial="hidden" whileInView="show" viewport={{ once: true, margin: "-100px" }} variants={cardStagger}>
          {[
             { 
               tag: "New", 
-              title: "Photobooth has arrived — Capture every smile with aesthetic frames inspired by vintage memories.", 
+              title: "Photobooth has arrived Capture every smile with aesthetic frames inspired by vintage memories.", 
               image: "/photobooth-arrived.png", 
               bg: "bg-[#F6C445]", 
               icon: <ImageIcon size={28} /> 
             },
-            { tag: "Frames", title: "Discover your favorite style — Choose from postcard, film strip, retro game, magazine, and more.", image: "/frames.png", icon: <ImageIcon size={28} /> },
-            { tag: "Create", title: "Make every greeting personal — Customize cards with photos, colors, and heartfelt messages.", image: "/create.png", icon: <ImageIcon size={28} /> },
-            { tag: "Share", title: "Download & share instantly — Save high-quality images for social media or print them as keepsakes.", image: "/share.png", icon: <ImageIcon size={28} /> },
-         ].map((item) => (
-            <div key={item.title} className="p-6 rounded-[1.75rem] bg-white border-2 border-[#1C1917] hover:-translate-y-1.5 hover:shadow-[5px_5px_0_0_#1C1917] transition-all duration-300">
+            { tag: "Frames", title: "Discover your favorite style Choose from postcard, film strip, retro game, magazine, and more.", image: "/frames.png", icon: <ImageIcon size={28} /> },
+            { tag: "Create", title: "Make every greeting personal Customize cards with photos, colors, and heartfelt messages.", image: "/create.png", icon: <ImageIcon size={28} /> },
+            { tag: "Share", title: "Download & share instantly Save high-quality images for social media or print them as keepsakes.", image: "/share.png", icon: <ImageIcon size={28} /> },
+         ].map((item, i) => (
+            <motion.div key={item.title} variants={stickerItem(i)} whileHover={{ y: -6, rotate: 0, transition: { duration: 0.25 } }} className="p-6 rounded-[1.75rem] bg-white border-2 border-[#1C1917] hover:shadow-[5px_5px_0_0_#1C1917] transition-shadow duration-300">
                {/* Kondisi jika item memiliki properti image */}
                {item.image ? (
                   <div className="w-full aspect-square rounded-2xl overflow-hidden mb-5 border-2 border-[#1C1917] relative">
@@ -663,7 +735,7 @@ const handleLogout = async () => {
                )}
                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-widest">{item.tag}</span>
                <p className="text-sm font-bold text-stone-800 leading-snug mt-1">{item.title}</p>
-            </div>
+            </motion.div>
          ))}
       </motion.div>
    </div>
@@ -673,47 +745,46 @@ const handleLogout = async () => {
         <section id="features" className="py-24 bg-[#D8C9F2] relative overflow-hidden scroll-mt-24 border-t-3 border-[#111111]">
             <div className="max-w-7xl mx-auto px-6 relative z-10">
                 <div className="text-center mb-16 max-w-2xl mx-auto">
-                    <span className="text-xs font-bold text-[#1C1917]/50 uppercase tracking-[0.3em] mb-3 block">— Why Cardify —</span>
                     <motion.h2 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="text-6xl md:text-7xl text-[#111111] font-boldonse font-black italic" style={{ letterSpacing: "-0.02em" }}>Features that sparkle</motion.h2>
                     <p className="mt-3 text-[14px] font-bold font-sans text-[#1C1917]/60">きらめく機能</p>
                 </div>
 
-                <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut", delay: 0.15 }}>
+                <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6" initial="hidden" whileInView="show" viewport={{ once: true, margin: "-100px" }} variants={cardStagger}>
                     {/* Feature 1 */}
-                    <div className="group p-7 rounded-[1.75rem] bg-[#FDFBF3] border-2 border-[#1C1917] hover:-translate-y-1.5 hover:shadow-[5px_5px_0_0_#1C1917] transition-all duration-300">
+                    <motion.div variants={dealItem(0)} whileHover={{ y: -6 }} className="group p-7 rounded-[1.75rem] bg-[#FDFBF3] border-2 border-[#1C1917] hover:shadow-[5px_5px_0_0_#1C1917] transition-shadow duration-300">
                         <div className="w-14 h-14 rounded-2xl bg-[#F6C445] text-[#1C1917] flex items-center justify-center mb-6 shadow-sm">
                             <Zap size={26} />
                         </div>
-                        <h3 className="text-lg font-bold text-stone-800 mb-2">Instant & Easy</h3>
+                        <h3 className="text-base font-boldonse font-black italic text-[#1C1917] mb-2">Instant & Easy</h3>
                         <p className="text-stone-500 text-sm leading-relaxed">No design skills needed. Fill in the blanks, hit send.</p>
-                    </div>
+                    </motion.div>
 
                     {/* Feature 2 — NEW: Photobooth */}
-                    <div className="group p-7 rounded-[1.75rem] bg-[#FDFBF3] border-2 border-[#1C1917] hover:-translate-y-1.5 hover:shadow-[5px_5px_0_0_#1C1917] transition-all duration-300">
+                    <motion.div variants={dealItem(1)} whileHover={{ y: -6 }} className="group p-7 rounded-[1.75rem] bg-[#FDFBF3] border-2 border-[#1C1917] hover:shadow-[5px_5px_0_0_#1C1917] transition-shadow duration-300">
                         <div className="w-14 h-14 rounded-2xl bg-[#F3B8CC] text-[#1C1917] flex items-center justify-center mb-6 shadow-sm">
                             <ImageIcon size={26} />
                         </div>
-                        <h3 className="text-lg font-bold text-stone-800 mb-2">Photobooth</h3>
+                        <h3 className="text-base font-boldonse font-black italic text-[#1C1917] mb-2">Photobooth</h3>
                         <p className="text-stone-500 text-sm leading-relaxed">Snap a picture inside the app and tape it onto any card.</p>
-                    </div>
+                    </motion.div>
 
                     {/* Feature 3 (was "Interactive Web Story") */}
-                    <div className="group p-7 rounded-[1.75rem] bg-[#FDFBF3] border-2 border-[#1C1917] hover:-translate-y-1.5 hover:shadow-[5px_5px_0_0_#1C1917] transition-all duration-300">
+                    <motion.div variants={dealItem(0)} whileHover={{ y: -6 }} className="group p-7 rounded-[1.75rem] bg-[#FDFBF3] border-2 border-[#1C1917] hover:shadow-[5px_5px_0_0_#1C1917] transition-shadow duration-300">
                         <div className="w-14 h-14 rounded-2xl bg-[#BFE0F5] text-[#1C1917] flex items-center justify-center mb-6 shadow-sm">
                             <Smartphone size={26} />
                         </div>
-                        <h3 className="text-lg font-bold text-stone-800 mb-2">Interactive Web Story</h3>
+                        <h3 className="text-base font-boldonse font-black italic text-[#1C1917] mb-2">Interactive Web Story</h3>
                         <p className="text-stone-500 text-sm leading-relaxed">Add music, animations, and page-turn stories to any greeting.</p>
-                    </div>
+                    </motion.div>
 
                     {/* Feature 4 (was "Unique Templates") */}
-                    <div className="group p-7 rounded-[1.75rem] bg-[#FDFBF3] border-2 border-[#1C1917] hover:-translate-y-1.5 hover:shadow-[5px_5px_0_0_#1C1917] transition-all duration-300">
+                    <motion.div variants={dealItem(1)} whileHover={{ y: -6 }} className="group p-7 rounded-[1.75rem] bg-[#FDFBF3] border-2 border-[#1C1917] hover:shadow-[5px_5px_0_0_#1C1917] transition-shadow duration-300">
                         <div className="w-14 h-14 rounded-2xl bg-[#A9D6BC] text-[#1C1917] flex items-center justify-center mb-6 shadow-sm">
                             <Palette size={26} />
                         </div>
-                        <h3 className="text-lg font-bold text-stone-800 mb-2">Unique Templates</h3>
-                        <p className="text-stone-500 text-sm leading-relaxed">From Retro, Minimalist, to Classic Postcard — 200+ styles.</p>
-                    </div>
+                        <h3 className="text-base font-boldonse font-black italic text-[#1C1917] mb-2">Unique Templates</h3>
+                        <p className="text-stone-500 text-sm leading-relaxed">From Retro, Minimalist, to Classic Postcard 200+ styles.</p>
+                    </motion.div>
                 </motion.div>
             </div>
         </section>
@@ -722,21 +793,32 @@ const handleLogout = async () => {
         <section className="py-24 bg-[#FDFBF3] relative overflow-hidden border-t-3 border-[#111111]">
             <div className="max-w-7xl mx-auto px-6">
                 <div className="text-center mb-16 max-w-2xl mx-auto">
-                    <span className="text-xs font-bold text-stone-400 uppercase tracking-[0.3em] mb-3 block">— How it works —</span>
                     <motion.h2 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="text-6xl md:text-7xl text-[#111111] font-boldonse font-black italic" style={{ letterSpacing: "-0.02em" }}>Three little steps</motion.h2>
                     <p className="mt-3 text-[14px] font-bold font-sans text-[#1C1917]/60">かんたん3ステップ</p>
                 </div>
-                <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-6" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut", delay: 0.15 }}>
+                
+                <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4" initial="hidden" whileInView="show" viewport={{ once: true, margin: "-100px" }} variants={cardStagger}>
                     {[
                        { n: "01", title: "Choose a template", desc: "Pick from 200+ curated designs, from retro to hand-drawn.", bg: "bg-[#F6C445]" },
-                       { n: "02", title: "Customize", desc: "Add your message, photos, music, stickers — even snap a Photobooth pic.", bg: "bg-[#F3B8CC]" },
+                       { n: "02", title: "Customize", desc: "Add your message, photos, music, stickers even snap a Photobooth pic.", bg: "bg-[#F3B8CC]" },
                        { n: "03", title: "Share", desc: "Send as a link, download as an image, or print a real postcard.", bg: "bg-[#A9D6BC]" },
                     ].map((step) => (
-                       <div key={step.n} className="relative p-8 rounded-[1.75rem] bg-white border-2 border-[#1C1917] shadow-[5px_5px_0_0_#1C1917]">
-                          <span className={`absolute -top-4 -right-4 w-10 h-10 rounded-full ${step.bg} border-2 border-[#1C1917] flex items-center justify-center text-xs font-bold`}>{step.n}</span>
-                          <h3 className="text-2xl font-bold text-[#1C1917] mb-2 font-playfair">{step.title}</h3>
-                          <p className="text-stone-500 text-sm leading-relaxed">{step.desc}</p>
-                       </div>
+                       <motion.div key={step.n} variants={staggerItem} className="relative p-8 rounded-[1.75rem] bg-white border-2 border-[#1C1917] shadow-[5px_5px_0_0_#1C1917]">
+                          <motion.span
+                             initial={{ scale: 0 }}
+                             whileInView={{ scale: 1 }}
+                             viewport={{ once: true, margin: "-100px" }}
+                             transition={{ type: "spring", stiffness: 300, damping: 12, delay: 0.35 }}
+                             // Posisi diubah ke top-6 right-6 (aman di dalam card, tidak bikin kotak tinggi)
+                             className={`absolute top-6 right-6 w-11 h-11 rounded-full ${step.bg} border-2 border-[#1C1917] flex items-center justify-center text-xs font-black shadow-[2px_2px_0_0_#1C1917]`}
+                          >{step.n}</motion.span>
+                          
+                          {/* Diberikan pr-12 agar teks judul tidak menabrak badge angka di pojok kanan */}
+                          <div className="pr-10">
+                             <h3 className="text-2xl font-boldonse font-black italic text-[#1C1917] mb-2">{step.title}</h3>
+                             <p className="text-stone-500 text-sm leading-relaxed">{step.desc}</p>
+                          </div>
+                       </motion.div>
                     ))}
                 </motion.div>
             </div>
@@ -747,7 +829,6 @@ const handleLogout = async () => {
            <div className="max-w-7xl mx-auto px-6">
               <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
                   <div className="max-w-xl">
-                    <span className="text-xs font-bold text-[#1C1917]/50 uppercase tracking-[0.3em] block mb-3">— Our Collections —</span>
                     <motion.h2 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="text-6xl md:text-7xl text-[#111111] font-boldonse font-black italic" style={{ letterSpacing: "-0.02em" }}>
                        Find Your Style
                     </motion.h2>
@@ -762,14 +843,15 @@ const handleLogout = async () => {
               <motion.div
                  key={galleryPage}
                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
-                 initial={{ opacity: 0, y: 24 }}
-                 animate={{ opacity: 1, y: 0 }}
-                 transition={{ duration: 0.5, ease: "easeOut" }}
+                 initial="hidden"
+                 animate="show"
+                 variants={cardStagger}
               >
-                 {galleryVisibleItems.map((item) => (
-   <Link key={item.href} href={item.href} className="group cursor-pointer block h-full">
+                 {galleryVisibleItems.map((item, i) => (
+   <motion.div key={item.href} variants={paperLay(i)} whileHover={{ y: -8, rotate: i % 2 === 0 ? -1 : 1, transition: { duration: 0.3, ease: "easeOut" } }}>
+   <Link href={item.href} className="group cursor-pointer block h-full">
       <article> {/* Semantic HTML untuk item galeri */}
-         <div className="relative aspect-[4/5] bg-stone-200 rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-all duration-500 border-2 border-[#1C1917] group-hover:-translate-y-2">
+         <div className="relative aspect-[4/5] bg-stone-200 rounded-[1.5rem] overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl transition-shadow duration-500 border-2 border-[#1C1917]">
             <Image
                src={item.img}
                alt={`Template ${item.title} - ${item.desc}`} // Alt text SEO
@@ -782,14 +864,17 @@ const handleLogout = async () => {
                                 {item.cta} <ArrowRight size={14} />
                              </span>
                           </div>
-                          <div className={`absolute top-5 right-5 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm z-20 ${item.badgeClass}`}>{item.badge}</div>
+                          <div className={`absolute top-5 right-5 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm z-20`}></div>
                        </div>
                        <div className="px-1">
-                          <h3 className={`text-2xl font-medium mb-2 ${item.titleHover} transition-colors font-playfair`}>{item.title}</h3>
+                          <h3 className={`text-2xl font-boldonse font-black italic mb-2 ${item.titleHover} transition-colors`}>
+                             {item.title}
+                          </h3>
                           <p className="text-stone-600 text-sm leading-relaxed">{item.desc}</p>
                        </div>
       </article>
                     </Link>
+                    </motion.div>
                  ))}
               </motion.div>
 
@@ -830,17 +915,16 @@ const handleLogout = async () => {
         <section className="py-24 bg-[#FDFBF3] overflow-hidden border-t-3 border-[#111111]">
            <div className="max-w-7xl mx-auto px-6">
               <div className="text-center mb-14 max-w-2xl mx-auto">
-                 <span className="text-xs font-bold text-stone-400 uppercase tracking-[0.3em] mb-3 block">— Fan Mail —</span>
                  <motion.h2 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="text-6xl md:text-7xl text-[#111111] font-boldonse font-black italic" style={{ letterSpacing: "-0.02em" }}>Loved by detail people</motion.h2>
                  <p className="mt-3 text-[14px] font-bold font-sans text-[#1C1917]/60">こだわり派に愛される</p>
               </div>
-              <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}>
+              <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" initial="hidden" whileInView="show" viewport={{ once: true, margin: "-100px" }} variants={cardStagger}>
                  {[
-                    { quote: "Made my best friend cry — the good kind.", name: "Amelia R.", role: "Student", bg: "bg-[#F3B8CC]" },
+                    { quote: "Made my best friend cry the good kind.", name: "Amelia R.", role: "Student", bg: "bg-[#F3B8CC]" },
                     { quote: "Finally a card maker that looks designed on purpose.", name: "Jonas P.", role: "Designer", bg: "bg-[#BFE0F5]" },
                     { quote: "Every thank-you I sent came out feeling like a little studio piece.", name: "Priya K.", role: "Newlywed", bg: "bg-[#F6C445]" },
-                 ].map((t) => (
-                    <div key={t.name} className="p-7 rounded-[1.75rem] bg-white border-2 border-[#1C1917] hover:-translate-y-1 transition-transform">
+                 ].map((t, i) => (
+                    <motion.div key={t.name} variants={slideNote(i)} whileHover={{ y: -4 }} className="p-7 rounded-[1.75rem] bg-white border-2 border-[#1C1917]">
                        <div className="flex items-center gap-1 mb-4 text-[#F6C445]">
                           {Array.from({ length: 5 }).map((_, i) => <Star key={i} size={14} fill="currentColor" />)}
                        </div>
@@ -852,7 +936,7 @@ const handleLogout = async () => {
                              <p className="text-[11px] text-stone-500">{t.role}</p>
                           </div>
                        </div>
-                    </div>
+                    </motion.div>
                  ))}
               </motion.div>
            </div>
@@ -862,30 +946,47 @@ const handleLogout = async () => {
         <section className="py-24 bg-[#A9D6BC] overflow-hidden border-t-3 border-[#111111]">
            <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12">
               <div className="lg:col-span-4">
-                 <span className="text-xs font-bold text-[#1C1917]/50 uppercase tracking-[0.3em] mb-3 block">— FAQ —</span>
                  <motion.h2 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="text-6xl md:text-7xl text-[#111111] font-boldonse font-black italic" style={{ letterSpacing: "-0.02em" }}>Little answers</motion.h2>
                  <p className="mt-3 mb-4 text-[14px] font-bold font-sans text-[#1C1917]/60">ちょっとした疑問に</p>
                  <p className="text-[#1C1917]/70 leading-relaxed">Still curious? Message us on Instagram and we'll reply with a card.</p>
               </div>
-              <div className="lg:col-span-8 flex flex-col gap-3">
+              <motion.div
+                 className="lg:col-span-8 flex flex-col gap-3"
+                 initial="hidden"
+                 whileInView="show"
+                 viewport={{ once: true, margin: "-100px" }}
+                 variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06 } } }}
+              >
                  {faqs.map((faq, i) => (
-                    <div key={faq.q} className="rounded-2xl border-2 border-[#1C1917] bg-[#FDFBF3] overflow-hidden">
+                    <motion.div key={faq.q} variants={staggerItem} className="rounded-2xl border-2 border-[#1C1917] bg-[#FDFBF3] overflow-hidden">
                        <button
                           type="button"
                           onClick={() => setOpenFaq(openFaq === i ? null : i)}
                           className="w-full flex items-center justify-between gap-4 px-6 py-4 text-left font-bold text-[#1C1917]"
                        >
                           {faq.q}
-                          <ChevronDown size={18} className={`flex-shrink-0 transition-transform duration-300 ${openFaq === i ? "rotate-180" : ""}`} />
+                          <motion.span animate={{ rotate: openFaq === i ? 180 : 0 }} transition={{ duration: 0.3 }} className="flex-shrink-0">
+                             <ChevronDown size={18} />
+                          </motion.span>
                        </button>
-                       {openFaq === i && (
-                          <div className="px-6 pb-5 text-sm text-stone-600 leading-relaxed">
-                             {faq.a}
-                          </div>
-                       )}
-                    </div>
+                       <AnimatePresence initial={false}>
+                          {openFaq === i && (
+                             <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                                style={{ overflow: "hidden" }}
+                             >
+                                <div className="px-6 pb-5 text-sm text-stone-600 leading-relaxed">
+                                   {faq.a}
+                                </div>
+                             </motion.div>
+                          )}
+                       </AnimatePresence>
+                    </motion.div>
                  ))}
-              </div>
+              </motion.div>
            </div>
         </section>
 
@@ -896,7 +997,6 @@ const handleLogout = async () => {
               <div className="absolute bottom-8 right-10 w-14 h-14 rounded-full bg-[#F3B8CC] flex items-center justify-center rotate-6">
                  <Heart size={22} className="text-[#1C1917] fill-[#1C1917]" />
               </div>
-              <span className="text-xs font-bold text-stone-400 uppercase tracking-[0.3em] mb-4 block">— Ready when you are —</span>
               <motion.h2
   initial={{ opacity: 0, y: 24 }}
   whileInView={{ opacity: 1, y: 0 }}
@@ -918,8 +1018,7 @@ const handleLogout = async () => {
                  href={session ? "/templates" : "/register"}
                  className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-[#F6C445] text-[#1C1917] font-bold hover:-translate-y-1 hover:shadow-[4px_4px_0_0_rgba(255,255,255,0.3)] transition-all"
               >
-                 Start Creating — It's Free
-                 <ArrowRight size={16} strokeWidth={2.5} />
+                 Start Creating It's Free
               </Link>
            </div>
         </section>
@@ -941,40 +1040,33 @@ const handleLogout = async () => {
       {/* Brand */}
       <div className="col-span-2 md:col-span-1">
 
-        <div className="mb-4 flex items-center gap-3">
-
-          <div
-            className="flex h-10 w-10 items-center justify-center rounded-full border-[2.5px]"
-            style={{
-              background: "#1C1917",
-              borderColor: "#1C1917",
-            }}
-          >
-            <img
-              src="/logo-cardify.svg"
-              alt="Cardify"
-              className="h-8 w-8 object-contain"
-            />
-          </div>
-
-          <div className="leading-none">
-  <div
-    className="text-[9px] font-black uppercase tracking-[0.2em]"
-    style={{ color: "#1C1917" }}
-  >
-    A CARD WITH A STORY
+         <div className="mb-4 flex items-start gap-1">
+  <div className="w-20 h-20 flex items-center justify-center overflow-visible">
+    <img
+      src="/logo-cardify.svg"
+      alt="Cardify"
+      className="w-full h-full object-contain -mt-11 scale-70 drop-shadow-[0_2px_3px_rgba(28,25,23,0.25)]"
+    />
   </div>
 
-  <div
-    className="text-2xl font-black italic tracking-[-0.02em]"
-    style={{
-      fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
-      color: "#1C1917",
-    }}
-  >
-    cardify
+  <div className="leading-none">
+    <div
+      className="text-[9px] font-black uppercase tracking-[0.2em]"
+      style={{ color: "#1C1917" }}
+    >
+      A CARD WITH A STORY
+    </div>
+
+    <div
+      className="text-2xl font-black italic tracking-[-0.02em]"
+      style={{
+        fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+        color: "#1C1917",
+      }}
+    >
+      cardify
+    </div>
   </div>
-</div>
 
         </div>
 

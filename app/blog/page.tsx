@@ -204,29 +204,26 @@ function HomeContent() {
       `}} />
 
       {/* --- ANNOUNCEMENT TICKER --- */}
-      <div
-        className="relative z-[60] w-full overflow-hidden border-b-[2.5px] py-2.5 select-none"
-        style={{ background: YELLOW, color: INK, borderColor: INK }}
-      >
-        <motion.div
-          className="flex whitespace-nowrap w-max"
-          animate={{ x: ["0%", "-50%"] }}
-          transition={{ duration: 26, repeat: Infinity, ease: "linear" }}
-        >
-          {[...Array(2)].map((_, i) => (
-            <div key={i} className="flex items-center gap-8 px-4 text-[11px] font-black uppercase tracking-widest">
-              <span className="flex items-center gap-2"><Sparkles size={12} /> New — Photobooth is live, snap &amp; send in seconds</span>
-              <span>✿</span>
-              <span>Free templates every week</span>
-              <span>✿</span>
-              <span>Ships worldwide as a shareable link</span>
-              <span>✿</span>
-              <span className="flex items-center gap-2"><Heart size={12} fill="currentColor" /> Made with love for Gen Z &amp; couples</span>
-              <span>✿</span>
+            <div className="relative z-[60] w-full bg-[#1C1917] text-[#FDFBF3] overflow-hidden py-2.5 select-none">
+              <motion.div
+                className="flex whitespace-nowrap w-max"
+                animate={{ x: ["0%", "-50%"] }}
+                transition={{ duration: 26, repeat: Infinity, ease: "linear" }}
+              >
+                {[...Array(2)].map((_, i) => (
+                  <div key={i} className="flex items-center gap-8 px-4 text-[11px] font-bold uppercase tracking-widest">
+                    <span className="flex items-center gap-2"><Sparkles size={12} className="text-[#F6C445]" /> New Photobooth is live, snap &amp; send in seconds</span>
+                    <span className="text-stone-600">•</span>
+                    <span>Free templates every week</span>
+                    <span className="text-stone-600">•</span>
+                    <span>Ships worldwide as a shareable link</span>
+                    <span className="text-stone-600">•</span>
+                    <span className="flex items-center gap-2"><Heart size={12} className="text-[#F3B8CC] fill-[#F3B8CC]" /> Made with love for Gen Z &amp; couples</span>
+                    <span className="text-stone-600">•</span>
+                  </div>
+                ))}
+              </motion.div>
             </div>
-          ))}
-        </motion.div>
-      </div>
 
       {/* --- BACKGROUND DECORATIONS (SUBTLE) --- */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
@@ -256,23 +253,33 @@ function HomeContent() {
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center relative">
 
           {/* Logo Brand */}
-          <Link href="/" className="flex items-center gap-2.5 cursor-pointer group">
-            <div
-              className="w-10 h-10 rounded-full border-[2.5px] flex items-center justify-center p-2 transition-all duration-300 group-hover:rotate-12"
-              style={{ background: INK, borderColor: INK, boxShadow: `3px 3px 0 0 ${YELLOW}` }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo-cardify.svg" alt="Cardify" className="w-full h-full object-contain" />
-            </div>
-            <div className="leading-none">
-              <div className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: INK }}>
-                A CARD WITH A STORY
-              </div>
-              <div className="text-2xl font-black italic tracking-[-0.02em] font-dozo" style={{ color: INK }}>
-                cardify
-              </div>
-            </div>
-          </Link>
+          <Link href="/" className="flex items-center gap-5 cursor-pointer group">
+                                <motion.div
+                                   className="w-10 h-10"
+                                   whileHover={{ rotate: 8, scale: 1.06 }}
+                                   transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                >
+                                   {/* eslint-disable-next-line @next/next/no-img-element */}
+                                   <img src="/logo-cardify.svg" alt="Cardify" className="w-full h-full object-contain scale-135" />
+                                </motion.div>
+                                <div className="leading-none">
+                      <div
+                        className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1C1917]"
+                      >
+                        A CARD WITH A STORY
+                      </div>
+                    
+                      <div
+                        className="text-2xl font-black italic tracking-[-0.02em]"
+                        style={{
+                          fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+                          color: "#1C1917",
+                        }}
+                      >
+                        cardify
+                      </div>
+                    </div>
+                              </Link>
 
           {/* Navigation Links - Centered */}
           <div className="hidden md:flex items-center gap-8 text-sm font-black uppercase tracking-wide absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-full" style={{ color: INK }}>
@@ -421,9 +428,6 @@ function HomeContent() {
       <header className="relative overflow-hidden border-b-[2.5px] px-6 pt-20 pb-16" style={{ background: MINT, borderColor: INK }}>
         {/* stickers */}
         <div className="pointer-events-none absolute left-8 top-14 hidden rotate-[-12deg] md:block">
-          <div className="rounded-2xl border-[2.5px] px-3 py-1.5 text-[10px] font-black uppercase tracking-widest" style={{ background: YELLOW, borderColor: INK, color: INK, boxShadow: `4px 4px 0 0 ${INK}` }}>
-            読み物 · Read
-          </div>
         </div>
         <div className="pointer-events-none absolute right-10 top-24 hidden rotate-[10deg] md:block">
           <div className="flex h-14 w-14 items-center justify-center rounded-full border-[2.5px]" style={{ background: PINK, borderColor: INK, color: INK, boxShadow: `4px 4px 0 0 ${INK}` }}>
@@ -432,13 +436,6 @@ function HomeContent() {
         </div>
 
         <div className="relative max-w-4xl mx-auto text-center space-y-6">
-          <span
-            className="inline-flex items-center gap-2 rounded-full border-[2.5px] px-4 py-1.5 text-[11px] font-black uppercase tracking-widest"
-            style={{ background: CREAM, borderColor: INK, color: INK, boxShadow: `3px 3px 0 0 ${INK}` }}
-          >
-            <BookOpen size={12} />
-            Our Blog
-          </span>
 
           <h1 className="font-dozo text-5xl md:text-7xl font-black italic leading-[0.9] tracking-[-0.03em]" style={{ color: INK }}>
             Stories &amp;<br />Inspiration
@@ -649,19 +646,35 @@ function HomeContent() {
           <div className="mb-12 grid grid-cols-2 gap-10 md:grid-cols-4">
 
             {/* Brand */}
-            <div className="col-span-2 md:col-span-1">
-              <div className="mb-4 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full border-[2.5px]" style={{ background: INK, borderColor: INK }}>
-                  <img src="/logo-cardify.svg" alt="Cardify" className="h-5 w-5 object-contain" />
-                </div>
-                <div className="leading-none">
-                  <div className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: INK }}>
-                    A CARD WITH A STORY
-                  </div>
-                  <div className="font-dozo text-2xl font-black italic tracking-[-0.02em]" style={{ color: INK }}>
-                    cardify
-                  </div>
-                </div>
+      <div className="col-span-2 md:col-span-1">
+
+         <div className="mb-4 flex items-start gap-1">
+  <div className="w-20 h-20 flex items-center justify-center overflow-visible">
+    <img
+      src="/logo-cardify.svg"
+      alt="Cardify"
+      className="w-full h-full object-contain -mt-11 scale-70 drop-shadow-[0_2px_3px_rgba(28,25,23,0.25)]"
+    />
+  </div>
+
+  <div className="leading-none">
+    <div
+      className="text-[9px] font-black uppercase tracking-[0.2em]"
+      style={{ color: "#1C1917" }}
+    >
+      A CARD WITH A STORY
+    </div>
+
+    <div
+      className="text-2xl font-black italic tracking-[-0.02em]"
+      style={{
+        fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+        color: "#1C1917",
+      }}
+    >
+      cardify
+    </div>
+  </div>
               </div>
               <p className="text-sm font-medium leading-relaxed" style={{ color: INK }}>
                 The modern way to celebrate. Digital moments that last forever.
@@ -709,9 +722,12 @@ function HomeContent() {
 
           {/* Bottom */}
           <div className="flex flex-col items-center justify-between gap-4 border-t-[2.5px] pt-6 md:flex-row" style={{ borderColor: INK }}>
-            <p className="text-xs font-black uppercase tracking-wider" style={{ color: INK }}>
-              © {new Date().getFullYear()} Cardify — Made with love
-            </p>
+            <p
+  className="text-xs font-black uppercase tracking-wider"
+  style={{ color: "#1C1917" }}
+>
+  © 2025 Cardify · Made with love
+</p>
             <div className="flex gap-6 text-xs font-black uppercase tracking-wider" style={{ color: INK }}>
               <a href="/privacy-policy" className="hover:opacity-60">Privacy</a>
               <a href="/terms" className="hover:opacity-60">Terms</a>

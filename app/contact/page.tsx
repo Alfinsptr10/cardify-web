@@ -129,29 +129,33 @@ export default function ContactPage() {
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center relative">
           
           {/* Logo Brand */}
-          <Link href="/" className="flex items-center gap-2.5 cursor-pointer group">
-            <div className="w-9 h-9 bg-[#1C1917] rounded-xl flex items-center justify-center shadow-[3px_3px_0_0_#F6C445] group-hover:rotate-12 group-hover:shadow-[4px_4px_0_0_#F6C445] transition-all duration-300 p-1.5">
-               {/* eslint-disable-next-line @next/next/no-img-element */}
-               <img src="/logo-cardify.svg" alt="Cardify" className="w-full h-full object-contain" />
-            </div>
-            <div className="leading-none">
-  <div
-    className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1C1917]"
-  >
-    A CARD WITH A STORY
-  </div>
-
-  <div
-    className="text-2xl font-black italic tracking-[-0.02em]"
-    style={{
-      fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
-      color: "#1C1917",
-    }}
-  >
-    cardify
-  </div>
-</div>
-         </Link>
+          <Link href="/" className="flex items-center gap-5 cursor-pointer group">
+                                <motion.div
+                                   className="w-10 h-10"
+                                   whileHover={{ rotate: 8, scale: 1.06 }}
+                                   transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                >
+                                   {/* eslint-disable-next-line @next/next/no-img-element */}
+                                   <img src="/logo-cardify.svg" alt="Cardify" className="w-full h-full object-contain scale-135" />
+                                </motion.div>
+                                <div className="leading-none">
+                      <div
+                        className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1C1917]"
+                      >
+                        A CARD WITH A STORY
+                      </div>
+                    
+                      <div
+                        className="text-2xl font-black italic tracking-[-0.02em]"
+                        style={{
+                          fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+                          color: "#1C1917",
+                        }}
+                      >
+                        cardify
+                      </div>
+                    </div>
+                              </Link>
           
           {/* Navigation Links */}
           <div className="hidden md:flex items-center gap-8 text-sm font-bold uppercase tracking-wide text-stone-600 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -240,23 +244,12 @@ export default function ContactPage() {
 
       {/* --- HERO HEADER (Blush paper) --- */}
       <header className="pt-44 pb-24 px-6 bg-[#F3B8CC] border-t-4 border-b-4 border-[#111111] relative overflow-hidden">
-         {/* stickers */}
-         <div className="pointer-events-none absolute left-8 top-32 hidden md:block rotate-[-10deg] rounded-2xl border-[2.5px] px-4 py-2 text-[11px] font-black uppercase tracking-widest shadow-[4px_4px_0_0_#1C1917]" style={{ background: "#F6C445", borderColor: "#1C1917", color: "#1C1917" }}>
-            こんにちは!
-         </div>
-         <div className="pointer-events-none absolute right-10 top-48 hidden md:block rotate-[8deg] rounded-2xl border-[2.5px] px-4 py-2 text-[11px] font-black uppercase tracking-widest shadow-[4px_4px_0_0_#1C1917]" style={{ background: "#DCC6F5", borderColor: "#1C1917", color: "#1C1917" }}>
-            say hi ✿
-         </div>
          <motion.div
             className="max-w-4xl mx-auto text-center space-y-6"
             initial="hidden"
             animate="show"
             variants={staggerContainer}
          >
-            <motion.span variants={staggerItem} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1C1917] text-[#F6C445] text-[11px] font-black uppercase tracking-widest shadow-sm -rotate-2 font-sans">
-                <Mail size={12} />
-                Contact Us
-            </motion.span>
             <motion.h1
                variants={staggerItem}
                className="text-6xl md:text-7xl text-[#111111] font-boldonse font-black italic leading-tight"
@@ -290,9 +283,10 @@ export default function ContactPage() {
                         <Mail size={22} />
                      </div>
                      <div>
-                        <h3 className="font-bold text-[#1C1917] text-lg mb-1 font-playfair">Email</h3>
+                        {/* Diubah menggunakan font-boldonse font-black italic */}
+                        <h3 className="text-l font-boldonse font-black italic text-[#1C1917] mb-1">Email</h3>
                         <p className="text-stone-500 text-sm mb-2">For general inquiries and support.</p>
-                        <a href="mailto:hello@cardify.id" className="text-[#1C1917] font-bold hover:underline">hello@cardify.id</a>
+                        <a href="cardify.official.id@gmail.com" className="text-[#1C1917] font-bold hover:underline">hello@cardify.id</a>
                      </div>
                   </div>
 
@@ -301,7 +295,8 @@ export default function ContactPage() {
                         <Instagram size={22} />
                      </div>
                      <div>
-                        <h3 className="font-bold text-[#1C1917] text-lg mb-1 font-playfair">Social Media</h3>
+                        {/* Diubah menggunakan font-boldonse font-black italic */}
+                        <h3 className="text-l font-boldonse font-black italic text-[#1C1917] mb-1">Social Media</h3>
                         <p className="text-stone-500 text-sm mb-2">Follow our journey and updates.</p>
                         <a href="https://instagram.com/alfinnsptr" target="_blank" className="text-[#1C1917] font-bold hover:underline">@CardifyOfficial</a>
                      </div>
@@ -312,7 +307,8 @@ export default function ContactPage() {
                         <MessageCircle size={22} />
                      </div>
                      <div>
-                        <h3 className="font-bold text-[#1C1917] text-lg mb-1 font-playfair">WhatsApp</h3>
+                        {/* Diubah menggunakan font-boldonse font-black italic */}
+                        <h3 className="text-l font-boldonse font-black italic text-[#1C1917] mb-1">WhatsApp</h3>
                         <p className="text-stone-500 text-sm mb-2">Direct chat support.</p>
                         <a href="https://wa.me/6289501847804" target="_blank" className="text-[#1C1917] font-bold hover:underline">+62 895-0184-7804</a>
                      </div>
@@ -410,42 +406,35 @@ export default function ContactPage() {
           <div className="mb-12 grid grid-cols-2 gap-10 md:grid-cols-4">
       
             {/* Brand */}
-            <div className="col-span-2 md:col-span-1">
-      
-              <div className="mb-4 flex items-center gap-3">
-      
-                <div
-                  className="flex h-10 w-10 items-center justify-center rounded-full border-[2.5px]"
-                  style={{
-                    background: "#1C1917",
-                    borderColor: "#1C1917",
-                  }}
-                >
-                  <img
-                    src="/logo-cardify.svg"
-                    alt="Cardify"
-                    className="h-8 w-8 object-contain"
-                  />
-                </div>
-      
-                <div className="leading-none">
-        <div
-          className="text-[9px] font-black uppercase tracking-[0.2em]"
-          style={{ color: "#1C1917" }}
-        >
-          A CARD WITH A STORY
-        </div>
-      
-        <div
-          className="text-2xl font-black italic tracking-[-0.02em]"
-          style={{
-            fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
-            color: "#1C1917",
-          }}
-        >
-          cardify
-        </div>
-      </div>
+      <div className="col-span-2 md:col-span-1">
+
+         <div className="mb-4 flex items-start gap-1">
+  <div className="w-20 h-20 flex items-center justify-center overflow-visible">
+    <img
+      src="/logo-cardify.svg"
+      alt="Cardify"
+      className="w-full h-full object-contain -mt-11 scale-70 drop-shadow-[0_2px_3px_rgba(28,25,23,0.25)]"
+    />
+  </div>
+
+  <div className="leading-none">
+    <div
+      className="text-[9px] font-black uppercase tracking-[0.2em]"
+      style={{ color: "#1C1917" }}
+    >
+      A CARD WITH A STORY
+    </div>
+
+    <div
+      className="text-2xl font-black italic tracking-[-0.02em]"
+      style={{
+        fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+        color: "#1C1917",
+      }}
+    >
+      cardify
+    </div>
+  </div>
       
               </div>
       
@@ -604,11 +593,11 @@ export default function ContactPage() {
           >
       
             <p
-              className="text-xs font-black uppercase tracking-wider"
-              style={{ color: "#1C1917" }}
-            >
-              © {new Date().getFullYear()} Cardify · Made with love
-            </p>
+  className="text-xs font-black uppercase tracking-wider"
+  style={{ color: "#1C1917" }}
+>
+  © 2025 Cardify · Made with love
+</p>
       
             <div
               className="flex gap-6 text-xs font-black uppercase tracking-wider"

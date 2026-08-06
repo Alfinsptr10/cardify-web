@@ -93,7 +93,7 @@ function FeaturesContent() {
     { icon: <Zap size={26} />, bg: "bg-[#F6C445]", title: "Instant & Easy", desc: "No design skills needed. Fill in the blanks, hit send." },
     { icon: <ImageIcon size={26} />, bg: "bg-[#F3B8CC]", title: "Photobooth", desc: "Snap a picture inside the app and tape it onto any card." },
     { icon: <Smartphone size={26} />, bg: "bg-[#BFE0F5]", title: "Interactive Web Story", desc: "Add music, animations, and page-turn stories to any greeting." },
-    { icon: <Palette size={26} />, bg: "bg-[#A9D6BC]", title: "Unique Templates", desc: "From Retro, Minimalist, to Classic Postcard — 200+ styles." },
+    { icon: <Palette size={26} />, bg: "bg-[#A9D6BC]", title: "Unique Templates", desc: "From Retro, Minimalist, to Classic Postcard 200+ styles." },
     { icon: <Share2 size={26} />, bg: "bg-[#D8C9F2]", title: "Share Anywhere", desc: "Send as a link, download as an image, or print a real postcard." },
     { icon: <ShieldCheck size={26} />, bg: "bg-[#F6C445]", title: "Secure & Private", desc: "Your data and messages are encrypted and never sold." },
   ];
@@ -118,7 +118,7 @@ function FeaturesContent() {
         >
           {[...Array(2)].map((_, i) => (
             <div key={i} className="flex items-center gap-8 px-4 text-[11px] font-bold uppercase tracking-widest">
-              <span className="flex items-center gap-2"><Sparkles size={12} className="text-[#F6C445]" /> New — Photobooth is live, snap &amp; send in seconds</span>
+              <span className="flex items-center gap-2"><Sparkles size={12} className="text-[#F6C445]" /> New Photobooth is live, snap &amp; send in seconds</span>
               <span className="text-stone-600">•</span>
               <span>Free templates every week</span>
               <span className="text-stone-600">•</span>
@@ -136,30 +136,33 @@ function FeaturesContent() {
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center relative">
 
           {/* Logo Brand */}
-          {/* Logo Brand */}
-          <Link href="/" className="flex items-center gap-2.5 cursor-pointer group">
-            <div className="w-9 h-9 bg-[#1C1917] rounded-xl flex items-center justify-center shadow-[3px_3px_0_0_#F6C445] group-hover:rotate-12 group-hover:shadow-[4px_4px_0_0_#F6C445] transition-all duration-300 p-1.5">
-               {/* eslint-disable-next-line @next/next/no-img-element */}
-               <img src="/logo-cardify.svg" alt="Cardify" className="w-full h-full object-contain" />
+          <Link href="/" className="flex items-center gap-5 cursor-pointer group">
+                      <motion.div
+                         className="w-10 h-10"
+                         whileHover={{ rotate: 8, scale: 1.06 }}
+                         transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                      >
+                         {/* eslint-disable-next-line @next/next/no-img-element */}
+                         <img src="/logo-cardify.svg" alt="Cardify" className="w-full h-full object-contain scale-135" />
+                      </motion.div>
+                      <div className="leading-none">
+            <div
+              className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1C1917]"
+            >
+              A CARD WITH A STORY
             </div>
-            <div className="leading-none">
-  <div
-    className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1C1917]"
-  >
-    A CARD WITH A STORY
-  </div>
-
-  <div
-    className="text-2xl font-black italic tracking-[-0.02em]"
-    style={{
-      fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
-      color: "#1C1917",
-    }}
-  >
-    cardify
-  </div>
-</div>
-          </Link>
+          
+            <div
+              className="text-2xl font-black italic tracking-[-0.02em]"
+              style={{
+                fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+                color: "#1C1917",
+              }}
+            >
+              cardify
+            </div>
+          </div>
+                    </Link>
 
           {/* Navigation Links */}
           <div className="hidden md:flex items-center gap-8 text-sm font-bold uppercase tracking-wide text-stone-600 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -265,9 +268,6 @@ function FeaturesContent() {
           initial="hidden"
           animate="show"
         >
-          <motion.span variants={staggerItem} className="inline-block py-1.5 px-4 rounded-full bg-[#1C1917] text-[#F6C445] text-xs font-black tracking-widest uppercase mb-2 -rotate-2 font-sans">
-            Why Cardify
-          </motion.span>
           <motion.h1
             variants={staggerItem}
             className="text-6xl md:text-7xl text-[#111111] font-boldonse font-black italic leading-tight"
@@ -283,16 +283,15 @@ function FeaturesContent() {
       </section>
 
       {/* --- CORE FEATURES GRID (Lilac paper) --- */}
-      <section className="py-24 bg-[#D8C9F2] border-t-4 border-[#111111]">
+      <section className="py-24 bg-[#D8C9F2] border-t-[0px] border-[#111111]">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16 max-w-2xl mx-auto">
-            <span className="text-[11px] font-black text-[#1C1917]/50 uppercase tracking-[0.3em] mb-3 block font-sans">— What's Inside —</span>
             <motion.h2
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.6, ease: "easeOut" }}
-              className="text-6xl md:text-7xl text-[#111111] font-boldonse font-black italic"
+              className="text-6xl md:text-7xl text-[#111111] font-boldonse font-black italic -mt-5"
               style={{ letterSpacing: "-0.02em" }}
             >
               Built for the little details.
@@ -316,7 +315,8 @@ function FeaturesContent() {
                 <div className={`w-14 h-14 rounded-2xl ${f.bg} text-[#1C1917] flex items-center justify-center mb-6 border-2 border-[#1C1917] shadow-sm`}>
                   {f.icon}
                 </div>
-                <h3 className="text-lg font-bold text-stone-800 mb-2 font-playfair">{f.title}</h3>
+                {/* Diubah menggunakan font-boldonse font-black italic, menggantikan font-playfair */}
+                <h3 className="text-xl font-boldonse font-black italic text-[#1C1917] mb-2">{f.title}</h3>
                 <p className="text-stone-500 text-sm leading-relaxed">{f.desc}</p>
               </motion.div>
             ))}
@@ -325,7 +325,7 @@ function FeaturesContent() {
       </section>
 
       {/* --- FEATURE SPOTLIGHT: PHOTOBOOTH (Sky paper) --- */}
-      <section className="py-24 bg-[#BFE0F5] border-t-4 border-[#111111] overflow-hidden">
+      <section className="py-24 bg-[#BFE0F5] border-t-3 border-[#111111] overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
           {/* Left: Text */}
@@ -335,20 +335,16 @@ function FeaturesContent() {
             viewport={{ once: true, margin: "-100px" }}
             variants={staggerContainer}
           >
-            <motion.span variants={staggerItem} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1C1917] text-[#F6C445] text-xs font-black uppercase tracking-widest mb-6 -rotate-2 font-sans">
-              <ImageIcon size={12} />
-              Spotlight Feature
-            </motion.span>
             <motion.h2
               variants={staggerItem}
-              className="text-5xl md:text-6xl text-[#111111] font-boldonse font-black italic mb-4 leading-tight"
+              className="text-5xl md:text-6xl text-[#111111] font-boldonse font-black italic mb-4 leading-tight -mt-30"
               style={{ letterSpacing: "-0.02em" }}
             >
               Photobooth, built right in.
             </motion.h2>
             <motion.p variants={staggerItem} className="text-[14px] font-bold font-sans text-[#1C1917]/60 mb-6">フォトブース機能</motion.p>
             <motion.p variants={staggerItem} className="text-[#1C1917]/70 text-lg leading-relaxed font-medium mb-8">
-              No need to switch apps. Snap a photo — or a burst of three — right inside Cardify, then tape it straight onto your card with a couple of taps.
+              No need to switch apps. Snap a photo or a burst of three right inside Cardify, then tape it straight onto your card with a couple of taps.
             </motion.p>
             <motion.ul variants={staggerItem} className="space-y-3">
               {["Snap directly in the editor", "Retake as many times as you like", "Tape it onto any template instantly"].map((item) => (
@@ -395,10 +391,9 @@ function FeaturesContent() {
       </section>
 
       {/* --- SECONDARY FEATURES STRIP (Sage paper) --- */}
-      <section className="py-24 bg-[#A9D6BC] border-t-4 border-[#111111]">
+      <section className="py-24 bg-[#A9D6BC] border-t-3 border-[#111111]">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16 max-w-2xl mx-auto">
-            <span className="text-[11px] font-black text-[#1C1917]/50 uppercase tracking-[0.3em] mb-3 block font-sans">— Made To Fit Your Life —</span>
             <motion.h2
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -425,7 +420,7 @@ function FeaturesContent() {
               </div>
               <h3 className="text-2xl font-black text-[#1C1917] font-boldonse">Every Occasion</h3>
               <p className="text-stone-500 leading-relaxed text-sm">
-                Birthdays, weddings, thank-yous, and the everyday in-betweens — there's a template for it.
+                Birthdays, weddings, thank-yous, and the everyday in-betweens there's a template for it.
               </p>
             </motion.div>
             <motion.div variants={staggerItem} className="space-y-4 p-8 bg-white rounded-[1.75rem] border-2 border-[#1C1917] hover:-translate-y-1.5 hover:shadow-[5px_5px_0_0_#1C1917] transition-all duration-300">
@@ -443,7 +438,7 @@ function FeaturesContent() {
               </div>
               <h3 className="text-2xl font-black text-[#1C1917] font-boldonse">Send However</h3>
               <p className="text-stone-500 leading-relaxed text-sm">
-                Share a link, download it as an image, or print it as a real postcard — your call.
+                Share a link, download it as an image, or print it as a real postcard your call.
               </p>
             </motion.div>
           </motion.div>
@@ -457,7 +452,6 @@ function FeaturesContent() {
                     <div className="absolute bottom-8 right-10 w-14 h-14 rounded-full bg-[#F3B8CC] flex items-center justify-center rotate-6">
                        <Heart size={22} className="text-[#1C1917] fill-[#1C1917]" />
                     </div>
-                    <span className="text-xs font-bold text-stone-400 uppercase tracking-[0.3em] mb-4 block">— Ready when you are —</span>
                     <motion.h2
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -479,8 +473,7 @@ function FeaturesContent() {
                        href={session ? "/templates" : "/register"}
                        className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-[#F6C445] text-[#1C1917] font-bold hover:-translate-y-1 hover:shadow-[4px_4px_0_0_rgba(255,255,255,0.3)] transition-all"
                     >
-                       Start Creating — It's Free
-                       <ArrowRight size={16} strokeWidth={2.5} />
+                       Start Creating It's Free
                     </a>
                  </div>
               </section>
@@ -500,40 +493,33 @@ function FeaturesContent() {
       {/* Brand */}
       <div className="col-span-2 md:col-span-1">
 
-        <div className="mb-4 flex items-center gap-3">
-
-          <div
-            className="flex h-10 w-10 items-center justify-center rounded-full border-[2.5px]"
-            style={{
-              background: "#1C1917",
-              borderColor: "#1C1917",
-            }}
-          >
-            <img
-              src="/logo-cardify.svg"
-              alt="Cardify"
-              className="h-8 w-8 object-contain"
-            />
-          </div>
-
-          <div className="leading-none">
-  <div
-    className="text-[9px] font-black uppercase tracking-[0.2em]"
-    style={{ color: "#1C1917" }}
-  >
-    A CARD WITH A STORY
+         <div className="mb-4 flex items-start gap-1">
+  <div className="w-20 h-20 flex items-center justify-center overflow-visible">
+    <img
+      src="/logo-cardify.svg"
+      alt="Cardify"
+      className="w-full h-full object-contain -mt-11 scale-70 drop-shadow-[0_2px_3px_rgba(28,25,23,0.25)]"
+    />
   </div>
 
-  <div
-    className="text-2xl font-black italic tracking-[-0.02em]"
-    style={{
-      fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
-      color: "#1C1917",
-    }}
-  >
-    cardify
+  <div className="leading-none">
+    <div
+      className="text-[9px] font-black uppercase tracking-[0.2em]"
+      style={{ color: "#1C1917" }}
+    >
+      A CARD WITH A STORY
+    </div>
+
+    <div
+      className="text-2xl font-black italic tracking-[-0.02em]"
+      style={{
+        fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+        color: "#1C1917",
+      }}
+    >
+      cardify
+    </div>
   </div>
-</div>
 
         </div>
 
