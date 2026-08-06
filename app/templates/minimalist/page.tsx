@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
+import { saveUserCard } from "@/app/lib/saveCardAction";
 import { 
   Playfair_Display, 
   DM_Sans, 
@@ -217,21 +218,31 @@ export default function MinimalistEditor() {
   };
 
   const handleDownload = useCallback(async () => {
-    if (cardRef.current === null) return;
-    setIsDownloading(true);
-    try {
-      const dataUrl = await toPng(cardRef.current, { pixelRatio: 3 });
-      const link = document.createElement("a");
-      link.download = `invitation-${name.replace(/\s+/g, '-').toLowerCase()}.png`;
-      link.href = dataUrl;
-      link.click();
-    } catch (err) {
-      console.error(err); 
-      alert("Gagal mengunduh gambar.");
-    } finally {
-      setIsDownloading(false);
-    }
-  }, [name]);
+  if (cardRef.current === null) return;
+  setIsDownloading(true);
+  try {
+    const dataUrl = await toPng(cardRef.current, { pixelRatio: 3 });
+    const link = document.createElement("a");
+    link.download = `invitation-${name.replace(/\s+/g, '-').toLowerCase()}.png`;
+    link.href = dataUrl;
+    link.click();
+
+    // ⬇️ Simpan ke database dashboard SETELAH gambar sukses ter-download
+    await saveUserCard({ 
+      title: name || "My Card", 
+      template: "minimalist", 
+      bg: cardColor,
+      status: "saved"
+    });
+
+    alert("Kartu berhasil didownload dan disimpan ke dashboard!");
+  } catch (err) {
+    console.error(err); 
+    alert("Gagal mengunduh gambar.");
+  } finally {
+    setIsDownloading(false);
+  }
+}, [name, cardColor]);
 
   // Helper untuk menentukan warna teks dasar berdasarkan background
   const isDarkBg = cardColor === "#1C1917";

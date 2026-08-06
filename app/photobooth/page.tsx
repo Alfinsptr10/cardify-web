@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { saveUserCard } from "@/app/lib/saveCardAction";
 
 import { photoboothLayouts } from "@/lib/photobooth/layouts";
 export default function PhotoboothPage() {

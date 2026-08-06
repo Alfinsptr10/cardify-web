@@ -9,7 +9,7 @@ import {
   ArrowRight, Sparkles, Gift, Heart, User, LogOut, Settings, ChevronDown,
   FileImage, Shield, Instagram, MessageCircle,
   Pencil, Download, Trash2, Plus, Camera, Check,
-  Sparkle, Clock, Layers, FileEdit
+  Sparkle, Clock, Layers, FileEdit, Smartphone, ImageIcon
 } from "lucide-react";
 
 // --- REUSABLE MOTION VARIANTS ---
@@ -22,19 +22,6 @@ const staggerItem: Variants = {
   hidden: { opacity: 0, y: 18 },
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
 };
-
-// --- MOCK DATA: kartu tersimpan (belum ada backend order history, jadi ini contoh tampilan) ---
-const savedCards = [
-  { id: 1, title: "Happy Birthday, Sarah!", template: "Retro Birthday Bash", date: "2 days ago", bg: "bg-[#F6C445]" },
-  { id: 2, title: "Congrats on the Wedding", template: "Wedding Bloom Set", date: "1 week ago", bg: "bg-[#F3B8CC]" },
-  { id: 3, title: "Thank You, Team!", template: "Postcard From Love", date: "3 weeks ago", bg: "bg-[#BFE0F5]" },
-  { id: 4, title: "Miss You Already", template: "8-Bit Congrats!", date: "1 month ago", bg: "bg-[#A9D6BC]" },
-];
-
-const draftCards = [
-  { id: 101, title: "Untitled — Retro Birthday", template: "Retro Birthday Bash", date: "Edited 3 hours ago", bg: "bg-[#F6C445]" },
-  { id: 102, title: "Untitled — Newspaper", template: "Vintage Press", date: "Edited yesterday", bg: "bg-[#D8C9F2]" },
-];
 
 const favoriteTemplates = [
   { id: 201, title: "Wedding Bloom Set", tag: "Popular", bg: "bg-[#F3B8CC]" },
@@ -59,9 +46,36 @@ function AccountContent() {
   const [scrolled, setScrolled] = useState(false);
   const [userData, setUserData] = useState<{ name: string; email: string; image: string | null } | null>(null);
   const [activeTab, setActiveTab] = useState<"cards" | "drafts" | "favorites" | "profile" | "settings">("cards");
+  const [savedCards, setSavedCards] = useState<any[]>([]);
+  const [draftCards, setDraftCards] = useState<any[]>([]);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [isLoadingCards, setIsLoadingCards] = useState(true);
 
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    async function fetchUserCards() {
+      if (!userData?.email) return;
+      
+      try {
+        setIsLoadingCards(true);
+        const res = await fetch(`/api/user/cards?email=${encodeURIComponent(userData.email)}`);
+        const data = await res.json();
+
+        if (res.ok) {
+          setSavedCards(data.saved || []);
+          setDraftCards(data.drafts || []);
+        }
+      } catch (err) {
+        console.error("Gagal mengambil data kartu:", err);
+      } finally {
+        setIsLoadingCards(false);
+      }
+    }
+
+    fetchUserCards();
+  }, [userData]);
+  
   useEffect(() => {
     document.title = "My Account - Cardify";
 
@@ -97,7 +111,12 @@ function AccountContent() {
     };
   }, [session]);
 
-  const handleLogout = async () => {
+  const handleLogoutClick = () => {
+    setShowProfileMenu(false);
+    setShowLogoutConfirm(true);
+  };
+
+  const executeLogout = async () => {
     await signOut({ redirect: false });
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("userName");
@@ -108,7 +127,7 @@ function AccountContent() {
 
   const displayName = userData?.name || "Guest";
   const displayEmail = userData?.email || "—";
-  const memberSince = "Sep 2025"; // Placeholder — belum ada field createdAt dari backend
+  const memberSince = "Sep 2025";
 
   return (
     <div className="min-h-screen w-full bg-[#FDFBF3] text-[#1C1917] selection:bg-[#F6C445] selection:text-[#1C1917] flex flex-col relative overflow-hidden font-sans">
@@ -146,29 +165,80 @@ function AccountContent() {
       {/* --- NAVBAR --- */}
       <nav className={`fixed top-9 z-50 w-full transition-all duration-300 border-b ${scrolled ? "bg-[#FDFBF3]/90 backdrop-blur-xl border-stone-200 shadow-sm py-3" : "bg-[#FDFBF3] border-stone-200 py-4"}`}>
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center relative">
-          <Link href="/" className="flex items-center gap-2.5 cursor-pointer group">
-                      <div className="w-9 h-9 bg-[#1C1917] rounded-xl flex items-center justify-center shadow-[3px_3px_0_0_#F6C445] group-hover:rotate-12 group-hover:shadow-[4px_4px_0_0_#F6C445] transition-all duration-300 p-1.5">
-                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                         <img src="/logo-cardify.svg" alt="Cardify" className="w-full h-full object-contain" />
-                      </div>
-                      <div className="leading-none">
-            <div
-              className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1C1917]"
+         {/* Logo Brand */}
+          <Link href="/" className="flex items-center gap-5 cursor-pointer group">
+            <motion.div
+               className="w-10 h-10"
+               whileHover={{ rotate: 8, scale: 1.06 }}
+               transition={{ type: "spring", stiffness: 300, damping: 15 }}
             >
-              A CARD WITH A STORY
+               {/* eslint-disable-next-line @next/next/no-img-element */}
+               <img src="/logo-cardify.svg" alt="Cardify" className="w-full h-full object-contain scale-135" />
+            </motion.div>
+            <div className="leading-none">
+              <div className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1C1917]">
+                A CARD WITH A STORY
+              </div>
+              <div
+                className="text-2xl font-black italic tracking-[-0.02em]"
+                style={{
+                  fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+                  color: "#1C1917",
+                }}
+              >
+                cardify
+              </div>
             </div>
+          </Link>
           
-            <div
-              className="text-2xl font-black italic tracking-[-0.02em]"
-              style={{
-                fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
-                color: "#1C1917",
-              }}
-            >
-              cardify
+          {/* Navigation Links - Centered */}
+          <div className="hidden md:flex items-center gap-8 text-sm font-bold uppercase tracking-wide text-stone-600 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-full">
+            <div className="relative group h-full flex items-center cursor-pointer">
+                <Link href="/templates" className="hover:text-[#1C1917] transition-colors relative py-2 flex items-center gap-1 group-hover:text-[#D9A400]">
+                  Templates
+                  <ChevronDown size={14} className="opacity-50 group-hover:opacity-100 transition-transform duration-300 group-hover:rotate-180 text-[#D9A400]" />
+                </Link>
+                
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-72 bg-white rounded-2xl shadow-xl border-2 border-[#1C1917] p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top translate-y-2 group-hover:translate-y-0 z-50 normal-case">
+                   <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-2 px-2">Create New</p>
+
+                   <Link href="/web-story" className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#F3B8CC]/20 transition-colors group/item relative z-10 mb-1">
+                      <div className="w-10 h-10 rounded-full bg-[#F3B8CC] flex-shrink-0 flex items-center justify-center text-[#1C1917] border-2 border-[#1C1917] shadow-sm">
+                         <Smartphone size={18} />
+                      </div>
+                      <div>
+                         <p className="text-sm font-bold text-stone-800">Web Story</p>
+                         <p className="text-[10px] text-stone-500 font-medium leading-tight mt-0.5 normal-case">Interactive, Music, Animations</p>
+                      </div>
+                   </Link>
+
+                   <Link href="/templates?filter=card-image" className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#F6C445]/20 transition-colors group/item relative z-10">
+                      <div className="w-10 h-10 rounded-full bg-[#F6C445] flex-shrink-0 flex items-center justify-center text-[#1C1917] border-2 border-[#1C1917] shadow-sm">
+                         <ImageIcon size={18} />
+                      </div>
+                      <div>
+                         <p className="text-sm font-bold text-stone-800">Card Image</p>
+                         <p className="text-[10px] text-stone-500 font-medium leading-tight mt-0.5 normal-case">Static, Printable, Classic</p>
+                      </div>
+                   </Link>
+                </div>
             </div>
+            
+            <Link href="/features" className="hover:text-[#1C1917] transition-colors relative group">
+              Features
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#F6C445] transition-all group-hover:w-full"></span>
+            </Link>
+
+            <Link href="/about" className="hover:text-[#1C1917] transition-colors relative group">
+              About
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#F6C445] transition-all group-hover:w-full"></span>
+            </Link>
+            
+            <Link href="/contact" className="hover:text-[#1C1917] transition-colors relative group">
+              Contact
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#F6C445] transition-all group-hover:w-full"></span>
+            </Link>
           </div>
-                    </Link>
 
           <div className="flex items-center gap-4">
             {userData ? (
@@ -202,15 +272,15 @@ function AccountContent() {
                         <div className="w-8 h-8 rounded-lg bg-[#F6C445] border-2 border-[#1C1917] flex items-center justify-center text-[#1C1917]"><User size={16} /></div>
                         Profile & Account
                       </Link>
-                      <button className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-[#BFE0F5]/25 hover:text-[#1C1917] rounded-xl transition-all font-medium group">
-                        <div className="w-8 h-8 rounded-lg bg-[#BFE0F5] border-2 border-[#1C1917] flex items-center justify-center text-[#1C1917] group-hover:shadow-[2px_2px_0_0_#1C1917] transition-all"><Settings size={16} /></div>
-                        Preferences
-                      </button>
-                      <div className="h-px bg-stone-100 my-1 mx-2"></div>
-                      <button onClick={handleLogout} className="flex items-center gap-3 w-full p-2.5 text-sm text-red-600 hover:bg-[#F3B8CC]/25 rounded-xl transition-all font-medium group">
-                        <div className="w-8 h-8 rounded-lg bg-[#F3B8CC] border-2 border-[#1C1917] flex items-center justify-center text-red-600 group-hover:shadow-[2px_2px_0_0_#1C1917] transition-all"><LogOut size={16} /></div>
-                        Sign Out
-                      </button>
+                      <button className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-[#BFE0F5]/25 hover:text-[#1C1917] rounded-xl transition-all font-medium group cursor-pointer">
+  <div className="w-8 h-8 rounded-lg bg-[#BFE0F5] border-2 border-[#1C1917] flex items-center justify-center text-[#1C1917] group-hover:shadow-[2px_2px_0_0_#1C1917] transition-all"><Settings size={16} /></div>
+  Preferences
+</button>
+<div className="h-px bg-stone-100 my-1 mx-2"></div>
+<button onClick={handleLogoutClick} className="flex items-center gap-3 w-full p-2.5 text-sm text-red-600 hover:bg-[#F3B8CC]/25 rounded-xl transition-all font-medium group cursor-pointer">
+  <div className="w-8 h-8 rounded-lg bg-[#F3B8CC] border-2 border-[#1C1917] flex items-center justify-center text-red-600 group-hover:shadow-[2px_2px_0_0_#1C1917] transition-all"><LogOut size={16} /></div>
+  Sign Out
+</button>
                     </div>
                   </div>
                 )}
@@ -224,7 +294,7 @@ function AccountContent() {
 
       <main className="flex-grow pt-28">
 
-        {/* --- PROFILE HEADER STRIP (Marigold paper) --- */}
+        {/* --- PROFILE HEADER STRIP --- */}
         <section className="bg-[#F6C445] border-t-4 border-b-4 border-[#111111] py-12 px-6">
           <motion.div
             className="max-w-6xl mx-auto flex flex-col md:flex-row items-center md:items-end gap-6"
@@ -287,7 +357,6 @@ function AccountContent() {
         {/* --- TABS + CONTENT --- */}
         <section className="bg-[#FDFBF3] pb-24 px-6">
           <div className="max-w-6xl mx-auto">
-
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
 
               {/* --- SIDEBAR --- */}
@@ -474,7 +543,7 @@ function AccountContent() {
                     <motion.div variants={staggerItem} className="bg-white p-8 rounded-[1.75rem] border-2 border-[#1C1917] shadow-[5px_5px_0_0_#1C1917]">
                       <h3 className="text-lg font-bold text-[#1C1917] mb-2 font-playfair flex items-center gap-2"><LogOut size={18} /> Sign Out</h3>
                       <p className="text-sm text-stone-500 mb-5">You'll need to log in again to access your saved templates.</p>
-                      <button onClick={handleLogout} className="px-6 py-3 rounded-full bg-white text-[#1C1917] text-sm font-bold border-2 border-[#1C1917] hover:bg-[#1C1917] hover:text-[#FDFBF3] transition-all flex items-center gap-2">
+                      <button onClick={handleLogoutClick} className="px-6 py-3 rounded-full bg-white text-[#1C1917] text-sm font-bold border-2 border-[#1C1917] hover:bg-[#1C1917] hover:text-[#FDFBF3] transition-all flex items-center gap-2">
                         <LogOut size={16} /> Sign Out of Cardify
                       </button>
                     </motion.div>
@@ -491,7 +560,6 @@ function AccountContent() {
 
               </div>
             </div>
-
           </div>
         </section>
       </main>
@@ -500,240 +568,164 @@ function AccountContent() {
       <footer
         className="relative isolate w-full border-t-[2.5px] px-6 py-12 overflow-hidden"
         style={{
-          background: "#84D4A4", // MINT
-          borderColor: "#1C1917", // INK
+          background: "#84D4A4",
+          borderColor: "#1C1917",
         }}
       >
         <div className="mx-auto max-w-7xl">
-      
           <div className="mb-12 grid grid-cols-2 gap-10 md:grid-cols-4">
-      
-            {/* Brand */}
             <div className="col-span-2 md:col-span-1">
-      
-              <div className="mb-4 flex items-center gap-3">
-      
-                <div
-                  className="flex h-10 w-10 items-center justify-center rounded-full border-[2.5px]"
-                  style={{
-                    background: "#1C1917",
-                    borderColor: "#1C1917",
-                  }}
-                >
+               <div className="mb-4 flex items-start gap-1">
+                <div className="w-20 h-20 flex items-center justify-center overflow-visible">
                   <img
                     src="/logo-cardify.svg"
                     alt="Cardify"
-                    className="h-8 w-8 object-contain"
+                    className="w-full h-full object-contain -mt-11 scale-70 drop-shadow-[0_2px_3px_rgba(28,25,23,0.25)]"
                   />
                 </div>
-      
                 <div className="leading-none">
-        <div
-          className="text-[9px] font-black uppercase tracking-[0.2em]"
-          style={{ color: "#1C1917" }}
-        >
-          A CARD WITH A STORY
-        </div>
-      
-        <div
-          className="text-2xl font-black italic tracking-[-0.02em]"
-          style={{
-            fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
-            color: "#1C1917",
-          }}
-        >
-          cardify
-        </div>
-      </div>
-      
+                  <div className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: "#1C1917" }}>
+                    A CARD WITH A STORY
+                  </div>
+                  <div
+                    className="text-2xl font-black italic tracking-[-0.02em]"
+                    style={{
+                      fontFamily: "'Boldonse', 'Archivo Black', sans-serif",
+                      color: "#1C1917",
+                    }}
+                  >
+                    cardify
+                  </div>
+                </div>
               </div>
-      
-              <p
-                className="text-sm font-medium leading-relaxed"
-                style={{ color: "#1C1917" }}
-              >
-                The modern way to celebrate.
-                Digital moments that last forever.
+              <p className="text-sm font-medium leading-relaxed" style={{ color: "#1C1917" }}>
+                The modern way to celebrate. Digital moments that last forever.
               </p>
-      
             </div>
-      
-            {/* Product */}
-      
+
             <div>
-      
-              <h4
-                className="mb-4 text-xs font-black uppercase tracking-widest"
-                style={{ color: "#1C1917" }}
-              >
-                Product
-              </h4>
-      
+              <h4 className="mb-4 text-xs font-black uppercase tracking-widest" style={{ color: "#1C1917" }}>Product</h4>
               <ul className="space-y-2 text-sm font-bold">
-      
-                <li>
-                  <a
-                    href="/templates"
-                    className="transition-opacity hover:opacity-60"
-                    style={{ color: "#1C1917" }}
-                  >
-                    Templates
-                  </a>
-                </li>
-      
-                <li>
-                  <a
-                    href="/showcase"
-                    className="transition-opacity hover:opacity-60"
-                    style={{ color: "#1C1917" }}
-                  >
-                    Showcase
-                  </a>
-                </li>
-      
+                <li><Link href="/templates" className="transition-opacity hover:opacity-60" style={{ color: "#1C1917" }}>Templates</Link></li>
+                <li><Link href="/showcase" className="transition-opacity hover:opacity-60" style={{ color: "#1C1917" }}>Showcase</Link></li>
               </ul>
-      
             </div>
-      
-            {/* Company */}
-      
+
             <div>
-      
-              <h4
-                className="mb-4 text-xs font-black uppercase tracking-widest"
-                style={{ color: "#1C1917" }}
-              >
-                Company
-              </h4>
-      
+              <h4 className="mb-4 text-xs font-black uppercase tracking-widest" style={{ color: "#1C1917" }}>Company</h4>
               <ul className="space-y-2 text-sm font-bold">
-      
-                <li>
-                  <a href="/about" className="hover:opacity-60" style={{ color: "#1C1917" }}>
-                    About
-                  </a>
-                </li>
-      
-                <li>
-                  <a href="/careers" className="hover:opacity-60" style={{ color: "#1C1917" }}>
-                    Careers
-                  </a>
-                </li>
-      
-                <li>
-                  <a href="/blog" className="hover:opacity-60" style={{ color: "#1C1917" }}>
-                    Blog
-                  </a>
-                </li>
-      
+                <li><Link href="/about" className="hover:opacity-60" style={{ color: "#1C1917" }}>About</Link></li>
+                <li><Link href="/careers" className="hover:opacity-60" style={{ color: "#1C1917" }}>Careers</Link></li>
+                <li><Link href="/blog" className="hover:opacity-60" style={{ color: "#1C1917" }}>Blog</Link></li>
               </ul>
-      
             </div>
-      
-            {/* Connect */}
-      
+
             <div>
-      
-              <h4
-                className="mb-4 text-xs font-black uppercase tracking-widest"
-                style={{ color: "#1C1917" }}
-              >
-                Connect
-              </h4>
-      
+              <h4 className="mb-4 text-xs font-black uppercase tracking-widest" style={{ color: "#1C1917" }}>Connect</h4>
               <div className="flex flex-col gap-3">
-      
                 <a
                   href="https://instagram.com/alfinnsptr"
                   target="_blank"
                   className="flex items-center gap-3 hover:opacity-60"
                   style={{ color: "#1C1917" }}
                 >
-      
-                  <div
-                    className="flex h-8 w-8 items-center justify-center rounded-full border-2"
-                    style={{
-                      background: "#FDFBF3",
-                      borderColor: "#1C1917",
-                    }}
-                  >
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full border-2" style={{ background: "#FDFBF3", borderColor: "#1C1917" }}>
                     <Instagram size={14} strokeWidth={2.5} />
                   </div>
-      
-                  <span className="text-sm font-bold">
-                    Instagram
-                  </span>
-      
+                  <span className="text-sm font-bold">Instagram</span>
                 </a>
-      
                 <a
                   href="https://wa.me/6289501847804"
                   target="_blank"
                   className="flex items-center gap-3 hover:opacity-60"
                   style={{ color: "#1C1917" }}
                 >
-      
-                  <div
-                    className="flex h-8 w-8 items-center justify-center rounded-full border-2"
-                    style={{
-                      background: "#FDFBF3",
-                      borderColor: "#1C1917",
-                    }}
-                  >
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full border-2" style={{ background: "#FDFBF3", borderColor: "#1C1917" }}>
                     <MessageCircle size={14} strokeWidth={2.5} />
                   </div>
-      
-                  <span className="text-sm font-bold">
-                    WhatsApp
-                  </span>
-      
+                  <span className="text-sm font-bold">WhatsApp</span>
                 </a>
-      
               </div>
-      
             </div>
-      
           </div>
-      
-          {/* Bottom */}
-      
-          <div
-            className="flex flex-col items-center justify-between gap-3 border-t-[2.5px] pt-6 md:flex-row"
-            style={{ borderColor: "#1C1917" }}
-          >
-      
-            <p
-              className="text-xs font-black uppercase tracking-wider"
-              style={{ color: "#1C1917" }}
-            >
-              © {new Date().getFullYear()} Cardify · Made with love
-            </p>
-      
-            <div
-              className="flex gap-6 text-xs font-black uppercase tracking-wider"
-              style={{ color: "#1C1917" }}
-            >
-      
-              <a
-                href="/privacy-policy"
-                className="hover:opacity-60"
-              >
-                Privacy
-              </a>
-      
-              <a
-                href="/terms"
-                className="hover:opacity-60"
-              >
-                Terms
-              </a>
-      
+
+          <div className="flex flex-col items-center justify-between gap-3 border-t-[2.5px] pt-6 md:flex-row" style={{ borderColor: "#1C1917" }}>
+            <p className="text-xs font-black uppercase tracking-wider" style={{ color: "#1C1917" }}>© 2025 Cardify · Made with love</p>
+            <div className="flex gap-6 text-xs font-black uppercase tracking-wider" style={{ color: "#1C1917" }}>
+              <Link href="/privacy-policy" className="hover:opacity-60">Privacy</Link>
+              <Link href="/terms" className="hover:opacity-60">Terms</Link>
             </div>
-      
           </div>
-      
         </div>
       </footer>
+
+      {/* --- POPUP KONFIRMASI LOGOUT --- */}
+      {showLogoutConfirm && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-[#1C1917]/30 p-4 animate-in fade-in duration-300"
+          onClick={() => setShowLogoutConfirm(false)}
+        >
+          <div
+            className="relative w-full max-w-sm transform scale-100 animate-in zoom-in-95 duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Hard shadow layer */}
+            <div className="absolute inset-0 translate-x-1.5 translate-y-1.5 rounded-[2rem] bg-[#111111]" />
+    
+            {/* Card */}
+            <div className="relative rounded-[2rem] bg-[#FFFDF5] border-[2.5px] border-[#111111] p-8 text-center">
+              {/* Cute sticker badge */}
+              <div className="absolute -top-3 -right-3 rotate-12 rounded-full bg-[#FFE66D] border-[2.5px] border-[#111111] px-3 py-1 shadow-[3px_3px_0_#111111]">
+                <span className="text-[10px] font-black uppercase tracking-wider text-[#111111]">
+                  Bye-bye!
+                </span>
+              </div>
+    
+              {/* Icon circle */}
+              <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#FFD6D6] border-[2.5px] border-[#111111] shadow-[3px_3px_0_#111111]">
+                <LogOut size={28} strokeWidth={2.5} className="text-[#111111]" />
+              </div>
+    
+              <h3
+                className="mb-3 text-2xl font-black uppercase tracking-tight text-[#111111]"
+                style={{ fontFamily: "'Boldonse', 'Archivo Black', sans-serif" }}
+              >
+                Sign Out?
+              </h3>
+    
+              <p className="mb-8 px-2 text-sm font-bold leading-relaxed text-[#4A4A4A]">
+                Are you sure you want to sign out? You will need to log in again to access your saved templates.
+              </p>
+    
+              <div className="flex flex-col gap-3">
+                {/* Primary button */}
+                <button
+                  onClick={executeLogout}
+                  className="group relative w-full cursor-pointer"
+                >
+                  <div className="absolute inset-0 translate-x-1 translate-y-1 rounded-2xl bg-[#111111] transition-transform group-active:translate-x-0.5 group-active:translate-y-0.5" />
+                  <div className="relative flex items-center justify-center gap-2 rounded-2xl bg-[#FF6B6B] border-[2.5px] border-[#111111] py-3.5 font-black text-white transition-transform group-active:translate-x-0.5 group-active:translate-y-0.5">
+                    <LogOut size={18} strokeWidth={2.5} />
+                    Yes, Sign Out
+                  </div>
+                </button>
+    
+                {/* Secondary button */}
+                <button
+                  onClick={() => setShowLogoutConfirm(false)}
+                  className="group relative w-full cursor-pointer"
+                >
+                  <div className="absolute inset-0 translate-x-1 translate-y-1 rounded-2xl bg-[#111111] transition-transform group-active:translate-x-0.5 group-active:translate-y-0.5" />
+                  <div className="relative rounded-2xl bg-[#FFFDF5] border-[2.5px] border-[#111111] py-3.5 font-black text-[#111111] transition-transform group-active:translate-x-0.5 group-active:translate-y-0.5 hover:bg-[#F0F0F0]">
+                    Cancel
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
