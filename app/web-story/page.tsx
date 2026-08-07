@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { saveUserCard } from "@/app/lib/saveCardAction";
 // REMOVED: import Link from "next/link"; -> Replaced with <a> tag
 import { 
   ArrowLeft, Image as ImageIcon, 
@@ -647,6 +648,15 @@ export default function WebStoryEditor() {
         
         const docRef = await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'web-stories'), payload);
         
+        // --- TAMBAHKAN KODE INI AGAR MASUK KE DASHBOARD AKUN ---
+        await saveUserCard({
+            title: storyInfo.title || "Web Story",
+            template: "web-story",
+            bg: "#BFE0F5",
+            status: "saved",
+        });
+        // -----------------------------------------------------
+
         const url = `${window.location.origin}/s/${docRef.id}`;
         setPublishedUrl(url);
     } catch (error) {
@@ -676,7 +686,7 @@ export default function WebStoryEditor() {
       <div className="flex flex-col items-center justify-center min-h-[85vh] w-full max-w-5xl mx-auto animate-in fade-in duration-700 relative z-10 py-10">
          {/* ADDED: Back to App Home Button */}
          <div className="absolute top-4 left-4 md:top-8 md:left-[-100px] z-50">
-            <a href="/" className="flex items-center gap-2 bg-white/60 hover:bg-white/90 backdrop-blur-md px-5 py-2.5 rounded-full text-stone-600 hover:text-sky-600 font-bold uppercase text-xs tracking-widest border-2 border-white/70 hover:border-rose-200 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_rgba(251,113,133,0.35)] transition-all duration-300 group">
+            <a href="/templates" className="flex items-center gap-2 bg-white/60 hover:bg-white/90 backdrop-blur-md px-5 py-2.5 rounded-full text-stone-600 hover:text-sky-600 font-bold uppercase text-xs tracking-widest border-2 border-white/70 hover:border-rose-200 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_rgba(251,113,133,0.35)] transition-all duration-300 group">
                 <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
                 <span>Exit Editor</span>
             </a>

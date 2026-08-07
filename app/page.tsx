@@ -451,28 +451,28 @@ const handleLogout = async () => {
                 </button>
 
                 {/* Dropdown Menu */}
-                {showProfileMenu && (
-                  <div className="absolute top-full right-0 mt-3 w-72 bg-white rounded-2xl border-2 border-[#1C1917] shadow-[6px_6px_0_0_#1C1917] p-2 overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right">
-                    <div className="p-4 bg-[#FDFBF3] rounded-xl mb-2 border-2 border-stone-100">
-                      <p className="text-sm font-bold text-stone-900 truncate">{session?.user?.name}</p>
-                      <p className="text-xs text-stone-500 truncate font-medium">{session?.user?.email}</p>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <Link href="/account" className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-[#F6C445]/15 hover:text-[#1C1917] rounded-xl transition-all font-medium group">
-                        <div className="w-8 h-8 rounded-lg bg-[#F6C445] border-2 border-[#1C1917] flex items-center justify-center text-[#1C1917] group-hover:shadow-[2px_2px_0_0_#1C1917] transition-all"><User size={16} /></div>
-                        Profile & Account
-                      </Link>
-                      <button className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-[#BFE0F5]/25 hover:text-[#1C1917] rounded-xl transition-all font-medium group">
-                        <div className="w-8 h-8 rounded-lg bg-[#BFE0F5] border-2 border-[#1C1917] flex items-center justify-center text-[#1C1917] group-hover:shadow-[2px_2px_0_0_#1C1917] transition-all"><Settings size={16} /></div>
-                        Preferences
-                      </button>
-                      <div className="h-px bg-stone-100 my-1 mx-2"></div>
-                      <button onClick={initiateLogout} className="flex items-center gap-3 w-full p-2.5 text-sm text-red-600 hover:bg-[#F3B8CC]/25 rounded-xl transition-all font-medium group">
-                        <div className="w-8 h-8 rounded-lg bg-[#F3B8CC] border-2 border-[#1C1917] flex items-center justify-center text-red-600 group-hover:shadow-[2px_2px_0_0_#1C1917] transition-all"><LogOut size={16} /></div>
-                        Sign Out
-                      </button>
-                    </div>
-                  </div>
+                                {showProfileMenu && (
+                                  <div className="absolute top-full right-0 mt-3 w-72 bg-white rounded-2xl border-2 border-[#1C1917] shadow-[6px_6px_0_0_#1C1917] p-2 overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right">
+                                    <div className="p-4 bg-[#FDFBF3] rounded-xl mb-2 border-2 border-stone-100">
+                                      <p className="text-sm font-bold text-stone-900 truncate">{session?.user?.name}</p>
+                                      <p className="text-xs text-stone-500 truncate font-medium">{session?.user?.email}</p>
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                      <Link href="/account" className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-[#F6C445]/15 hover:text-[#1C1917] rounded-xl transition-all font-medium group cursor-pointer">
+                                        <div className="w-8 h-8 rounded-lg bg-[#F6C445] border-2 border-[#1C1917] flex items-center justify-center text-[#1C1917] group-hover:shadow-[2px_2px_0_0_#1C1917] transition-all"><User size={16} /></div>
+                                        Profile & Account
+                                      </Link>
+                                      <button className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-[#BFE0F5]/25 hover:text-[#1C1917] rounded-xl transition-all font-medium group cursor-pointer">
+                                        <div className="w-8 h-8 rounded-lg bg-[#BFE0F5] border-2 border-[#1C1917] flex items-center justify-center text-[#1C1917] group-hover:shadow-[2px_2px_0_0_#1C1917] transition-all"><Settings size={16} /></div>
+                                        Preferences
+                                      </button>
+                                      <div className="h-px bg-stone-100 my-1 mx-2"></div>
+                                      <button onClick={initiateLogout} className="flex items-center gap-3 w-full p-2.5 text-sm text-red-600 hover:bg-[#F3B8CC]/25 rounded-xl transition-all font-medium group cursor-pointer">
+                                        <div className="w-8 h-8 rounded-lg bg-[#F3B8CC] border-2 border-[#1C1917] flex items-center justify-center text-red-600 group-hover:shadow-[2px_2px_0_0_#1C1917] transition-all"><LogOut size={16} /></div>
+                                        Sign Out
+                                      </button>
+                                    </div>
+                                  </div>
                 )}
               </div>
             ) : (
@@ -490,7 +490,6 @@ const handleLogout = async () => {
             {/* CTA Button */}
             <Link href="/templates" className="px-5 py-2.5 rounded-full bg-[#1C1917] text-[#FDFBF3] text-sm font-bold hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_#F6C445] transition-all flex items-center gap-2 border-2 border-[#1C1917]">
               Start Creating
-              <ArrowRight size={16} strokeWidth={2.5} className="text-[#F6C445]" />
             </Link>
           </div>
         </div>

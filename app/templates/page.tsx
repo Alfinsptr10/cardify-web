@@ -12,6 +12,7 @@ import {
   MessageCircle,
   Heart
 } from "lucide-react";
+import FavoriteSticker from "@/components/FavoriteButton";
 
 // --- REUSABLE MOTION VARIANTS ---
 const fadeUp: Variants = {
@@ -198,6 +199,10 @@ function TemplatesContent() {
     }))
   };
 
+  function initiateLogout(event: React.MouseEvent<HTMLButtonElement>): void {
+    throw new Error("Function not implemented.");
+  }
+
   return (
     <div className="min-h-screen bg-[#FDFBF3] font-dm-sans text-[#1C1917]">
       
@@ -313,24 +318,25 @@ function TemplatesContent() {
                   <ChevronDown size={14} className={`text-stone-400 transition-transform duration-300 ${showProfileMenu ? 'rotate-180' : ''}`} />
                 </button>
 
+                {/* Dropdown Menu */}
                 {showProfileMenu && (
-                  <div className="absolute top-full right-0 mt-3 w-72 bg-white rounded-2xl shadow-2xl border-2 border-[#1C1917] p-2 overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right">
-                    <div className="p-4 bg-stone-50/50 rounded-xl mb-2 border border-stone-100">
-                      <p className="text-sm font-bold text-stone-900 truncate">{userData.name}</p>
-                      <p className="text-xs text-stone-500 truncate font-medium">{userData.email}</p>
+                  <div className="absolute top-full right-0 mt-3 w-72 bg-white rounded-2xl border-2 border-[#1C1917] shadow-[6px_6px_0_0_#1C1917] p-2 overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right">
+                    <div className="p-4 bg-[#FDFBF3] rounded-xl mb-2 border-2 border-stone-100">
+                      <p className="text-sm font-bold text-stone-900 truncate">{session?.user?.name}</p>
+                      <p className="text-xs text-stone-500 truncate font-medium">{session?.user?.email}</p>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <Link href="/account" className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-stone-50 hover:text-black rounded-xl transition-all font-medium group">
-                        <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all"><User size={16} /></div>
+                      <Link href="/account" className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-[#F6C445]/15 hover:text-[#1C1917] rounded-xl transition-all font-medium group cursor-pointer">
+                        <div className="w-8 h-8 rounded-lg bg-[#F6C445] border-2 border-[#1C1917] flex items-center justify-center text-[#1C1917] group-hover:shadow-[2px_2px_0_0_#1C1917] transition-all"><User size={16} /></div>
                         Profile & Account
                       </Link>
-                      <button className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-stone-50 hover:text-black rounded-xl transition-all font-medium group">
-                        <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all"><Settings size={16} /></div>
+                      <button className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-[#BFE0F5]/25 hover:text-[#1C1917] rounded-xl transition-all font-medium group cursor-pointer">
+                        <div className="w-8 h-8 rounded-lg bg-[#BFE0F5] border-2 border-[#1C1917] flex items-center justify-center text-[#1C1917] group-hover:shadow-[2px_2px_0_0_#1C1917] transition-all"><Settings size={16} /></div>
                         Preferences
                       </button>
                       <div className="h-px bg-stone-100 my-1 mx-2"></div>
-                      <button onClick={handleLogout} className="flex items-center gap-3 w-full p-2.5 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-all font-medium group">
-                        <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all"><LogOut size={16} /></div>
+                      <button onClick={initiateLogout} className="flex items-center gap-3 w-full p-2.5 text-sm text-red-600 hover:bg-[#F3B8CC]/25 rounded-xl transition-all font-medium group cursor-pointer">
+                        <div className="w-8 h-8 rounded-lg bg-[#F3B8CC] border-2 border-[#1C1917] flex items-center justify-center text-red-600 group-hover:shadow-[2px_2px_0_0_#1C1917] transition-all"><LogOut size={16} /></div>
                         Sign Out
                       </button>
                     </div>
@@ -413,45 +419,51 @@ function TemplatesContent() {
             variants={staggerContainer}
          >
             {filteredTemplates.map((template) => (
-              <Link href={template.href} key={template.id} className="group block h-full">
-                  <motion.div variants={staggerItem} className="bg-white rounded-[1.75rem] border-2 border-[#1C1917] overflow-hidden hover:-translate-y-1.5 hover:shadow-[6px_6px_0_0_#1C1917] transition-all duration-300 h-full flex flex-col">
-                     <div className="relative aspect-[4/3] bg-stone-100 overflow-hidden border-b-2 border-[#1C1917]">
-                        <Image 
-                           src={template.image} 
-                           alt={template.title} 
-                           fill
-                           className="object-cover group-hover:scale-105 transition-transform duration-700"
-                        />
-                        <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
-                           <span className="bg-[#F6C445] text-[#1C1917] px-6 py-3 rounded-full font-bold text-xs transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl flex items-center gap-2 border-2 border-[#1C1917]">
-                              Use Template <ArrowRight size={14} />
-                           </span>
-                        </div>
-                     </div>
+  <motion.div key={template.id} variants={staggerItem} className="relative block h-full pt-3 pr-3">
+      
+      {/* Stiker murni di pojok kanan atas, ikut teranimasi bersama card */}
+      <FavoriteSticker cardId={template.id} />
 
-                     <div className="p-6 flex flex-col flex-grow">
-                        <div className="flex items-center justify-between mb-2">
-                           <h3 className="text-xl font-bold text-stone-800 font-playfair transition-colors">{template.title}</h3>
-                           <div className={`p-1.5 rounded-full border-2 border-[#1C1917] ${template.category === 'web-story' ? 'bg-[#F3B8CC] text-[#1C1917]' : 'bg-[#F6C445] text-[#1C1917]'}`}>
-                             {template.category === 'web-story' ? <Smartphone size={14} /> : <ImageIcon size={14} />}
-                           </div>
-                        </div>
-                        <p className="text-stone-500 text-sm leading-relaxed mb-4 flex-grow font-light">
-                           {template.description}
-                        </p>
-                        
-                        <div className="flex items-center gap-2 pt-4 border-t-2 border-stone-100">
-                           <div className="flex -space-x-2">
-                              {[1,2,3].map(i => (
-                                 <div key={i} className="w-6 h-6 rounded-full bg-stone-200 border-2 border-white"></div>
-                              ))}
-                           </div>
-                           <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wide ml-2">2k+ Users</span>
-                        </div>
-                     </div>
-                  </motion.div>
-               </Link>
-            ))}
+      <Link href={template.href} className="block h-full group">
+          <div className="bg-white rounded-[1.75rem] border-2 border-[#1C1917] overflow-hidden hover:-translate-y-1.5 hover:shadow-[6px_6px_0_0_#1C1917] transition-all duration-300 h-full flex flex-col">
+             <div className="relative aspect-[4/3] bg-stone-100 overflow-hidden border-b-2 border-[#1C1917]">
+                <Image 
+                   src={template.image} 
+                   alt={template.title} 
+                   fill
+                   className="object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                   <span className="bg-[#F6C445] text-[#1C1917] px-6 py-3 rounded-full font-bold text-xs transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl flex items-center gap-2 border-2 border-[#1C1917]">
+                      Use Template <ArrowRight size={14} />
+                   </span>
+                </div>
+             </div>
+
+             <div className="p-6 flex flex-col flex-grow">
+                <div className="flex items-center justify-between mb-2">
+                   <h3 className="text-xl font-black text-stone-800 font-boldonse transition-colors">{template.title}</h3>
+                   <div className={`p-1.5 rounded-full border-2 border-[#1C1917] ${template.category === 'web-story' ? 'bg-[#F3B8CC] text-[#1C1917]' : 'bg-[#F6C445] text-[#1C1917]'}`}>
+                     {template.category === 'web-story' ? <Smartphone size={14} /> : <ImageIcon size={14} />}
+                   </div>
+                </div>
+                <p className="text-stone-500 text-sm leading-relaxed mb-4 flex-grow font-light">
+                   {template.description}
+                </p>
+                
+                <div className="flex items-center gap-2 pt-4 border-t-2 border-stone-100">
+                   <div className="flex -space-x-2">
+                      {[1,2,3].map(i => (
+                         <div key={i} className="w-6 h-6 rounded-full bg-stone-200 border-2 border-white"></div>
+                      ))}
+                   </div>
+                   <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wide ml-2">2k+ Users</span>
+                </div>
+             </div>
+          </div>
+       </Link>
+  </motion.div>
+))}
          </motion.div>
       </main>
 
@@ -479,7 +491,7 @@ function TemplatesContent() {
             <div>
               <h4 className="mb-4 text-xs font-black uppercase tracking-widest" style={{ color: "#1C1917" }}>Product</h4>
               <ul className="space-y-2 text-sm font-bold">
-                <li><Link href="/templates" className="transition-opacity hover:opacity-60" style={{ color: "#1C1917" }}>Templates</Link></li>
+                <li><Link href="/templates" className="transition-opacity hover:opacity-60" style={{ color: "#FFFFFF" }}>Templates</Link></li>
                 <li><Link href="/showcase" className="transition-opacity hover:opacity-60" style={{ color: "#1C1917" }}>Showcase</Link></li>
               </ul>
             </div>

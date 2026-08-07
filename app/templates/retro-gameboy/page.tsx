@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link"; 
 import { toPng } from "html-to-image";
+import { saveUserCard } from "@/app/lib/saveCardAction";
 import { Press_Start_2P } from "next/font/google"; // Hanya pakai font ini untuk totalitas
 import { 
   Upload, 
@@ -247,13 +248,23 @@ export default function RetroGameboyOverhaul() {
       link.download = `8BIT-${charName}.png`;
       link.href = dataUrl;
       link.click();
+
+      // --- SIMPAN OTOMATIS KE DASHBOARD AKUN ---
+      await saveUserCard({
+        title: charName ? `${charName}'s Gameboy Card` : "8-Bit Gameboy Card",
+        template: "gameboy", // Atau sesuaikan identifier templatenya
+        bg: chassisColor,
+        status: "saved",
+      });
+      // ----------------------------------------
+
     } catch (e) {
       console.error(e);
       alert("ERR: SAVE_FAILED");
     } finally {
       setIsDownloading(false);
     }
-  }, [charName]);
+  }, [charName, chassisColor]);
 
   return (
     <div className={`h-screen w-full bg-[#202020] flex flex-col lg:flex-row overflow-hidden text-[#e0f8cf] ${pixelFont.className} selection:bg-[#306230] selection:text-[#9bbc0f]`}>
@@ -276,7 +287,7 @@ export default function RetroGameboyOverhaul() {
         
         {/* Header */}
         <div className="p-8 pb-4 border-b-4 border-black bg-[#333]">
-           <Link href="/" className="inline-flex items-center gap-2 text-[10px] text-[#8bac0f] hover:text-[#9bbc0f] mb-4 group">
+           <Link href="/templates" className="inline-flex items-center gap-2 text-[10px] text-[#8bac0f] hover:text-[#9bbc0f] mb-4 group">
              <ArrowLeft size={10} className="group-hover:-translate-x-1 transition-transform" /> EJECT
            </Link>
            <h1 className="text-2xl text-[#9bbc0f] text-shadow-retro mb-1">CARD MAKER</h1>

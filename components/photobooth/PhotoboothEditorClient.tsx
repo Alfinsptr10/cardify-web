@@ -8,7 +8,7 @@ import Toolbar from "@/components/photobooth/Toolbar";
 import { photoboothFilters } from "@/lib/photobooth/filters";
 import { photoboothLayouts } from "@/lib/photobooth/layouts";
 import { photoboothFrames } from "@/lib/photobooth/frames";
-
+import { saveUserCard } from "@/app/lib/saveCardAction"; // <-- 1. Import fungsi save database
 
 function getLayoutById(id: string | null) {
   return photoboothLayouts.find((layout) => layout.id === id);
@@ -39,7 +39,6 @@ const frame = useMemo(
   () => getFrameById(frameId),
   [frameId]
 );
-console.log(frame);
 
 if (!frame) {
   return (
@@ -71,14 +70,12 @@ const initialPhotos = useMemo(() => {
   const filter = getFilterById(selectedTone);
 
   const toneStyle = `${filter.css}`;
-  const grainOverlay = "none";
 
   const handleDownload = async (type: "png" | "jpg") => {
     const collageElement = document.getElementById("photobooth-collage");
     if (!collageElement) return;
     const rect = collageElement.getBoundingClientRect();
 
-    // Create a temporary wrapper sized to the visible bounding box
     const wrapper = document.createElement("div");
     wrapper.style.width = `${Math.round(rect.width)}px`;
     wrapper.style.height = `${Math.round(rect.height)}px`;
@@ -88,7 +85,6 @@ const initialPhotos = useMemo(() => {
     wrapper.style.boxSizing = "border-box";
 
     const clone = collageElement.cloneNode(true) as HTMLElement;
-    // Reset potential transforms that affect layout in the clone
     clone.style.margin = "0";
     clone.style.display = "block";
 
@@ -102,23 +98,31 @@ const initialPhotos = useMemo(() => {
     };
 
     try {
-  const dataUrl =
-    type === "jpg"
-      ? await toJpeg(wrapper, options)
-      : await toPng(wrapper, options);
+      const dataUrl =
+        type === "jpg"
+          ? await toJpeg(wrapper, options)
+          : await toPng(wrapper, options);
 
-  const link = document.createElement("a");
-  link.href = dataUrl;
-  link.download = `photobooth.${type}`;
-  link.click();
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = `photobooth.${type}`;
+      link.click();
 
-  setDownloadComplete(true);
-} catch (error) {
-  console.error("Download failed:", error);
-  alert("Download gagal, cek Console (F12).");
-} finally {
-  document.body.removeChild(wrapper);
-}
+      // --- 2. SIMPAN OTOMATIS KE DATABASE DASHBOARD ---
+      await saveUserCard({
+        title: customText || `${layout?.name || "Photobooth"} Creation`,
+        template: "photobooth",
+        bg: frameBgColor,
+        status: "saved",
+      });
+
+      setDownloadComplete(true);
+    } catch (error) {
+      console.error("Download failed:", error);
+      alert("Download gagal, cek Console (F12).");
+    } finally {
+      document.body.removeChild(wrapper);
+    }
   };
 
   if (!layout || initialPhotos.length === 0) {
@@ -153,55 +157,52 @@ const initialPhotos = useMemo(() => {
             </div>
           </div>
           
+          <div
+            id="photobooth-collage"
+            className="relative mx-auto overflow-hidden shadow-2xl"
+            style={{
+              width: "420px",
+              aspectRatio: `${frame.canvasWidth} / ${frame.canvasHeight}`,
+              filter: toneStyle,
+            }}
+          >
+            {frame?.slots.map((slot, index) => (
+              <div
+                key={index}
+                className={`absolute overflow-hidden ${
+                  frame.shape === "circle" ? "rounded-full" : ""
+                }`}
+                style={{
+                  left: `${(slot.left / frame.canvasWidth) * 100}%`,
+                  top: `${(slot.top / frame.canvasHeight) * 100}%`,
+                  width: `${(slot.width / frame.canvasWidth) * 100}%`,
+                  height: `${(slot.height / frame.canvasHeight) * 100}%`,
+                }}
+              >
+                {initialPhotos[index] && (
+                  <img
+                    src={initialPhotos[index]}
+                    className="h-full w-full object-cover"
+                    style={{ objectPosition: "center" }}
+                  />
+                )}
+              </div>
+            ))}
 
-<div
-  id="photobooth-collage"
-  className="relative mx-auto overflow-hidden shadow-2xl"
-  style={{
-    width: "420px",
-    aspectRatio: `${frame.canvasWidth} / ${frame.canvasHeight}`,
-    filter: toneStyle,
-  }}
->
-{frame?.slots.map((slot, index) => (
-  <div
-    key={index}
-    className={`absolute overflow-hidden ${
-      frame.shape === "circle" ? "rounded-full" : ""
-    }`}
-    style={{
-      left: `${(slot.left / frame.canvasWidth) * 100}%`,
-      top: `${(slot.top / frame.canvasHeight) * 100}%`,
-      width: `${(slot.width / frame.canvasWidth) * 100}%`,
-      height: `${(slot.height / frame.canvasHeight) * 100}%`,
-    }}
-  >
-    {initialPhotos[index] && (
-      <img
-        src={initialPhotos[index]}
-        className="h-full w-full object-cover"
-        style={{
-          objectPosition:"center",
-        }}
-      />
-    )}
-  </div>
-))}
+            <img
+              src={frame?.preview}
+              className="pointer-events-none absolute inset-0 h-full w-full"
+              alt=""
+            />
 
-  <img
-    src={frame?.preview}
-    className="pointer-events-none absolute inset-0 h-full w-full"
-    alt=""
-  />
-
-  {customText && (
-    <div className="absolute bottom-6 left-4 right-4 text-center text-white">
-      <div className="rounded-3xl bg-black/60 px-3 py-2">
-        {customText}
-      </div>
-    </div>
-  )}
-</div>
+            {customText && (
+              <div className="absolute bottom-6 left-4 right-4 text-center text-white">
+                <div className="rounded-3xl bg-black/60 px-3 py-2">
+                  {customText}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="space-y-6">
@@ -239,7 +240,6 @@ const initialPhotos = useMemo(() => {
             <p className="mt-2 text-sm text-stone-500">Pick a color tone or filter for your photos.</p>
             <TonePicker filters={photoboothFilters.filter(f => f.id === 'original' || f.id === 'bw' || f.id === 'vintage')} selected={selectedTone} onSelect={setSelectedTone} />
           </div>
- 
 
           <div className="rounded-4xl border border-stone-200 bg-white p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-stone-900">Text</h2>
@@ -263,6 +263,7 @@ const initialPhotos = useMemo(() => {
               onReset={() => router.push("/photobooth")}
             />
           </div>
+
           {downloadComplete && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
               <div className="w-full max-w-lg rounded-3xl border border-amber-200 bg-white p-8 shadow-2xl">

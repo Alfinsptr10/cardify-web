@@ -192,6 +192,16 @@ export default function PostcardEditor() {
       link.download = `postcard-${addressName.split(" ")[0].toLowerCase()}.png`;
       link.href = dataUrl;
       link.click();
+
+      // --- SIMPAN OTOMATIS KE DASHBOARD AKUN ---
+      await saveUserCard({
+        title: addressName ? `Postcard to ${addressName}` : "Vintage Postcard",
+        template: "postcard", // Sesuai identifier template postcard
+        bg: "#FDFCF0",
+        status: "saved",
+      });
+      // ----------------------------------------
+
     } catch (err) {
       console.error(err);
       alert("Gagal mengunduh gambar.");
@@ -244,7 +254,7 @@ export default function PostcardEditor() {
 
         {/* Header */}
         <div className="p-6 border-b-2 border-dashed border-[#d6d3c9] bg-[#E6E4dc]/80 backdrop-blur z-10 flex-shrink-0 relative">
-          <Link href="/" className={`inline-flex items-center gap-2 text-xs font-bold text-stone-500 hover:text-stone-900 transition-colors uppercase tracking-widest mb-4 ${courier.className}`}>
+          <Link href="/templates" className={`inline-flex items-center gap-2 text-xs font-bold text-stone-500 hover:text-stone-900 transition-colors uppercase tracking-widest mb-4 ${courier.className}`}>
              <ArrowLeft size={14} /> Leave Post Office
           </Link>
           <div className="flex items-center gap-4">

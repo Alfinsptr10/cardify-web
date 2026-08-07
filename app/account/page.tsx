@@ -11,6 +11,7 @@ import {
   Pencil, Download, Trash2, Plus, Camera, Check,
   Sparkle, Clock, Layers, FileEdit, Smartphone, ImageIcon
 } from "lucide-react";
+import FavoriteSticker from "@/components/FavoriteButton";
 
 // --- REUSABLE MOTION VARIANTS ---
 const staggerContainer: Variants = {
@@ -23,10 +24,80 @@ const staggerItem: Variants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
 };
 
-const favoriteTemplates = [
-  { id: 201, title: "Wedding Bloom Set", tag: "Popular", bg: "bg-[#F3B8CC]" },
-  { id: 202, title: "8-Bit Congrats!", tag: "Hot", bg: "bg-[#BFE0F5]" },
-  { id: 203, title: "Vintage Press", tag: "Classic", bg: "bg-[#A9D6BC]" },
+// --- MASTER DATA TEMPLATES (Sama seperti di halaman templates) ---
+const allTemplates = [
+  {
+    id: 1,
+    href: "/templates/retro-gameboy",
+    title: "Retro 8-Bit",
+    category: "card-image",
+    description: "Nostalgic console aesthetic for gamers.",
+    image: "/retro-gameboy.png",
+    tag: "Classic"
+  },
+  {
+    id: 2,
+    href: "/web-story",
+    title: "Web Story",
+    category: "web-story",
+    description: "Interactive story with music and animations.",
+    image: "/web-story.png", 
+    tag: "Popular"
+  },
+  {
+    id: 3,
+    href: "/templates/minimalist",
+    title: "Modern Minimalist",
+    category: "card-image",
+    description: "Clean typography focused design.",
+    image: "/minimalist.png",
+    tag: "Modern"
+  },
+  {
+    id: 4,
+    href: "/templates/postcard",
+    title: "Classic Postcard",
+    category: "card-image",
+    description: "Warm vintage greeting style.",
+    image: "/postcard.png",
+    tag: "Vintage"
+  },
+  {
+    id: 5,
+    href: "/templates/newspaper",
+    title: "Vintage Press",
+    category: "card-image",
+    description: "Headline news aesthetic.",
+    image: "/newspaper.png",
+    tag: "Hot"
+  },
+ {
+    id: 6,
+    href: "/gameboy-app",
+    title: "Gameboy Journey",
+    category: "web-story",
+    description: "Relive the adventure with pixel art and chiptune music.",
+    image: "/gameboy-journey.png",
+    tag: "Interactive"
+ },
+ {
+    id: 7,
+    href: "/scrapbook",
+    title: "Scrapbook Memories",
+    category: "web-story",
+    description: "A nostalgic scrapbook with interactive elements.",
+    image: "/web-story.png",
+    tag: "New"
+ },
+ {
+    id: 8,
+    href: "/photobooth",
+    title: "Photobooth Studio",
+    category: "card-image",
+    description: "Live photo capture with custom frames, tones, and text.",
+    image: "/photobooth.png",
+    tag: "Trending"
+ }
 ];
 
 // --- WRAPPER SESSION ---
@@ -48,10 +119,31 @@ function AccountContent() {
   const [activeTab, setActiveTab] = useState<"cards" | "drafts" | "favorites" | "profile" | "settings">("cards");
   const [savedCards, setSavedCards] = useState<any[]>([]);
   const [draftCards, setDraftCards] = useState<any[]>([]);
+  
+  // State untuk menyimpan daftar template favorit yang diambil dari localStorage
+  const [favoriteTemplates, setFavoriteTemplates] = useState<any[]>([]);
+
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isLoadingCards, setIsLoadingCards] = useState(true);
 
   const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  // Load User Favorited Templates dari localStorage
+  const loadFavorites = () => {
+    if (typeof window !== "undefined") {
+      // Tentukan key berdasarkan sesi akun yang aktif
+      let storageKey = "user_favorites_guest";
+      const sessionEmail = userData?.email || localStorage.getItem("userEmail");
+      
+      if (sessionEmail) {
+        storageKey = `user_favorites_${sessionEmail}`;
+      }
+
+      const savedFavIds = JSON.parse(localStorage.getItem(storageKey) || "[]");
+      const filteredFavs = allTemplates.filter((t) => savedFavIds.includes(t.id));
+      setFavoriteTemplates(filteredFavs);
+    }
+  };
 
   useEffect(() => {
     async function fetchUserCards() {
@@ -74,6 +166,7 @@ function AccountContent() {
     }
 
     fetchUserCards();
+    loadFavorites();
   }, [userData]);
   
   useEffect(() => {
@@ -273,14 +366,14 @@ function AccountContent() {
                         Profile & Account
                       </Link>
                       <button className="flex items-center gap-3 w-full p-2.5 text-sm text-stone-600 hover:bg-[#BFE0F5]/25 hover:text-[#1C1917] rounded-xl transition-all font-medium group cursor-pointer">
-  <div className="w-8 h-8 rounded-lg bg-[#BFE0F5] border-2 border-[#1C1917] flex items-center justify-center text-[#1C1917] group-hover:shadow-[2px_2px_0_0_#1C1917] transition-all"><Settings size={16} /></div>
-  Preferences
-</button>
-<div className="h-px bg-stone-100 my-1 mx-2"></div>
-<button onClick={handleLogoutClick} className="flex items-center gap-3 w-full p-2.5 text-sm text-red-600 hover:bg-[#F3B8CC]/25 rounded-xl transition-all font-medium group cursor-pointer">
-  <div className="w-8 h-8 rounded-lg bg-[#F3B8CC] border-2 border-[#1C1917] flex items-center justify-center text-red-600 group-hover:shadow-[2px_2px_0_0_#1C1917] transition-all"><LogOut size={16} /></div>
-  Sign Out
-</button>
+                        <div className="w-8 h-8 rounded-lg bg-[#BFE0F5] border-2 border-[#1C1917] flex items-center justify-center text-[#1C1917] group-hover:shadow-[2px_2px_0_0_#1C1917] transition-all"><Settings size={16} /></div>
+                        Preferences
+                      </button>
+                      <div className="h-px bg-stone-100 my-1 mx-2"></div>
+                      <button onClick={handleLogoutClick} className="flex items-center gap-3 w-full p-2.5 text-sm text-red-600 hover:bg-[#F3B8CC]/25 rounded-xl transition-all font-medium group cursor-pointer">
+                        <div className="w-8 h-8 rounded-lg bg-[#F3B8CC] border-2 border-[#1C1917] flex items-center justify-center text-red-600 group-hover:shadow-[2px_2px_0_0_#1C1917] transition-all"><LogOut size={16} /></div>
+                        Sign Out
+                      </button>
                     </div>
                   </div>
                 )}
@@ -338,7 +431,7 @@ function AccountContent() {
           <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-6 -mt-4">
             {[
               { icon: <FileImage size={22} />, label: "Cards Created", value: savedCards.length, bg: "bg-[#F3B8CC]" },
-              { icon: <Layers size={22} />, label: "Templates Used", value: 3, bg: "bg-[#BFE0F5]" },
+              { icon: <Layers size={22} />, label: "Templates Used", value: favoriteTemplates.length, bg: "bg-[#BFE0F5]" },
               { icon: <Clock size={22} />, label: "Member Since", value: memberSince, bg: "bg-[#A9D6BC]" },
             ].map((s) => (
               <div key={s.label} className="bg-white p-6 rounded-[1.75rem] border-2 border-[#1C1917] shadow-[5px_5px_0_0_#1C1917] flex items-center gap-4">
@@ -372,7 +465,10 @@ function AccountContent() {
                   ].map((item) => (
                     <button
                       key={item.id}
-                      onClick={() => setActiveTab(item.id as typeof activeTab)}
+                      onClick={() => {
+                        setActiveTab(item.id as typeof activeTab);
+                        if (item.id === "favorites") loadFavorites(); // Refresh data favorit saat tab diklik
+                      }}
                       className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all border-2 ${
                         activeTab === item.id
                           ? "bg-[#1C1917] text-[#F6C445] border-[#1C1917] shadow-[3px_3px_0_0_rgba(28,25,23,0.2)]"
@@ -385,6 +481,11 @@ function AccountContent() {
                           {draftCards.length}
                         </span>
                       )}
+                      {item.id === "favorites" && favoriteTemplates.length > 0 && (
+                        <span className={`ml-auto text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center ${activeTab === "favorites" ? "bg-[#F6C445] text-[#1C1917]" : "bg-stone-200 text-stone-600"}`}>
+                          {favoriteTemplates.length}
+                        </span>
+                      )}
                     </button>
                   ))}
                 </div>
@@ -394,38 +495,57 @@ function AccountContent() {
               <div className="lg:col-span-9">
 
                 {/* --- MY CARDS --- */}
-                {activeTab === "cards" && (
-                  <motion.div initial="hidden" animate="show" variants={staggerContainer}>
-                    <h2 className="text-2xl font-black text-[#1C1917] font-boldonse mb-6">My Cards</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                      {savedCards.map((card) => (
-                        <motion.div key={card.id} variants={staggerItem} className="bg-white rounded-[1.75rem] border-2 border-[#1C1917] overflow-hidden hover:-translate-y-1.5 hover:shadow-[5px_5px_0_0_#1C1917] transition-all duration-300">
-                          <div className={`aspect-[4/3] ${card.bg} flex items-center justify-center border-b-2 border-[#1C1917]`}>
-                            <Gift size={36} className="text-[#1C1917]/40" />
-                          </div>
-                          <div className="p-4">
-                            <p className="font-bold text-sm text-stone-800 truncate font-playfair">{card.title}</p>
-                            <p className="text-xs text-stone-400 mt-0.5">{card.template} • {card.date}</p>
-                            <div className="flex gap-2 mt-3">
-                              <button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-[#FDFBF3] border-2 border-stone-200 text-xs font-bold text-stone-600 hover:border-[#1C1917] transition-colors">
-                                <Pencil size={12} /> Edit
-                              </button>
-                              <button className="flex items-center justify-center w-9 py-2 rounded-lg bg-[#FDFBF3] border-2 border-stone-200 text-stone-500 hover:border-[#1C1917] transition-colors">
-                                <Download size={14} />
-                              </button>
-                            </div>
-                          </div>
-                        </motion.div>
-                      ))}
-                      <Link href="/templates" className="flex flex-col items-center justify-center gap-3 rounded-[1.75rem] border-2 border-dashed border-stone-300 hover:border-[#1C1917] hover:bg-white transition-all min-h-[220px] text-stone-400 hover:text-[#1C1917]">
-                        <div className="w-12 h-12 rounded-full bg-[#FDFBF3] border-2 border-current flex items-center justify-center">
-                          <Plus size={22} />
-                        </div>
-                        <span className="text-sm font-bold">Create New Card</span>
-                      </Link>
-                    </div>
-                  </motion.div>
-                )}
+{activeTab === "cards" && (
+  <motion.div initial="hidden" animate="show" variants={staggerContainer}>
+    <h2 className="text-2xl font-black text-[#1C1917] font-boldonse mb-6">My Cards</h2>
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+      {savedCards.map((card) => {
+        // Mencari gambar yang cocok dari master data templates berdasarkan nama/kategori template dari API
+        const matchedTemplate = allTemplates.find(
+          t => t.title.toLowerCase().includes((card.template || "").toLowerCase()) || 
+               t.href.includes((card.template || "").toLowerCase()) ||
+               t.category === card.template
+        );
+        const cardImage = card.image || matchedTemplate?.image || "/web-story.png";
+
+        return (
+          <motion.div key={card.id} variants={staggerItem} className="bg-white rounded-[1.75rem] border-2 border-[#1C1917] overflow-hidden hover:-translate-y-1.5 hover:shadow-[5px_5px_0_0_#1C1917] transition-all duration-300 flex flex-col h-full">
+            
+            {/* Kontainer Gambar Card */}
+            <div className="relative aspect-[4/3] bg-stone-100 overflow-hidden border-b-2 border-[#1C1917]">
+              <Image 
+                src={cardImage} 
+                alt={card.title || "My Card"} 
+                fill 
+                className="object-cover" 
+              />
+            </div>
+
+            <div className="p-4 flex flex-col flex-grow">
+              <p className="font-black text-lg text-stone-800 truncate font-boldonse mb-1">{card.title}</p>
+              <p className="text-xs text-stone-400 mt-0.5 capitalize">{card.template} • {card.date}</p>
+              <div className="flex gap-2 mt-4 pt-3 border-t-2 border-stone-100">
+                <button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-[#FDFBF3] border-2 border-stone-200 text-xs font-bold text-stone-600 hover:border-[#1C1917] transition-colors">
+                  <Pencil size={12} /> Edit
+                </button>
+                <button className="flex items-center justify-center w-9 py-2 rounded-lg bg-[#FDFBF3] border-2 border-stone-200 text-stone-500 hover:border-[#1C1917] transition-colors">
+                  <Download size={14} />
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        );
+      })}
+      
+      <Link href="/templates" className="flex flex-col items-center justify-center gap-3 rounded-[1.75rem] border-2 border-dashed border-stone-300 hover:border-[#1C1917] hover:bg-white transition-all min-h-[220px] text-stone-400 hover:text-[#1C1917]">
+        <div className="w-12 h-12 rounded-full bg-[#FDFBF3] border-2 border-current flex items-center justify-center">
+          <Plus size={22} />
+        </div>
+        <span className="text-sm font-bold">Create New Card</span>
+      </Link>
+    </div>
+  </motion.div>
+)}
 
                 {/* --- DRAFTS --- */}
                 {activeTab === "drafts" && (
@@ -464,30 +584,45 @@ function AccountContent() {
                   </motion.div>
                 )}
 
-                {/* --- FAVORITES --- */}
+                {/* --- FAVORITES (Terhubung dinamis ke localStorage / FavoriteSticker) --- */}
                 {activeTab === "favorites" && (
                   <motion.div initial="hidden" animate="show" variants={staggerContainer}>
                     <h2 className="text-2xl font-black text-[#1C1917] font-boldonse mb-2">Favorites</h2>
-                    <p className="text-sm text-stone-500 mb-6">Templates you've saved for later.</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                      {favoriteTemplates.map((tpl) => (
-                        <motion.div key={tpl.id} variants={staggerItem} className="bg-white rounded-[1.75rem] border-2 border-[#1C1917] overflow-hidden hover:-translate-y-1.5 hover:shadow-[5px_5px_0_0_#1C1917] transition-all duration-300">
-                          <div className={`aspect-[4/3] ${tpl.bg} flex items-center justify-center border-b-2 border-[#1C1917] relative`}>
-                            <Sparkle size={32} className="text-[#1C1917]/40" />
-                            <span className="absolute top-3 left-3 text-[10px] font-black uppercase tracking-widest bg-white/90 px-2 py-1 rounded-full border-2 border-[#1C1917]">{tpl.tag}</span>
-                            <button className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white border-2 border-[#1C1917] flex items-center justify-center text-red-500">
-                              <Heart size={14} className="fill-red-500" />
-                            </button>
-                          </div>
-                          <div className="p-4">
-                            <p className="font-bold text-sm text-stone-800 truncate font-playfair">{tpl.title}</p>
-                            <Link href="/templates" className="mt-3 w-full flex items-center justify-center gap-1.5 py-2 rounded-lg bg-[#1C1917] text-[#F6C445] text-xs font-bold hover:-translate-y-0.5 transition-all">
-                              Use Template
-                            </Link>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
+                    <p className="text-sm text-stone-500 mb-6">Templates you've saved for later using your favorite stickers.</p>
+                    
+                    {favoriteTemplates.length > 0 ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {favoriteTemplates.map((tpl) => (
+                          <motion.div key={tpl.id} variants={staggerItem} className="relative block h-full pt-3 pr-3">
+                            {/* Tombol stiker favorit (bisa untuk melepas status favorit langsung dari dashboard) */}
+                            <FavoriteSticker cardId={tpl.id} />
+
+                            <div className="bg-white rounded-[1.75rem] border-2 border-[#1C1917] overflow-hidden hover:-translate-y-1.5 hover:shadow-[5px_5px_0_0_#1C1917] transition-all duration-300 flex flex-col h-full">
+                              <div className="relative aspect-[4/3] bg-stone-100 overflow-hidden border-b-2 border-[#1C1917]">
+                                <Image src={tpl.image} alt={tpl.title} fill className="object-cover" />
+                                <span className="absolute top-3 left-3 text-[10px] font-black uppercase tracking-widest bg-white/90 px-2 py-1 rounded-full border-2 border-[#1C1917] z-10">{tpl.tag}</span>
+                              </div>
+                              <div className="p-4 flex flex-col flex-grow">
+                                <p className="font-bold text-lg text-stone-800 truncate font-boldonse mb-3">{tpl.title}</p>
+                                <p className="text-xs text-stone-500 mb-4 flex-grow font-light">{tpl.description}</p>
+                                <Link href={tpl.href} className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#1C1917] text-[#F6C445] text-xs font-bold hover:-translate-y-0.5 transition-all border-2 border-[#1C1917]">
+                                  Use Template <ArrowRight size={14} />
+                                </Link>
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="bg-white rounded-[1.75rem] border-2 border-dashed border-stone-300 py-16 text-center text-stone-400 px-6">
+                        <Heart size={32} className="mx-auto mb-3 text-stone-300" />
+                        <p className="text-base font-bold text-stone-700">No favorite templates yet</p>
+                        <p className="text-sm text-stone-500 mt-1 mb-6">Click the Morty heart sticker on any template to save it here!</p>
+                        <Link href="/templates" className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#1C1917] text-[#F6C445] text-sm font-bold border-2 border-[#1C1917]">
+                          Explore Templates <ArrowRight size={14} />
+                        </Link>
+                      </div>
+                    )}
                   </motion.div>
                 )}
 
@@ -669,19 +804,15 @@ function AccountContent() {
             className="relative w-full max-w-sm transform scale-100 animate-in zoom-in-95 duration-300"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Hard shadow layer */}
             <div className="absolute inset-0 translate-x-1.5 translate-y-1.5 rounded-[2rem] bg-[#111111]" />
     
-            {/* Card */}
             <div className="relative rounded-[2rem] bg-[#FFFDF5] border-[2.5px] border-[#111111] p-8 text-center">
-              {/* Cute sticker badge */}
               <div className="absolute -top-3 -right-3 rotate-12 rounded-full bg-[#FFE66D] border-[2.5px] border-[#111111] px-3 py-1 shadow-[3px_3px_0_#111111]">
                 <span className="text-[10px] font-black uppercase tracking-wider text-[#111111]">
                   Bye-bye!
                 </span>
               </div>
     
-              {/* Icon circle */}
               <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#FFD6D6] border-[2.5px] border-[#111111] shadow-[3px_3px_0_#111111]">
                 <LogOut size={28} strokeWidth={2.5} className="text-[#111111]" />
               </div>
@@ -698,7 +829,6 @@ function AccountContent() {
               </p>
     
               <div className="flex flex-col gap-3">
-                {/* Primary button */}
                 <button
                   onClick={executeLogout}
                   className="group relative w-full cursor-pointer"
@@ -710,7 +840,6 @@ function AccountContent() {
                   </div>
                 </button>
     
-                {/* Secondary button */}
                 <button
                   onClick={() => setShowLogoutConfirm(false)}
                   className="group relative w-full cursor-pointer"

@@ -275,8 +275,8 @@ export default function MinimalistEditor() {
         
         {/* Header */}
         <div className="p-6 border-b-2 border-[#1C1917] bg-white/95 backdrop-blur z-10 flex-shrink-0">
-          <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold text-stone-400 hover:text-stone-900 transition-colors uppercase tracking-widest mb-4">
-             <ArrowLeft size={14} /> Back to Home
+          <Link href="/templates" className="inline-flex items-center gap-2 text-xs font-bold text-stone-400 hover:text-stone-900 transition-colors uppercase tracking-widest mb-4">
+             <ArrowLeft size={14} /> Back
           </Link>
           <div className="flex items-center gap-3">
              <div className="w-10 h-10 bg-[#F6C445] rounded-xl flex items-center justify-center border-2 border-[#1C1917] shadow-[3px_3px_0_0_#1C1917] text-[#1C1917]">

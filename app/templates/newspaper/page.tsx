@@ -173,13 +173,23 @@ export default function NewspaperEditor() {
       link.download = `newspaper-${headline.slice(0, 10)}.png`;
       link.href = dataUrl;
       link.click();
+
+      // --- SIMPAN OTOMATIS KE DASHBOARD AKUN ---
+      await saveUserCard({
+        title: headline ? `Newspaper: ${headline}` : "The Daily Newspaper",
+        template: "newspaper", // Sesuai identifier template newspaper
+        bg: paperColor,
+        status: "saved",
+      });
+      // ----------------------------------------
+
     } catch (err) {
       console.error(err);
       alert("Failed to print newspaper.");
     } finally {
       setIsDownloading(false);
     }
-  }, [headline]);
+  }, [headline, paperColor]);
 
   return (
     <div className={`h-screen w-full bg-[#EAE8E0] text-[#1a1a1a] flex flex-col lg:flex-row font-sans selection:bg-stone-900 selection:text-[#F4F1EA] overflow-hidden`}>
@@ -198,8 +208,8 @@ export default function NewspaperEditor() {
         
         {/* Header Editor */}
         <div className="p-6 border-b border-stone-300 bg-[#F9F8F4] z-10 space-y-4 flex-shrink-0">
-          <Link href="/" className={`inline-flex items-center gap-2 text-xs font-bold text-stone-500 hover:text-stone-900 transition-colors uppercase tracking-widest group ${courier.className}`}>
-            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> Back to Home
+          <Link href="/templates" className={`inline-flex items-center gap-2 text-xs font-bold text-stone-500 hover:text-stone-900 transition-colors uppercase tracking-widest group ${courier.className}`}>
+            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> Back
           </Link>
           <div className="flex items-center gap-4">
              <div className="w-12 h-12 bg-stone-900 rounded-none border-2 border-stone-900 flex items-center justify-center text-[#F4F1EA] shadow-sm">

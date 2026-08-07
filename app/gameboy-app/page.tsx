@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, ChangeEvent } from "react";
 import { uploadToCloudinary } from "@/app/lib/cloudinary";
+import { saveUserCard } from "@/app/lib/saveCardAction";
 import { 
   ArrowLeft, Save, Music, Image as ImageIcon, MessageSquare, 
   Play, Pause, Plus, Trash2, Link as LinkIcon, Check,
@@ -661,6 +662,15 @@ export default function WebStoryEditor() {
         // Simpan ke collection khusus 'gameboy-stories'
         const docRef = await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'gameboy-stories'), payload);
         
+        // --- SIMPAN OTOMATIS KE DASHBOARD AKUN ---
+        await saveUserCard({
+            title: storyData.title || "Retro Gameboy Story",
+            template: "gameboy", // Sesuai identifier template gameboy
+            bg: storyData.color === 'purple' ? '#a855f7' : storyData.color === 'teal' ? '#2dd4bf' : storyData.color === 'yellow' ? '#facc15' : storyData.color === 'pink' ? '#fb7185' : '#ffffff',
+            status: "saved",
+        });
+        // ----------------------------------------
+
         // Generate Link dengan ID Firestore asli
         const link = `${window.location.origin}/gameboy-app/${docRef.id}`;
         setGeneratedLink(link);

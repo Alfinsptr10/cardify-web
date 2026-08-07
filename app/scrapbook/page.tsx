@@ -3,15 +3,15 @@
 import { useState } from "react";
 import { 
   ArrowLeft, Save, Plus, Trash2, Link as LinkIcon, Check, Loader2, 
-  Book, Sparkles, LayoutTemplate, Palette, Upload, Move, RotateCw, Type, Image as ImageIcon,
-  Grid3X3, Square, Columns,
-  X
+  Palette, Upload, Type, Image as ImageIcon,
+  Grid3X3, Square, Columns, X, Book, Sparkles
 } from "lucide-react";
 
 // --- FIREBASE IMPORTS ---
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, signInAnonymously } from "firebase/auth";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
+import { saveUserCard } from "@/app/lib/saveCardAction";
 
 // --- FIREBASE CONFIG ---
 const manualConfig = {
@@ -55,21 +55,21 @@ type ScrapItem = {
     id: string;
     type: 'image' | 'text';
     content: string; 
-    x: number; // Posisi X (0-100%)
-    y: number; // Posisi Y (0-100%)
-    rotation: number; // Derajat
+    x: number; 
+    y: number; 
+    rotation: number; 
     scale: number;
     tapeColor?: string;
 };
 
 type PageData = {
     id: number;
-    photoCount: 1 | 2 | 3; // Menentukan mode layout
+    photoCount: 1 | 2 | 3;
     items: ScrapItem[];
     sticker: string | null;
 };
 
-// --- SCRAPBOOK THEMES (DIY COVER STYLES) ---
+// --- SCRAPBOOK THEMES ---
 const SCRAPBOOK_THEMES = [
     { 
         id: 'kraft', name: 'Kraft Paper', 
@@ -103,29 +103,28 @@ const SCRAPBOOK_THEMES = [
     },
 ];
 
-const TAPE_COLORS = ["bg-rose-300", "bg-teal-200", "bg-amber-200", "bg-indigo-300", "bg-stone-300"];
+const TAPE_COLORS = ["bg-rose-300/80", "bg-teal-200/80", "bg-amber-200/80", "bg-indigo-300/80", "bg-stone-300/80"];
 
-// --- HELPER COMPONENTS ---
-const WashiTape = ({ color = "bg-rose-300", className }: { color?: string, className?: string }) => (
-  <div className={`absolute h-6 ${color} opacity-90 shadow-sm z-30 mix-blend-multiply pointer-events-none ${className}`}>
+const WashiTape = ({ color = "bg-rose-300/80", className }: { color?: string, className?: string }) => (
+  <div className={`absolute h-5 ${color} shadow-sm z-30 mix-blend-multiply pointer-events-none transform -rotate-1 ${className}`}>
     <div className="absolute inset-0 bg-white/20 w-full h-full"></div>
-    <div className="absolute -left-1 top-0 bottom-0 w-2 bg-transparent border-r-2 border-dashed border-white/50 blur-[0.5px]"></div>
-    <div className="absolute -right-1 top-0 bottom-0 w-2 bg-transparent border-l-2 border-dashed border-white/50 blur-[0.5px]"></div>
+    <div className="absolute -left-1 top-0 bottom-0 w-2 bg-transparent border-r border-dashed border-white/60"></div>
+    <div className="absolute -right-1 top-0 bottom-0 w-2 bg-transparent border-l border-dashed border-white/60"></div>
   </div>
 );
 
 const RealisticPaperTexture = () => (
     <>
         <div className="absolute inset-0 bg-[#fffefc]"></div>
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] opacity-40 mix-blend-multiply"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_70%,_rgba(100,100,100,0.1)_100%)] pointer-events-none"></div>
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] opacity-60 mix-blend-multiply"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_60%,_rgba(60,40,20,0.12)_100%)] pointer-events-none"></div>
     </>
 );
 
-// --- FLIPBOOK COMPONENT ---
+// --- REALISTIC 3D FLIPBOOK COMPONENT (SLOW & SMOOTH PAGE FLIP) ---
 const Flipbook = ({ pages, coverTitle, themeId }: { pages: PageData[], coverTitle: string, themeId: string }) => {
     const [currentPage, setCurrentPage] = useState(0);
-    const totalPages = pages.length + 1;
+    const totalPages = pages.length + 2; 
     const theme = SCRAPBOOK_THEMES.find(t => t.id === themeId) || SCRAPBOOK_THEMES[0];
 
     const handleFlip = (index: number) => {
@@ -141,28 +140,36 @@ const Flipbook = ({ pages, coverTitle, themeId }: { pages: PageData[], coverTitl
     };
 
     return (
-        <div className="relative w-[340px] h-[460px] perspective-[2000px] select-none font-sans">
-            {/* SHADOW BUKU */}
-            <div className="absolute bottom-5 left-5 right-5 h-4 bg-black/20 blur-xl rounded-[100%] z-0 transform translate-y-2"></div>
+        <div className="relative w-[380px] h-[520px] perspective-[3000px] select-none font-sans flex items-center justify-center">
+            {/* Realistic Deep Desk Shadow */}
+            <div className="absolute bottom-1 left-4 right-4 h-10 bg-black/45 blur-2xl rounded-[100%] z-0 transform translate-y-5"></div>
 
-            {/* BOOK CONTAINER */}
-            <div className="relative w-full h-full transform-style-3d transition-transform duration-700 z-10">
+            <div className="relative w-full h-full transform-style-3d transition-transform duration-700 z-10 flex items-center justify-center transform rotate-x-[2deg] hover:rotate-x-[0deg] transition-all">
                 
-                {/* --- SPINE (Selotip Style) --- */}
-                <div className="absolute inset-0 rounded-r-sm shadow-xl translate-z-[-4px]"
-                     style={{ backgroundColor: theme.spine }}>
-                     <div className="absolute left-0 top-0 bottom-0 w-8 bg-black/10 border-r border-black/10"></div>
+                {/* PAGE THICKNESS STACK */}
+                <div className="absolute right-0 top-3 bottom-3 w-3 bg-[#e6e2d3] rounded-r-sm translate-z-[-5px] shadow-sm border-r border-stone-300/60 overflow-hidden flex flex-col justify-between py-1 opacity-90 pointer-events-none">
+                    {[...Array(12)].map((_, i) => (
+                        <div key={i} className="w-full h-[1px] bg-stone-300/70"></div>
+                    ))}
+                </div>
+                <div className="absolute bottom-0 left-3 right-3 h-3 bg-[#ded9cc] rounded-b-sm translate-z-[-5px] shadow-sm border-b border-stone-300/60 flex justify-between px-2 items-center opacity-90 pointer-events-none">
+                    {[...Array(15)].map((_, i) => (
+                        <div key={i} className="h-full w-[1px] bg-stone-300/70"></div>
+                    ))}
                 </div>
 
-                {/* --- COVER PAGE --- */}
+                {/* Book Binding Spine Stack */}
+                <div className="absolute left-0 top-3 bottom-3 w-4 rounded-l-md shadow-inner bg-stone-800/40 translate-z-[-8px]"></div>
+
+                {/* --- COVER DEPAN (INDEX 0) --- */}
                 <div 
                     onClick={() => handleFlip(0)}
-                    className={`absolute inset-0 w-full h-full rounded-r-lg origin-left transition-transform duration-700 transform-style-3d cursor-pointer 
+                    // Perubahan di sini: duration-1100 dan ease-in-out untuk efek lambat & natural
+                    className={`absolute inset-0 w-full h-full rounded-r-2xl origin-left transition-transform duration-1100 ease-in-out transform-style-3d cursor-pointer 
                     ${currentPage > 0 ? 'rotate-y-[-180deg]' : 'rotate-y-0'}`}
                     style={{ zIndex: getZIndex(0) }}
                 >
-                    {/* Front Cover */}
-                    <div className="absolute inset-0 backface-hidden p-6 rounded-r-lg shadow-inner overflow-hidden border-l-8"
+                    <div className="absolute inset-0 backface-hidden p-8 rounded-r-2xl shadow-2xl overflow-hidden border-l-[16px]"
                          style={{ 
                              backgroundColor: theme.bg, 
                              backgroundImage: theme.pattern,
@@ -170,31 +177,31 @@ const Flipbook = ({ pages, coverTitle, themeId }: { pages: PageData[], coverTitl
                              borderColor: theme.spine 
                          }}>
                          
-                         {/* Decor */}
-                         <div className="absolute top-4 right-4 text-4xl opacity-50 rotate-12">✨</div>
-                         <div className="absolute bottom-4 left-4 text-4xl opacity-50 -rotate-12">🎨</div>
+                         <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-black/30 via-black/10 to-transparent pointer-events-none z-20"></div>
 
-                         {/* Label Title */}
-                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 bg-[#fdfbf7] p-6 shadow-md transform -rotate-2 border border-stone-200">
-                             <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-20 h-6 bg-rose-300/80 rotate-1 shadow-sm mix-blend-multiply"></div>
-                             <h1 className="font-handwriting text-4xl text-stone-800 text-center leading-[0.9]">
-                                 {coverTitle}
+                         <div className="absolute top-6 right-6 text-3xl opacity-60 rotate-12">✨</div>
+                         <div className="absolute bottom-6 left-6 text-3xl opacity-60 -rotate-12">🎨</div>
+
+                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4/5 bg-[#fdfbf7] p-8 shadow-2xl transform -rotate-2 border-2 border-stone-300 rounded-sm">
+                             <WashiTape color="bg-rose-300/90" className="w-24 -top-3 left-1/2 -translate-x-1/2 rotate-1" />
+                             <h1 className="font-handwriting text-4xl md:text-5xl text-stone-800 text-center leading-[0.95] pt-2">
+                                 {coverTitle || "Our Story"}
                              </h1>
-                             <div className="mt-4 border-t-2 border-dashed border-stone-300 w-full"></div>
-                             <p className="text-center text-[10px] text-stone-400 mt-1 font-sans uppercase tracking-widest">Handmade Memories</p>
+                             <div className="mt-5 border-t-2 border-dashed border-stone-300 w-full"></div>
+                             <p className="text-center text-[10px] text-stone-400 mt-2 font-sans uppercase tracking-widest font-bold">Handmade Memories ✿</p>
                          </div>
                     </div>
 
-                    {/* Inner Cover */}
-                    <div className="absolute inset-0 backface-hidden rotate-y-180 rounded-l-lg shadow-md bg-[#fdfbf7] overflow-hidden flex items-center justify-center">
-                         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/notebook.png')] opacity-50"></div>
-                         <div className="w-full h-full border-4 border-double border-stone-200 flex items-center justify-center p-4">
-                            <p className="font-handwriting text-stone-500 text-xl rotate-[-2deg]">"A collection of moments..."</p>
+                    <div className="absolute inset-0 backface-hidden rotate-y-180 rounded-l-2xl shadow-2xl bg-[#fdfbf7] overflow-hidden flex items-center justify-center">
+                         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/notebook.png')] opacity-40"></div>
+                         <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-black/20 via-black/5 to-transparent pointer-events-none z-20"></div>
+                         <div className="w-full h-full border-8 border-double border-stone-200 flex items-center justify-center p-6">
+                            <p className="font-handwriting text-stone-400 text-2xl rotate-[-2deg]">"Every picture tells a story..."</p>
                          </div>
                     </div>
                 </div>
 
-                {/* --- CONTENT PAGES --- */}
+                {/* --- HALAMAN ISI (CONTENT PAGES) --- */}
                 {pages.map((page, index) => {
                     const pageIndex = index + 1;
                     const isFlipped = currentPage > pageIndex;
@@ -203,22 +210,22 @@ const Flipbook = ({ pages, coverTitle, themeId }: { pages: PageData[], coverTitl
                         <div 
                             key={page.id}
                             onClick={() => handleFlip(pageIndex)}
-                            className={`absolute inset-0 w-full h-full rounded-r-md origin-left transition-transform duration-700 transform-style-3d cursor-pointer
+                            // Durasi diperlambat jadi 1100ms dengan transisi halus
+                            className={`absolute inset-0 w-full h-full rounded-r-xl origin-left transition-transform duration-1100 ease-in-out transform-style-3d cursor-pointer
                             ${isFlipped ? 'rotate-y-[-180deg]' : 'rotate-y-0'}`}
                             style={{ zIndex: getZIndex(pageIndex) }}
                         >
-                            {/* RIGHT PAGE (CONTENT) */}
-                            <div className="absolute inset-0 backface-hidden overflow-hidden rounded-r-md bg-[#faf9f6] border-l border-stone-200">
+                            {/* RIGHT PAGE (ISI) */}
+                            <div className="absolute inset-0 backface-hidden overflow-hidden rounded-r-xl bg-[#faf9f6] border-l border-stone-300 shadow-2xl">
                                 <RealisticPaperTexture />
-                                {/* Shadow Spine */}
-                                <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-black/5 to-transparent z-10 pointer-events-none"></div>
+                                
+                                <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-black/25 via-black/8 to-transparent z-20 pointer-events-none"></div>
 
-                                {/* RENDER ITEMS */}
-                                <div className="w-full h-full relative z-20 p-4">
+                                <div className="w-full h-full relative z-30 p-6">
                                     {page.items.map((item) => (
                                         <div 
                                             key={item.id}
-                                            className="absolute transition-all duration-300"
+                                            className="absolute transition-all duration-300 filter drop-shadow-lg"
                                             style={{ 
                                                 left: `${item.x}%`, 
                                                 top: `${item.y}%`, 
@@ -227,20 +234,26 @@ const Flipbook = ({ pages, coverTitle, themeId }: { pages: PageData[], coverTitl
                                             }}
                                         >
                                             {item.type === 'image' ? (
-                                                <div className="p-2 bg-white shadow-md border border-stone-200">
-                                                    <WashiTape color={item.tapeColor} className="w-16 -top-2 left-1/2 -translate-x-1/2 -rotate-1" />
-                                                    <div className="w-28 h-28 md:w-32 md:h-32 bg-stone-100 overflow-hidden relative">
-                                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                        <img src={item.content} alt="memory" className="w-full h-full object-cover" />
-                                                        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-50 pointer-events-none mix-blend-screen"></div>
+                                                <div className="p-3 pb-8 bg-white shadow-xl border border-stone-200/90 rounded-sm transform hover:scale-105 transition-transform">
+                                                    <WashiTape color={item.tapeColor} className="w-20 -top-2.5 left-1/2 -translate-x-1/2 -rotate-2" />
+                                                    <div className="w-32 h-32 md:w-36 md:h-36 bg-stone-100 overflow-hidden relative rounded-xs">
+                                                        {item.content ? (
+                                                            // eslint-disable-next-line @next/next/no-img-element
+                                                            <img src={item.content} alt="memory" className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <div className="w-full h-full flex flex-col items-center justify-center text-stone-300 text-xs">
+                                                                <ImageIcon size={24} className="mb-1" />
+                                                                <span>No Photo</span>
+                                                            </div>
+                                                        )}
+                                                        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/25 to-transparent opacity-40 pointer-events-none"></div>
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <div className="w-32 p-3 bg-[#fefce8] shadow-sm border border-stone-200/50 relative">
-                                                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/notebook.png')] opacity-30"></div>
-                                                    <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-red-400 border border-red-500 shadow-sm z-20"></div>
-                                                    <p className="font-handwriting text-stone-700 text-sm leading-relaxed relative z-10 break-words text-center min-h-[2rem]">
-                                                        {item.content}
+                                                <div className="w-36 p-4 bg-[#fefce8] shadow-lg border border-stone-200/70 relative rounded-sm transform rotate-1">
+                                                    <WashiTape color="bg-amber-200/80" className="w-16 -top-2 left-1/2 -translate-x-1/2 rotate-2" />
+                                                    <p className="font-handwriting text-stone-700 text-base leading-snug relative z-10 break-words text-center min-h-[2.5rem] pt-1">
+                                                        {item.content || "Write a note..."}
                                                     </p>
                                                 </div>
                                             )}
@@ -248,26 +261,78 @@ const Flipbook = ({ pages, coverTitle, themeId }: { pages: PageData[], coverTitl
                                     ))}
 
                                     {page.sticker && (
-                                        <div className="absolute bottom-4 right-4 text-5xl drop-shadow-md transform rotate-12 filter saturate-125 hover:scale-110 transition-transform">
+                                        <div className="absolute bottom-6 right-6 text-5xl filter drop-shadow-md transform rotate-12 hover:scale-125 transition-transform select-none">
                                             {page.sticker}
                                         </div>
                                     )}
                                 </div>
 
-                                <span className="absolute bottom-3 right-4 text-[10px] text-stone-400 font-serif italic opacity-70">Page {pageIndex}</span>
+                                <span className="absolute bottom-4 right-6 text-[10px] text-stone-400 font-serif italic opacity-70">Page {pageIndex}</span>
                             </div>
 
-                            {/* LEFT PAGE (BACK OF SPREAD) */}
-                            <div className="absolute inset-0 backface-hidden rotate-y-180 rounded-l-md overflow-hidden bg-[#f4f4f5]">
-                                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/crinkled-paper.png')] opacity-40"></div>
-                                 <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-black/5 to-transparent z-10 pointer-events-none"></div>
-                                 <div className="w-full h-full flex items-center justify-center p-8 opacity-30 z-20 relative">
-                                     <div className="text-6xl rotate-12">✂️</div>
+                            {/* LEFT PAGE (BACK) */}
+                            <div className="absolute inset-0 backface-hidden rotate-y-180 rounded-l-xl overflow-hidden bg-[#f0eee6] shadow-2xl">
+                                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/crinkled-paper.png')] opacity-30"></div>
+                                 <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-black/25 via-black/8 to-transparent z-20 pointer-events-none"></div>
+                                 <div className="w-full h-full flex items-center justify-center p-8 opacity-20 z-30 relative">
+                                     <div className="text-6xl -rotate-12">✂️</div>
                                  </div>
                             </div>
                         </div>
                     );
                 })}
+
+                {/* --- BACK COVER --- */}
+                {(() => {
+                    const backCoverIndex = pages.length + 1;
+                    const isFlipped = currentPage > backCoverIndex;
+                    
+                    return (
+                        <div 
+                            key="back-cover"
+                            onClick={() => handleFlip(backCoverIndex)}
+                            className={`absolute inset-0 w-full h-full rounded-r-2xl origin-left transition-transform duration-1100 ease-in-out transform-style-3d cursor-pointer
+                            ${isFlipped ? 'rotate-y-[-180deg]' : 'rotate-y-0'}`}
+                            style={{ zIndex: getZIndex(backCoverIndex) }}
+                        >
+                            <div className="absolute inset-0 backface-hidden p-8 rounded-r-2xl shadow-2xl overflow-hidden border-l-[16px] flex flex-col items-center justify-between"
+                                 style={{ 
+                                     backgroundColor: theme.bg, 
+                                     backgroundImage: theme.pattern,
+                                     backgroundSize: theme.bgSize || 'auto',
+                                     borderColor: theme.spine 
+                                 }}>
+                                 
+                                 <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-black/30 via-black/10 to-transparent pointer-events-none z-20"></div>
+
+                                 <div className="w-full text-center pt-6 z-10">
+                                     <span className="text-[10px] uppercase tracking-[0.3em] font-bold opacity-60 text-stone-700">Cardify Memories</span>
+                                 </div>
+
+                                 <div className="w-32 h-32 rounded-full border-4 border-dashed border-stone-500/40 flex flex-col items-center justify-center p-2 transform rotate-6 z-10 bg-white/10 backdrop-blur-[2px]">
+                                     <span className="text-2xl">🌿</span>
+                                     <span className="text-[9px] font-bold uppercase tracking-widest text-stone-700 mt-1 text-center">Handcrafted Edition</span>
+                                     <span className="text-[8px] text-stone-500 mt-0.5">Made with Love</span>
+                                 </div>
+
+                                 <div className="w-full pb-4 flex flex-col items-center z-10 opacity-70">
+                                     <div className="h-6 w-28 bg-stone-800/80 rounded-sm mb-1 flex items-center justify-center text-[7px] text-white tracking-widest font-mono">
+                                         |||| | |||| || |
+                                     </div>
+                                     <span className="text-[8px] text-stone-600 font-mono">EST. 2026 • ALL RIGHTS RESERVED</span>
+                                 </div>
+                            </div>
+
+                            <div className="absolute inset-0 backface-hidden rotate-y-180 rounded-l-2xl shadow-2xl bg-[#faf9f6] overflow-hidden flex items-center justify-center">
+                                 <RealisticPaperTexture />
+                                 <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-black/15 via-black/4 to-transparent pointer-events-none z-20"></div>
+                                 <div className="w-full h-full flex flex-col items-center justify-center p-8 z-30">
+                                     <p className="font-handwriting text-stone-400 text-xl text-center">"The End of Chapter, but not the story."</p>
+                                 </div>
+                            </div>
+                        </div>
+                    );
+                })()}
             </div>
         </div>
     );
@@ -286,7 +351,6 @@ export default function ScrapbookEditor() {
     const [isSaving, setIsSaving] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
 
-    // --- LOGIC ---
     const activePage = pages[activePageIndex] ?? pages[0];
     const selectedItem = activePage.items.find(i => i.id === selectedItemId);
 
@@ -304,8 +368,6 @@ export default function ScrapbookEditor() {
         setActivePageIndex(Math.max(0, index - 1));
     };
 
-    // --- LAYOUT LOGIC ---
-    // Helper to generate default positions based on count
     const generateLayoutItems = (count: 1 | 2 | 3) => {
         const items: ScrapItem[] = [];
         const baseProps = { type: 'image' as const, scale: 1, content: '', tapeColor: TAPE_COLORS[0] };
@@ -313,27 +375,25 @@ export default function ScrapbookEditor() {
         if (count === 1) {
             items.push({ ...baseProps, id: Date.now().toString(), x: 50, y: 50, rotation: -2 });
         } else if (count === 2) {
-            items.push({ ...baseProps, id: Date.now().toString(), x: 40, y: 35, rotation: -5, tapeColor: TAPE_COLORS[1] });
-            items.push({ ...baseProps, id: (Date.now()+1).toString(), x: 60, y: 65, rotation: 5, tapeColor: TAPE_COLORS[2] });
+            items.push({ ...baseProps, id: Date.now().toString(), x: 38, y: 35, rotation: -4, tapeColor: TAPE_COLORS[1] });
+            items.push({ ...baseProps, id: (Date.now()+1).toString(), x: 62, y: 65, rotation: 3, tapeColor: TAPE_COLORS[2] });
         } else if (count === 3) {
-            items.push({ ...baseProps, id: Date.now().toString(), x: 30, y: 30, rotation: -6, tapeColor: TAPE_COLORS[0] });
-            items.push({ ...baseProps, id: (Date.now()+1).toString(), x: 70, y: 30, rotation: 6, tapeColor: TAPE_COLORS[1] });
-            items.push({ ...baseProps, id: (Date.now()+2).toString(), x: 50, y: 70, rotation: 0, tapeColor: TAPE_COLORS[3] });
+            items.push({ ...baseProps, id: Date.now().toString(), x: 32, y: 30, rotation: -5, tapeColor: TAPE_COLORS[0] });
+            items.push({ ...baseProps, id: (Date.now()+1).toString(), x: 68, y: 32, rotation: 4, tapeColor: TAPE_COLORS[1] });
+            items.push({ ...baseProps, id: (Date.now()+2).toString(), x: 50, y: 72, rotation: -1, tapeColor: TAPE_COLORS[3] });
         }
         return items;
     };
 
     const changePhotoCount = (count: 1 | 2 | 3) => {
-        // Keep existing text notes, reset photos
         const existingNotes = activePage.items.filter(i => i.type === 'text');
         const newPhotos = generateLayoutItems(count);
         
-        // Update page
         const newPages = [...pages];
         newPages[activePageIndex] = { 
             ...activePage, 
             photoCount: count,
-            items: [...newPhotos, ...existingNotes] // Photos reset, notes kept
+            items: [...newPhotos, ...existingNotes] 
         };
         setPages(newPages);
         setSelectedItemId(null);
@@ -344,8 +404,8 @@ export default function ScrapbookEditor() {
         const newNote: ScrapItem = {
             id: Date.now().toString(),
             type: 'text',
-            content: "Note...",
-            x: 50, y: 50, rotation: 0, scale: 1
+            content: "Sweet memory...",
+            x: 50, y: 50, rotation: 1, scale: 1
         };
         const newPages = [...pages];
         newPages[activePageIndex].items.push(newNote);
@@ -396,8 +456,20 @@ export default function ScrapbookEditor() {
         try {
             const payload = { title, themeId, pages, createdAt: new Date().toISOString(), type: "scrapbook-diy-v4" };
             const docRef = await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'scrap-book'), payload);
+            
+            await saveUserCard({
+                title: title || "DIY Scrapbook",
+                template: "scrapbook",
+                bg: themeId === 'mint' ? '#d1fae5' : themeId === 'blush' ? '#fce7f3' : themeId === 'blue' ? '#e0f2fe' : themeId === 'dark' ? '#333333' : '#d4c5a9',
+                status: "saved",
+            });
+
             setGeneratedLink(`${window.location.origin}/scrapbook/${docRef.id}`);
-        } catch (error) { alert("Failed to save."); } finally { setIsSaving(false); }
+        } catch (error) { 
+            alert("Failed to save."); 
+        } finally { 
+            setIsSaving(false); 
+        }
     };
 
     return (
@@ -417,9 +489,9 @@ export default function ScrapbookEditor() {
 
             {/* --- LEFT PANEL --- */}
             <div className="w-full md:w-[420px] h-full bg-white border-r-2 border-[#1C1917] flex flex-col shadow-xl z-20 relative">
-                <div className="p-5 border-b-2 border-[#1C1917] z-10">
-                    <a href="/" className="inline-flex items-center gap-2 text-xs font-bold text-stone-400 hover:text-stone-700 uppercase tracking-widest mb-3">
-                        <ArrowLeft size={12} /> Back
+                <div className="p-5 border-b-2 border-[#1C1917] z-10 bg-white">
+                    <a href="/templates" className="inline-flex items-center gap-2 text-xs font-bold text-stone-500 hover:text-stone-800 uppercase tracking-widest mb-3 transition-colors">
+                        <ArrowLeft size={14} /> Back to Templates
                     </a>
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-[#F6C445] rounded-xl flex items-center justify-center border-2 border-[#1C1917] shadow-[3px_3px_0_0_#1C1917] text-[#1C1917]">
@@ -456,7 +528,6 @@ export default function ScrapbookEditor() {
                     {/* PHOTO COUNT SELECTOR */}
                     <div>
                         <div className="flex items-center gap-2 text-stone-600 mb-2">
-                            <LayoutTemplate size={14} />
                             <span className="text-xs font-bold uppercase tracking-widest">Page Layout</span>
                         </div>
                         <div className="grid grid-cols-3 gap-2">
@@ -473,27 +544,26 @@ export default function ScrapbookEditor() {
                                 </button>
                             ))}
                         </div>
-                        <p className="text-[10px] text-stone-400 mt-1 italic">*Changing count resets photo positions</p>
                     </div>
 
                     {/* CONTENT LIST */}
                     <div className="bg-[#FDFBF3] p-4 rounded-xl border-2 border-stone-200 space-y-3">
                         <div className="flex justify-between items-center">
-                            <span className="text-xs font-bold text-stone-600 uppercase">Items on Page</span>
-                            <button onClick={addNote} className="text-[10px] bg-white border-2 border-[#1C1917] px-2 py-1 rounded-md text-stone-700 hover:bg-[#F6C445]/20 font-bold transition-colors">+ Add Note</button>
+                            <span className="text-xs font-bold text-stone-600 uppercase tracking-wide">Items on Page</span>
+                            <button onClick={addNote} className="text-[10px] bg-white border-2 border-[#1C1917] px-2.5 py-1 rounded-md text-stone-700 hover:bg-[#F6C445]/20 font-bold transition-colors">+ Add Note</button>
                         </div>
                         
-                        <div className="space-y-2 max-h-40 overflow-y-auto">
+                        <div className="space-y-2 max-h-44 overflow-y-auto">
                             {activePage.items.map((item, idx) => (
                                 <div key={item.id} onClick={() => setSelectedItemId(item.id)} className={`p-2 rounded-lg border-2 flex items-center gap-3 cursor-pointer transition-all ${selectedItemId === item.id ? 'bg-[#F6C445]/15 border-[#1C1917]' : 'bg-white border-stone-200 hover:border-[#1C1917]'}`}>
-                                    <div className="w-8 h-8 bg-stone-200 rounded flex items-center justify-center flex-shrink-0">
+                                    <div className="w-8 h-8 bg-stone-200 rounded flex items-center justify-center flex-shrink-0 overflow-hidden">
                                         {item.type === 'image' ? (
-                                            item.content ? <img src={item.content} className="w-full h-full object-cover rounded" alt=""/> : <ImageIcon size={14} className="text-stone-400" />
+                                            item.content ? <img src={item.content} className="w-full h-full object-cover" alt=""/> : <ImageIcon size={14} className="text-stone-400" />
                                         ) : <Type size={14} className="text-stone-400" />}
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <p className="text-xs font-bold text-stone-700 truncate">{item.type === 'image' ? `Photo #${idx+1}` : (item.content || 'Empty Note')}</p>
-                                        <p className="text-[10px] text-stone-400">Click to edit pos</p>
+                                        <p className="text-[10px] text-stone-400">Click to adjust position</p>
                                     </div>
                                     {item.type === 'image' && (
                                         <label className="p-1.5 bg-white border-2 border-stone-200 rounded-md hover:border-[#1C1917] cursor-pointer text-stone-600 transition-colors">
@@ -521,7 +591,7 @@ export default function ScrapbookEditor() {
                                 <div className="space-y-1">
                                     <textarea 
                                         value={selectedItem.content}
-                                        maxLength={100} // LIMITER
+                                        maxLength={100} 
                                         onChange={(e) => updateItem(selectedItem.id, 'content', e.target.value)}
                                         className="w-full bg-[#FDFBF3] border-2 border-stone-200 rounded p-2 text-sm font-handwriting focus:outline-none focus:border-[#1C1917] focus:ring-4 focus:ring-[#F6C445]/30 transition-all"
                                         rows={2}
@@ -551,16 +621,16 @@ export default function ScrapbookEditor() {
                     {/* STICKER */}
                     <div>
                          <div className="flex justify-between items-center mb-1">
-                             <label className="text-[10px] font-bold text-stone-400 uppercase">Sticker</label>
+                             <label className="text-xs font-bold text-stone-500 uppercase tracking-wider">Sticker</label>
                              <button onClick={() => {
                                  const newPages = [...pages]; newPages[activePageIndex].sticker = null; setPages(newPages);
-                             }} className="text-[10px] text-stone-400 hover:text-stone-600">Clear</button>
+                             }} className="text-[10px] text-stone-400 hover:text-stone-600 font-bold uppercase">Clear</button>
                          </div>
-                         <div className="flex gap-1 overflow-x-auto pb-1">
+                         <div className="flex gap-2 overflow-x-auto pb-1">
                              {['🎟️', '✈️', '💖', '✨', '🔥', '🌸'].map(emoji => (
                                  <button key={emoji} onClick={() => {
                                      const newPages = [...pages]; newPages[activePageIndex].sticker = emoji; setPages(newPages);
-                                 }} className="flex-shrink-0 w-8 h-8 rounded-md border-2 border-stone-200 hover:border-[#1C1917] flex items-center justify-center text-lg bg-white transition-colors">
+                                 }} className="flex-shrink-0 w-9 h-9 rounded-lg border-2 border-stone-200 hover:border-[#1C1917] flex items-center justify-center text-lg bg-white transition-colors shadow-sm">
                                      {emoji}
                                  </button>
                              ))}
@@ -572,15 +642,15 @@ export default function ScrapbookEditor() {
                     {/* PAGE NAVIGATION */}
                     <div>
                         <div className="flex justify-between items-center mb-2">
-                            <label className="text-xs font-bold text-stone-500 uppercase">Pages</label>
+                            <label className="text-xs font-bold text-stone-500 uppercase tracking-wider">Pages ({pages.length}/8)</label>
                             <div className="flex gap-2">
-                                {pages.length > 1 && <button onClick={() => removePage(activePageIndex)} className="text-xs text-red-400 hover:text-red-600"><Trash2 size={12}/></button>}
-                                <button onClick={addPage} className="text-xs font-bold text-stone-500 hover:text-stone-800 flex items-center gap-1"><Plus size={12} /> Add</button>
+                                {pages.length > 1 && <button onClick={() => removePage(activePageIndex)} className="text-xs text-red-400 hover:text-red-600 flex items-center gap-1 font-bold"><Trash2 size={12}/> Delete</button>}
+                                <button onClick={addPage} className="text-xs font-bold text-stone-700 hover:text-black flex items-center gap-1"><Plus size={12} /> Add Page</button>
                             </div>
                         </div>
                         <div className="flex gap-2 overflow-x-auto pb-2">
                             {pages.map((_, i) => (
-                                <button key={i} onClick={() => { setActivePageIndex(i); setSelectedItemId(null); }} className={`w-8 h-10 rounded flex items-center justify-center text-xs font-bold border-2 transition-all ${activePageIndex === i ? 'bg-[#1C1917] text-[#F6C445] border-[#1C1917] scale-105 shadow-[2px_2px_0_0_#F6C445]' : 'bg-[#FDFBF3] text-stone-400 border-stone-200 hover:border-[#1C1917]'}`}>{i + 1}</button>
+                                <button key={i} onClick={() => { setActivePageIndex(i); setSelectedItemId(null); }} className={`w-9 h-11 rounded-lg flex items-center justify-center text-xs font-bold border-2 transition-all ${activePageIndex === i ? 'bg-[#1C1917] text-[#F6C445] border-[#1C1917] scale-105 shadow-[2px_2px_0_0_#F6C445]' : 'bg-[#FDFBF3] text-stone-500 border-stone-200 hover:border-[#1C1917]'}`}>{i + 1}</button>
                             ))}
                         </div>
                     </div>
@@ -589,17 +659,17 @@ export default function ScrapbookEditor() {
                 {/* Footer */}
                 <div className="p-5 bg-white border-t-2 border-[#1C1917]">
                     {!generatedLink ? (
-                        <button onClick={handlePublish} disabled={isSaving} className="w-full py-3 bg-[#1C1917] text-[#FDFBF3] rounded-lg font-bold text-sm border-2 border-[#1C1917] hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_#F6C445] active:translate-y-0 active:shadow-none transition-all disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none flex items-center justify-center gap-2">
+                        <button onClick={handlePublish} disabled={isSaving} className="w-full py-3.5 bg-[#1C1917] text-[#FDFBF3] rounded-xl font-bold text-sm border-2 border-[#1C1917] hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_#F6C445] active:translate-y-0 active:shadow-none transition-all disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none flex items-center justify-center gap-2">
                             {isSaving ? <Loader2 className="animate-spin" size={16}/> : <Save size={16} />}
-                            {isSaving ? "Saving..." : "Finish Scrapbook"}
+                            {isSaving ? "Saving Scrapbook..." : "Finish Scrapbook"}
                         </button>
                     ) : (
-                        <div className="bg-[#FDFBF3] border-2 border-[#1C1917] rounded-lg p-3 text-center">
-                            <div className="flex gap-2 mb-2">
-                                <input readOnly value={generatedLink} className="flex-1 bg-white border-2 border-stone-300 rounded px-2 py-1 text-xs text-stone-600" />
-                                <button onClick={() => navigator.clipboard.writeText(generatedLink)} className="p-1 bg-white border-2 border-[#1C1917] rounded"><LinkIcon size={14} /></button>
+                        <div className="bg-[#FDFBF3] border-2 border-[#1C1917] rounded-xl p-3 text-center space-y-2">
+                            <div className="flex gap-2">
+                                <input readOnly value={generatedLink} className="flex-1 bg-white border-2 border-stone-300 rounded-lg px-2 py-1 text-xs text-stone-600 select-all font-mono" />
+                                <button onClick={() => navigator.clipboard.writeText(generatedLink)} className="p-2 bg-white border-2 border-[#1C1917] rounded-lg hover:bg-stone-50"><LinkIcon size={14} /></button>
                             </div>
-                            <a href={generatedLink} target="_blank" className="text-xs font-bold text-stone-600 underline">Open Link</a>
+                            <a href={generatedLink} target="_blank" className="inline-block text-xs font-bold text-[#1C1917] underline hover:text-amber-600">Open Generated Link ↗</a>
                         </div>
                     )}
                 </div>
@@ -609,12 +679,12 @@ export default function ScrapbookEditor() {
             <div className="flex-1 bg-[#EAE6DC] relative flex flex-col items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'linear-gradient(#9ca3af 1px, transparent 1px), linear-gradient(90deg, #9ca3af 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
                 
-                <div className="relative z-10 transform transition-transform hover:scale-[1.02] duration-500 drop-shadow-2xl">
+                <div className="relative z-10 transform transition-transform hover:scale-[1.02] duration-500">
                      <Flipbook pages={pages} coverTitle={title} themeId={themeId} /> 
                 </div>
                 
-                <div className="absolute bottom-8 bg-white px-4 py-2 rounded-full text-xs font-bold text-[#1C1917] border-2 border-[#1C1917] backdrop-blur">
-                    Preview Mode (Use sliders to adjust positions)
+                <div className="absolute bottom-6 bg-white/90 backdrop-blur px-5 py-2.5 rounded-full text-xs font-bold text-[#1C1917] border-2 border-[#1C1917] shadow-md flex items-center gap-2">
+                    <Sparkles size={14} className="text-amber-500" /> Click pages to flip and view your handmade scrapbook
                 </div>
             </div>
         </div>
