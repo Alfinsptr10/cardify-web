@@ -18,13 +18,11 @@ type Song = {
   cover: string;
 };
 
-
 // --- FIREBASE IMPORTS ---
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, signInAnonymously } from "firebase/auth";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-
 
 // --- FIREBASE CONFIG ---
 const manualConfig = {
@@ -76,6 +74,13 @@ const SKY = "#BBD9F5";
 const YELLOW = "#F7D046";
 const CORAL = "#F58A7B";
 const LILAC = "#D8C6F0";
+const RETRO_NAVY = "#16142a";     
+const RETRO_PAPER = "#f7f0d8";    
+const RETRO_INK = "#111111";      
+const RETRO_ORANGE = "#ff6b2b";   
+const RETRO_MINT = "#4ec9b0";     
+const RETRO_BLUE = "#4da6ff";     
+const RETRO_YELLOW = "#f6c445";   
 
 // --- DATA & CONFIG ---
 const SONGS_LIBRARY: Song[] = [
@@ -88,18 +93,21 @@ const SONGS_LIBRARY: Song[] = [
   },
 ];
 
-
 const GAMEBOY_COLORS = [
-  { id: 'white', label: 'Classic White', bg: 'bg-white', border: 'border-gray-200', text: 'text-gray-400' },
-  { id: 'grey', label: 'Retro Grey', bg: 'bg-gray-300', border: 'border-gray-400', text: 'text-gray-600' },
-  { id: 'purple', label: 'Atomic Purple', bg: 'bg-purple-500', border: 'border-purple-700', text: 'text-purple-200' },
-  { id: 'teal', label: 'Teal', bg: 'bg-teal-400', border: 'border-teal-600', text: 'text-teal-800' },
-  { id: 'yellow', label: 'Dandelion', bg: 'bg-yellow-400', border: 'border-yellow-600', text: 'text-yellow-800' },
-  { id: 'pink', label: 'Berry', bg: 'bg-rose-400', border: 'border-rose-500', text: 'text-rose-200' },
+  { id: 'grey', label: 'Classic Gray', bg: 'bg-[#d1d1d1]', text: 'text-gray-700', btnBg: 'bg-[#9c1c3c]', dpadBg: 'bg-[#444]', isClear: false },
+  { id: 'orange', label: 'Retro Orange', bg: 'bg-[#d47a28]', text: 'text-amber-950', btnBg: 'bg-[#b8232c]', dpadBg: 'bg-[#287d3c]', isClear: false },
+  { id: 'pink', label: 'Kawaii Pink', bg: 'bg-[#ec7fa9]', text: 'text-pink-950', btnBg: 'bg-white text-pink-600', dpadBg: 'bg-white text-pink-600', isKawaii: true, isClear: false },
+  { id: 'clear', label: 'Clear / Atom', bg: 'bg-[#d1d1d1]/80 backdrop-blur-sm', text: 'text-gray-800', btnBg: 'bg-[#9c1c3c]', dpadBg: 'bg-[#333]', isClear: true },
+  { id: 'red', label: 'Loud Red', bg: 'bg-[#b8232c]', text: 'text-rose-100', btnBg: 'bg-[#222222]', dpadBg: 'bg-[#333]', isClear: false },
+  { id: 'green', label: 'Loud Green', bg: 'bg-[#3b824a]', text: 'text-emerald-100', btnBg: 'bg-[#1b4324]', dpadBg: 'bg-[#1b4324]', isClear: false },
+  { id: 'yellow', label: 'Loud Yellow', bg: 'bg-[#e0b73b]', text: 'text-yellow-950', btnBg: 'bg-[#5c4a16]', dpadBg: 'bg-[#5c4a16]', isClear: false },
+  { id: 'black', label: 'Loud Black', bg: 'bg-[#262626]', text: 'text-gray-300', btnBg: 'bg-[#141414]', dpadBg: 'bg-[#141414]', isClear: false },
+  { id: 'purple', label: 'Grape', bg: 'bg-[#6b3fa0]', text: 'text-purple-100', btnBg: 'bg-[#3b1d59]', dpadBg: 'bg-[#3b1d59]', isClear: false },
+  { id: 'blue', label: 'Racing Blue', bg: 'bg-[#28589c]', text: 'text-blue-100', btnBg: 'bg-[#16345e]', dpadBg: 'bg-[#16345e]', isClear: false },
 ];
 
 // --- GAMEBOY COMPONENT (PREVIEW ONLY) ---
-const GameboyPreview = ({ data, songs }: { data: any, songs: any[] }) => {
+const GameboyPreview = ({ data, songs, onToggleColor }: { data: any, songs: any[], onToggleColor: () => void }) => {
   const [screenView, setScreenView] = useState<'intro' | 'menu'>('intro');
   const [activePopup, setActivePopup] = useState<'none' | 'message' | 'music' | 'gallery' | 'game'>('none');
   const [selectedMenuIndex, setSelectedMenuIndex] = useState(0); 
@@ -132,7 +140,43 @@ const GameboyPreview = ({ data, songs }: { data: any, songs: any[] }) => {
     if (data.gallery.length > 0) setPhotoIndex(prev => (prev - 1 + data.gallery.length) % data.gallery.length);
   };
 
-  // --- GAME LOGIC ---
+  const [pressedDpad, setPressedDpad] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      let dir = null;
+      if (e.key === "ArrowUp") { dir = "UP"; }
+      else if (e.key === "ArrowDown") { dir = "DOWN"; }
+      else if (e.key === "ArrowLeft") { dir = "LEFT"; }
+      else if (e.key === "ArrowRight") { dir = "RIGHT"; }
+
+      if (dir) {
+        e.preventDefault();
+        setPressedDpad(dir);
+        handleDpad(dir);
+      } else if (e.key === "a" || e.key === "Enter") {
+        e.preventDefault();
+        handleButtonA();
+      } else if (e.key === "b" || e.key === "Escape" || e.key === "Backspace") {
+        e.preventDefault();
+        handleButtonB();
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+        setPressedDpad(null);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [screenView, activePopup, isGameOver, selectedMenuIndex]);
+  
   const startGame = () => {
     setSnakeScore(0);
     setIsGameOver(false);
@@ -141,53 +185,44 @@ const GameboyPreview = ({ data, songs }: { data: any, songs: any[] }) => {
     placeFood();
     
     if (gameIntervalRef.current) clearInterval(gameIntervalRef.current);
-    gameIntervalRef.current = setInterval(gameLoop, 150); // Kecepatan game
+    gameIntervalRef.current = setInterval(gameLoop, 150);
   };
 
-const placeFood = () => {
-  if (!canvasRef.current) return;
-
-  const gridSize = 10;
-  const cols = canvasRef.current.width / gridSize;
-  const rows = canvasRef.current.height / gridSize;
-
-  let newFood: { x: any; y: any; };
-  do {
-    newFood = {
-      x: Math.floor(Math.random() * cols),
-      y: Math.floor(Math.random() * rows),
-    };
-  } while (snakeRef.current.some(p => p.x === newFood.x && p.y === newFood.y));
-
-  foodRef.current = newFood;
-};
-
+  const placeFood = () => {
+    if (!canvasRef.current) return;
+    const gridSize = 10;
+    const cols = canvasRef.current.width / gridSize;
+    const rows = canvasRef.current.height / gridSize;
+    let newFood: { x: number; y: number };
+    do {
+      newFood = {
+        x: Math.floor(Math.random() * cols),
+        y: Math.floor(Math.random() * rows),
+      };
+    } while (snakeRef.current.some(p => p.x === newFood.x && p.y === newFood.y));
+    foodRef.current = newFood;
+  };
 
   const gameLoop = () => {
     if (!canvasRef.current) return;
     const ctx = canvasRef.current.getContext('2d');
     if (!ctx) return;
-
-    // Game Constants
-    const gridSize = 10; // Ukuran kotak
+    const gridSize = 10;
     const cols = canvasRef.current.width / gridSize;
     const rows = canvasRef.current.height / gridSize;
 
-    // Logic: Move Head
     let head = { ...snakeRef.current[0] };
     if (directionRef.current === "UP") head.y -= 1;
     if (directionRef.current === "DOWN") head.y += 1;
     if (directionRef.current === "LEFT") head.x -= 1;
     if (directionRef.current === "RIGHT") head.x += 1;
 
-    // Logic: Collision (Wall or Self)
     if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows || snakeRef.current.some(s => s.x === head.x && s.y === head.y)) {
         setIsGameOver(true);
         if (gameIntervalRef.current) clearInterval(gameIntervalRef.current);
         return;
     }
 
-    // Logic: Eat Food
     let newSnake = [head, ...snakeRef.current];
     if (head.x === foodRef.current.x && head.y === foodRef.current.y) {
         setSnakeScore(s => s + 10);
@@ -197,24 +232,17 @@ const placeFood = () => {
     }
     snakeRef.current = newSnake;
 
-    // Render
-    ctx.fillStyle = "#0f380f"; // Background color (Dark Green LCD)
+    ctx.fillStyle = "#0f380f";
     ctx.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-
-    // Draw Food
-    ctx.fillStyle = "#8bac0f"; // Food color (Light Green)
+    ctx.fillStyle = "#8bac0f";
     ctx.fillRect(foodRef.current.x * gridSize, foodRef.current.y * gridSize, gridSize - 1, gridSize - 1);
-
-    // Draw Snake
-    ctx.fillStyle = "#9bbc0f"; // Snake color (Lighter Green)
+    ctx.fillStyle = "#9bbc0f";
     newSnake.forEach(part => {
         ctx.fillRect(part.x * gridSize, part.y * gridSize, gridSize - 1, gridSize - 1);
     });
   };
 
-  // Interactive Buttons
   const handleStart = () => {
-    // Tombol Start bisa untuk masuk menu ATAU kembali ke intro jika sudah di menu
     setScreenView(prev => prev === 'intro' ? 'menu' : 'intro');
   };
 
@@ -227,30 +255,24 @@ const placeFood = () => {
   };
 
   const handleButtonA = () => {
-     if (screenView === 'intro') {
-         // Intro only Start works
-         return; 
-     } else if (screenView === 'menu' && activePopup === 'none') {
-         // Select menu
+     if (screenView === 'intro') return;
+     else if (screenView === 'menu' && activePopup === 'none') {
          if (selectedMenuIndex === 0) setActivePopup('message');
          else if (selectedMenuIndex === 1) setActivePopup('music');
          else if (selectedMenuIndex === 2) setActivePopup('gallery');
          else if (selectedMenuIndex === 3) {
              setActivePopup('game');
-             // Perlu delay sedikit agar canvas di-render dulu oleh React
              setTimeout(startGame, 100); 
          }
      } else if (activePopup === 'music') {
          setIsPlaying(!isPlaying);
      } else if (activePopup === 'game' && isGameOver) {
-         startGame(); // Restart game
+         startGame();
      }
   };
 
   const handleDpad = (dir: string) => {
-      // D-Pad tidak boleh berfungsi di intro
       if (screenView === 'intro') return;
-
       if (screenView === 'menu' && activePopup === 'none') {
           if (dir === 'UP') setSelectedMenuIndex(prev => (prev > 0 ? prev - 1 : 3));
           else if (dir === 'DOWN') setSelectedMenuIndex(prev => (prev < 3 ? prev + 1 : 0));
@@ -269,232 +291,265 @@ const placeFood = () => {
 
   return (
     <div
-      className={`relative ${activeColor.bg} rounded-[2rem] w-[340px] h-[600px] p-5 flex flex-col border-[3px] transform scale-90 sm:scale-100 origin-top select-none sticky top-10 transition-colors duration-300`}
-      style={{ borderColor: INK, boxShadow: `10px 10px 0px 0px ${INK}` }}
+      className={`relative ${activeColor.bg} rounded-[2rem] w-[390px] h-[560px] p-6 flex flex-col transform scale-90 sm:scale-100 origin-top select-none sticky top-10 transition-colors duration-300 overflow-hidden`}
+      style={{ 
+        borderColor: INK, 
+        backgroundImage: activeColor.id === 'blue' 
+          ? "linear-gradient(90deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%)" 
+          : "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.12) 0%, rgba(0,0,0,0.06) 100%)",
+        backgroundSize: activeColor.id === 'blue' ? "80px 100%" : "auto"
+      }}
     >
-      <div className="flex justify-between items-center mb-3 px-1">
-        <div className="flex flex-col items-center">
-              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_5px_red]"></div>
-              <span className={`text-[6px] font-bold ${activeColor.text} mt-0.5 font-sans`}>BATTERY</span>
+      {activeColor.isClear && (
+        <div className="absolute inset-0 opacity-30 pointer-events-none flex items-center justify-center overflow-hidden">
+           <div className="w-full h-full bg-[#1b4324] border-4 border-[#28589c] relative">
+              <div className="absolute top-10 left-6 w-16 h-12 bg-[#333] border border-yellow-500 rounded"></div>
+              <div className="absolute top-32 right-8 w-20 h-16 bg-[#222] border border-gray-400 rounded-full flex items-center justify-center">
+                 <div className="w-8 h-8 rounded-full border border-gray-500"></div>
+              </div>
+              <div className="absolute inset-0 bg-[radial-gradient(#28589c_1px,transparent_1px)] [background-size:16px_16px] opacity-40"></div>
+           </div>
         </div>
-        <div className={`font-serif font-bold text-xs ${activeColor.text} italic opacity-80`}>CARDIFY</div>
+      )}
+
+      {activeColor.isKawaii && (
+        <div className="absolute inset-0 opacity-15 pointer-events-none flex items-center justify-center overflow-hidden font-bold text-white text-9xl select-none">
+           🐱 🐾 💖
+        </div>
+      )}
+
+      <div className="flex flex-col gap-1 w-24 mb-2 relative z-10">
+        <div className="h-[2px] bg-black/40 w-full rounded-full"></div>
+        <div className="h-[2px] bg-black/40 w-3/4 rounded-full"></div>
+      </div>
+
+      <div className="flex justify-between items-center mb-2 px-2 relative z-10">
+        <div className="flex items-center gap-1.5">
+          <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse shadow-[0_0_5px_red]"></div>
+          <span className={`text-[6px] font-bold ${activeColor.text} font-sans tracking-widest uppercase`}>LIVE</span>
+        </div>
+        <div className={`font-serif font-black text-[11px] ${activeColor.text} italic opacity-70 tracking-widest`}>CARDIFY</div>
       </div>
       
-      {/* Screen */}
-      <div className="bg-[#788a82] p-2.5 rounded-md border-[2.5px] relative mb-4" style={{ borderColor: INK }}>
-         <div className="flex justify-between items-center px-1 mb-0.5">
-             <div className="flex gap-0.5">
-                <div className="w-1 h-1 rounded-full bg-red-500/80"></div>
-                <div className="w-1 h-1 rounded-full bg-red-500/80"></div>
-             </div>
-             <span className="text-[6px] text-gray-700 font-bold font-sans opacity-60">DOT MATRIX WITH STEREO SOUND</span>
-         </div>
-         <div className="bg-[#0f380f] w-full h-[200px] border-4 border-[#0f380f] relative overflow-hidden flex flex-col items-center justify-center font-pixel shadow-inner">
+      <div className="bg-[#38423d] p-3.5 rounded-3xl relative mb-4 shadow-[inset_0_4px_8px_rgba(0,0,0,0.7)] z-10">
+         <div className="bg-[#9bbc0f] w-full h-[185px] border-4 border-[#9bbc0f] relative overflow-hidden flex flex-col items-center justify-center font-pixel shadow-inner">
+            
+            <div className="absolute inset-0 pointer-events-none z-30 opacity-15 bg-[linear-gradient(to_bottom,rgba(0,0,0,0)_50%,rgba(0,0,0,0.3)_50%)] bg-[length:100%_3px]" />
+            
+            <div 
+              className="absolute inset-x-0 h-[2px] bg-black/15 pointer-events-none z-30 shadow-[0_0_4px_rgba(0,0,0,0.2)]"
+              style={{
+                animation: "crtScanline 6s linear infinite",
+              }}
+            />
+
             {screenView === 'intro' && (
-                <div className="text-center w-full animate-in fade-in duration-300">
-                    <div className="text-[#9bbc0f] text-[16px] leading-tight mb-4 drop-shadow-md uppercase pixel-font px-2 break-words">
-                        {data.title || "HAPPY BIRTHDAY"}
+                <div className="text-center w-full animate-in fade-in duration-300 z-10">
+                    <div className="text-[#0f380f] text-[15px] leading-tight mb-3 drop-shadow-sm uppercase pixel-font px-2 break-words">
+                        {data.title || "CARDIFY"}
                     </div>
-                    <div className="text-[#8bac0f] text-[8px] mb-6 animate-pulse uppercase pixel-font">
-                        {data.subtitle || "PRESS START"}
+                    <div className="text-[#306230] text-[7px] mb-5 animate-pulse uppercase pixel-font">
+                        {data.subtitle || "PRESS START TO PLAY"}
                     </div>
-                    <div className="flex justify-center gap-3 text-[#306230]">
-                        <Heart size={16} fill="currentColor" />
-                        <Cake size={16} />
-                        <Heart size={16} fill="currentColor" />
+                    <div className="flex justify-center gap-3 text-[#0f380f]">
+                        <Heart size={14} fill="currentColor" />
+                        <Cake size={14} />
+                        <Heart size={14} fill="currentColor" />
                     </div>
                 </div>
             )}
             {screenView === 'menu' && activePopup === 'none' && (
-                <div className="w-full h-full p-2 animate-in slide-in-from-bottom duration-200">
-                    <div className="text-[#9bbc0f] text-[10px] mb-2 text-center border-b border-[#306230] pb-1 pixel-font">MAIN MENU</div>
-                    <div className="grid grid-cols-1 gap-1.5">
-                        <div className={`text-[8px] p-1.5 text-left flex items-center gap-2 transition-colors pixel-font ${selectedMenuIndex === 0 ? 'bg-[#8bac0f] text-[#0f380f]' : 'bg-[#306230] text-[#9bbc0f]'}`}>
-                            {selectedMenuIndex === 0 && <span className="animate-pulse">▶</span>} <MessageSquare size={10} /> 1. MESSAGE
+                <div className="w-full h-full p-2 animate-in slide-in-from-bottom duration-200 z-10">
+                    <div className="text-[#0f380f] text-[9px] mb-2 text-center border-b border-[#306230] pb-1 pixel-font">MAIN MENU</div>
+                    <div className="grid grid-cols-1 gap-1">
+                        <div className={`text-[7.5px] p-1.5 text-left flex items-center gap-2 transition-colors pixel-font ${selectedMenuIndex === 0 ? 'bg-[#306230] text-[#9bbc0f]' : 'bg-[#8bac0f] text-[#0f380f]'}`}>
+                            {selectedMenuIndex === 0 && <span className="animate-pulse">▶</span>} <MessageSquare size={9} /> 1. MESSAGE
                         </div>
-                        <div className={`text-[8px] p-1.5 text-left flex items-center gap-2 transition-colors pixel-font ${selectedMenuIndex === 1 ? 'bg-[#8bac0f] text-[#0f380f]' : 'bg-[#306230] text-[#9bbc0f]'}`}>
-                            {selectedMenuIndex === 1 && <span className="animate-pulse">▶</span>} <Music size={10} /> 2. MUSIC
+                        <div className={`text-[7.5px] p-1.5 text-left flex items-center gap-2 transition-colors pixel-font ${selectedMenuIndex === 1 ? 'bg-[#306230] text-[#9bbc0f]' : 'bg-[#8bac0f] text-[#0f380f]'}`}>
+                            {selectedMenuIndex === 1 && <span className="animate-pulse">▶</span>} <Music size={9} /> 2. MUSIC
                         </div>
-                        <div className={`text-[8px] p-1.5 text-left flex items-center gap-2 transition-colors pixel-font ${selectedMenuIndex === 2 ? 'bg-[#8bac0f] text-[#0f380f]' : 'bg-[#306230] text-[#9bbc0f]'}`}>
-                            {selectedMenuIndex === 2 && <span className="animate-pulse">▶</span>} <ImageIcon size={10} /> 3. GALLERY
+                        <div className={`text-[7.5px] p-1.5 text-left flex items-center gap-2 transition-colors pixel-font ${selectedMenuIndex === 2 ? 'bg-[#306230] text-[#9bbc0f]' : 'bg-[#8bac0f] text-[#0f380f]'}`}>
+                            {selectedMenuIndex === 2 && <span className="animate-pulse">▶</span>} <ImageIcon size={9} /> 3. GALLERY
                         </div>
-                                                <div className={`text-[8px] p-1.5 text-left flex items-center gap-2 transition-colors pixel-font ${selectedMenuIndex === 3 ? 'bg-[#8bac0f] text-[#0f380f]' : 'bg-[#306230] text-[#9bbc0f]'}`}>
-                            {selectedMenuIndex === 3 && <span className="animate-pulse">▶</span>} <Gamepad2 size={10} /> 4. GAMES
+                        <div className={`text-[7.5px] p-1.5 text-left flex items-center gap-2 transition-colors pixel-font ${selectedMenuIndex === 3 ? 'bg-[#306230] text-[#9bbc0f]' : 'bg-[#8bac0f] text-[#0f380f]'}`}>
+                            {selectedMenuIndex === 3 && <span className="animate-pulse">▶</span>} <Gamepad2 size={9} /> 4. GAMES
                         </div>
                     </div>
                 </div>
             )}
             {activePopup === 'message' && (
-                <div className="absolute inset-0 bg-[#f0f0f0] z-20 flex flex-col p-1">
+                <div className="absolute inset-0 bg-[#f0f0f0] z-40 flex flex-col p-1">
                     <div className="bg-white border-2 border-black p-2 h-full overflow-y-auto">
-                        <div className="text-center border-b-2 border-black border-dashed pb-1 mb-2 font-bold text-[10px] pixel-font">💌 MESSAGE</div>
-                        <p className="text-[10px] leading-4 text-gray-800 whitespace-pre-wrap pixel-font">{data.message}</p>
-                        <p className="text-[8px] text-gray-500 mt-4 text-right pixel-font">- {data.sender}</p>
+                        <div className="text-center border-b-2 border-black border-dashed pb-1 mb-2 font-bold text-[9px] pixel-font">💌 MESSAGE</div>
+                        <p className="text-[9px] leading-4 text-gray-800 whitespace-pre-wrap pixel-font">{data.message}</p>
+                        <p className="text-[7.5px] text-gray-500 mt-3 text-right pixel-font">- {data.sender}</p>
                     </div>
-                    <button onClick={() => setActivePopup('none')} className="absolute top-0 right-0 bg-red-500 text-white w-5 h-5 flex items-center justify-center text-[8px] border border-black">X</button>
+                    <button onClick={() => setActivePopup('none')} className="absolute top-0 right-0 bg-red-500 text-white w-4 h-4 flex items-center justify-center text-[7px] border border-black cursor-pointer">X</button>
                 </div>
             )}
-{activePopup === 'music' && (
-  <div className="absolute inset-0 bg-[#1a1a1a] z-20 flex flex-col items-center justify-between p-2 text-white">
-    
-    {/* HEADER */}
-    <div className="text-[#f0b230] text-[8px] pixel-font mt-1">
-      --- MUSIC PLAYER ---
-    </div>
-
-    {/* CENTER CONTENT */}
-    <div className="flex flex-col items-center justify-center flex-1 gap-2">
-      
-      {/* COVER */}
-      <div className="w-16 h-16 bg-gray-700 border border-gray-500 flex items-center justify-center overflow-hidden relative group">
-        {displayCover ? (
-          <img
-            src={displayCover}
-            className={`w-full h-full object-cover ${isPlaying ? 'opacity-90' : 'opacity-100'}`}
-            alt="art"
-          />
-        ) : (
-          isPlaying
-            ? <div className="animate-spin-slow"><Disc size={24} className="text-[#f0b230]" /></div>
-            : <Music size={24} className="text-gray-400" />
-        )}
-
-        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-          {isPlaying
-            ? <Pause className="text-white drop-shadow-md animate-pulse" size={32} />
-            : <Play className="text-white drop-shadow-md" size={32} />
-          }
-        </div>
-      </div>
-
-      {/* SONG TITLE */}
-      <div className="text-[#8fdb7f] text-[8px] text-center pixel-font max-w-[120px] truncate">
-        {currentSong.title}
-      </div>
-
-      {/* ARTIST */}
-      <div className="text-gray-400 text-[6px] text-center pixel-font">
-        {currentSong.artist}
-      </div>
-    </div>
-
-    {/* FOOTER */}
-    <div className="text-[6px] text-gray-600 pixel-font mb-1">
-      A: Play/Pause • B: Back
-    </div>
-
-    <audio ref={audioRef} src={currentSong.src} loop />
-  </div>
-)}
-
+            {activePopup === 'music' && (
+              <div className="absolute inset-0 bg-[#1a1a1a] z-40 flex flex-col items-center justify-between p-2 text-white">
+                <div className="text-[#f0b230] text-[7.5px] pixel-font mt-1">--- MUSIC PLAYER ---</div>
+                <div className="flex flex-col items-center justify-center flex-1 gap-1.5">
+                  <div className="w-14 h-14 bg-gray-700 border border-gray-500 flex items-center justify-center overflow-hidden relative">
+                    {displayCover ? (
+                      <img src={displayCover} className={`w-full h-full object-cover ${isPlaying ? 'opacity-90' : 'opacity-100'}`} alt="art" />
+                    ) : (
+                      isPlaying ? <div className="animate-spin-slow"><Disc size={20} className="text-[#f0b230]" /></div> : <Music size={20} className="text-gray-400" />
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                      {isPlaying ? <Pause className="text-white drop-shadow-md animate-pulse" size={24} /> : <Play className="text-white drop-shadow-md" size={24} />}
+                    </div>
+                  </div>
+                  <div className="text-[#8fdb7f] text-[7.5px] text-center pixel-font max-w-[120px] truncate">{currentSong.title}</div>
+                  <div className="text-gray-400 text-[6px] text-center pixel-font">{currentSong.artist}</div>
+                </div>
+                <div className="text-[6px] text-gray-600 pixel-font mb-1">A: Play/Pause • B: Back</div>
+                <audio ref={audioRef} src={currentSong.src} loop />
+              </div>
+            )}
             {activePopup === 'gallery' && (
-                <div className="absolute inset-0 bg-white z-20 flex flex-col items-center justify-center p-2">
+                <div className="absolute inset-0 bg-white z-40 flex flex-col items-center justify-center p-2">
                       {data.gallery.length > 0 ? (
                           <>
-                             <div className="w-full h-[140px] bg-gray-100 mb-2 border border-black relative">
+                             <div className="w-full h-[120px] bg-gray-100 mb-1.5 border border-black relative">
                                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                                 <img src={data.gallery[photoIndex]} className="w-full h-full object-cover" alt="Gallery" />
-                                 <button onClick={prevPhoto} className="absolute left-1 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white p-1 rounded-full"><ChevronLeft size={12}/></button>
-                                 <button onClick={nextPhoto} className="absolute right-1 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white p-1 rounded-full"><ChevronRight size={12}/></button>
+                                 <img src={data.gallery[photoIndex].url} className="w-full h-full object-cover" alt="Gallery" />
+                                 {data.gallery.length > 1 && (
+                                   <>
+                                     <button onClick={prevPhoto} className="absolute left-1 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white p-1 rounded-full cursor-pointer"><ChevronLeft size={10}/></button>
+                                     <button onClick={nextPhoto} className="absolute right-1 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white p-1 rounded-full cursor-pointer"><ChevronRight size={10}/></button>
+                                   </>
+                                 )}
                              </div>
-                             <div className="text-[8px] font-bold pixel-font">PHOTO {photoIndex + 1}/{data.gallery.length}</div>
+                             <div className="w-full bg-[#f4f4f4] border border-black p-1.5 text-center min-h-[30px] flex items-center justify-center">
+                                 <span className="text-[7.5px] text-gray-800 pixel-font break-words">
+                                     {data.gallery[photoIndex].caption || `Memory #${photoIndex + 1}`}
+                                 </span>
+                             </div>
                           </>
-                      ) : <div className="text-[8px] text-gray-500 pixel-font">NO PHOTOS ADDED</div>}
-                      <button onClick={() => setActivePopup('none')} className="mt-1 text-[8px] text-red-500 hover:underline pixel-font">CLOSE</button>
+                      ) : <div className="text-[7.5px] text-gray-500 pixel-font">NO PHOTOS ADDED</div>}
                 </div>
             )}
-                        {/* 6. GAME POPUP (NEW) */}
             {activePopup === 'game' && (
-                <div className="absolute inset-0 bg-[#0f380f] z-20 flex flex-col items-center justify-center p-1">
-                    <div className="text-[#9bbc0f] text-[10px] mb-2 font-pixel">SNAKE GAME</div>
-                    <canvas ref={canvasRef} width={200} height={150} className="border-2 border-[#306230] bg-[#8bac0f]"></canvas>
-                    <div className="flex justify-between w-full px-4 mt-2 text-[8px] font-pixel text-[#9bbc0f]">
+                <div className="absolute inset-0 bg-[#9bbc0f] z-40 flex flex-col items-center justify-center p-1">
+                    <div className="text-[#0f380f] text-[9px] mb-1 font-pixel">SNAKE GAME</div>
+                    <canvas ref={canvasRef} width={180} height={120} className="border-2 border-[#306230] bg-[#8bac0f]"></canvas>
+                    <div className="flex justify-between w-full px-3 mt-1 text-[7.5px] font-pixel text-[#0f380f]">
                        <span>SCORE: {snakeScore}</span>
                        <span className="text-[#306230]">{isGameOver ? "GAME OVER" : "PLAYING"}</span>
                     </div>
-                    {isGameOver && <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-white font-pixel text-[10px] animate-pulse">PRESS A TO RESTART</div>}
+                    {isGameOver && <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-white font-pixel text-[8.5px] animate-pulse">PRESS A TO RESTART</div>}
                 </div>
             )}
          </div>
       </div>
-      <div className="relative h-[220px]">
-          <div className="absolute top-4 left-4 w-[110px] h-[110px]">
-               <div className="relative w-full h-full" style={{ filter: "drop-shadow(2px 4px 3px rgba(0,0,0,0.45))" }}>
-                   {/* Vertical arm */}
-                   <div
-                     className="absolute top-0 left-1/3 w-1/3 h-full rounded-[3px]"
-                     style={{
-                       background: "linear-gradient(155deg, #4a4a4a 0%, #2c2c2c 45%, #1a1a1a 100%)",
-                       boxShadow: "inset 0 1px 1px rgba(255,255,255,0.25), inset 0 -3px 4px rgba(0,0,0,0.55)",
-                     }}
-                   />
-                   {/* Horizontal arm */}
-                   <div
-                     className="absolute top-1/3 left-0 w-full h-1/3 rounded-[3px]"
-                     style={{
-                       background: "linear-gradient(155deg, #4a4a4a 0%, #2c2c2c 45%, #1a1a1a 100%)",
-                       boxShadow: "inset 0 1px 1px rgba(255,255,255,0.25), inset 0 -3px 4px rgba(0,0,0,0.55)",
-                     }}
-                   />
-                   {/* Center pivot dome */}
-                   <div
-                     className="absolute top-1/3 left-1/3 w-1/3 h-1/3 rounded-full"
-                     style={{
-                       background: "radial-gradient(circle at 35% 30%, #565656 0%, #232323 65%, #141414 100%)",
-                       boxShadow: "inset 0 1px 2px rgba(255,255,255,0.3), inset 0 -2px 3px rgba(0,0,0,0.6)",
-                     }}
-                   />
 
-                   {/* Panah dekoratif tiap arah — murni visual, pointer-events-none */}
-                   <ArrowUp size={11} strokeWidth={3} className="absolute top-[8%] left-1/2 -translate-x-1/2 text-white/40 pointer-events-none" />
-                   <ArrowDown size={11} strokeWidth={3} className="absolute bottom-[8%] left-1/2 -translate-x-1/2 text-white/40 pointer-events-none" />
-                   <IconArrowLeft size={11} strokeWidth={3} className="absolute left-[8%] top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
-                   <IconArrowRight size={11} strokeWidth={3} className="absolute right-[8%] top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+      <div className={`text-center font-serif italic font-bold text-xs tracking-widest opacity-80 mb-2 relative z-10 ${activeColor.text}`}>2 B I T</div>
 
-                   {/* Highlight tipis di tepi atas tiap arm biar kesan plastik mengkilap */}
-                   <div className="absolute top-0 left-1/3 w-1/3 h-[3px] bg-white/20 rounded-full pointer-events-none" />
-                   <div className="absolute top-1/3 left-0 w-[3px] h-1/3 bg-white/20 rounded-full pointer-events-none" />
+      <div className="relative h-[160px] z-10">
+          <div className="absolute top-1 left-2 w-[110px] h-[110px]">
+               <div className="relative w-full h-full" style={{ filter: "drop-shadow(2px 4px 3px rgba(0,0,0,0.4))" }}>
+                   
+                   <div className="absolute inset-[34%] bg-[#3b3838] shadow-inner z-0"></div>
 
-                   {/* 4 tombol klik — geometri & onClick sama persis, cuma tambah efek tekan 3D */}
-                   <button onClick={() => handleDpad('UP')} className="absolute top-0 left-1/3 w-1/3 h-1/3 z-10 active:bg-black/30 active:scale-95 transition-transform rounded-t-sm" />
-                   <button onClick={() => handleDpad('DOWN')} className="absolute bottom-0 left-1/3 w-1/3 h-1/3 z-10 active:bg-black/30 active:scale-95 transition-transform rounded-b-sm" />
-                   <button onClick={() => handleDpad('LEFT')} className="absolute top-1/3 left-0 w-1/3 h-1/3 z-10 active:bg-black/30 active:scale-95 transition-transform rounded-l-sm" />
-                   <button onClick={() => handleDpad('RIGHT')} className="absolute top-1/3 right-0 w-1/3 h-1/3 z-10 active:bg-black/30 active:scale-95 transition-transform rounded-r-sm" />
+                   {/* Tombol ATAS (UP) */}
+                   <button 
+                     onClick={() => handleDpad('UP')} 
+                     className={`absolute top-0 left-[35%] w-[30%] h-[34%] border-[1.5px] border-[#1a1a1a] rounded-t-md z-20 flex items-center justify-center transition-all cursor-pointer shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] ${
+                       pressedDpad === 'UP' ? 'bg-[#1a1a1a] scale-95 brightness-75' : 'bg-[#2b2b2b] hover:bg-[#383838]'
+                     }`}
+                   >
+                     <div className="w-0 h-0 border-x-[4px] border-x-transparent border-b-[6px] border-b-white/40"></div>
+                   </button>
+
+                   {/* Tombol KIRI (LEFT) */}
+                   <button 
+                     onClick={() => handleDpad('LEFT')} 
+                     className={`absolute top-[35%] left-0 w-[34%] h-[30%] border-[1.5px] border-[#1a1a1a] rounded-l-md z-20 flex items-center justify-center transition-all cursor-pointer shadow-[inset_1px_0_1px_rgba(255,255,255,0.2)] ${
+                       pressedDpad === 'LEFT' ? 'bg-[#1a1a1a] scale-95 brightness-75' : 'bg-[#2b2b2b] hover:bg-[#383838]'
+                     }`}
+                   >
+                     <div className="w-0 h-0 border-y-[4px] border-y-transparent border-r-[6px] border-r-white/40"></div>
+                   </button>
+
+                   <div className="absolute top-[35%] left-[35%] w-[30%] h-[30%] bg-[#1a1a1a] border-[1.5px] border-[#111111] z-10 shadow-[inset_0_2px_4px_rgba(0,0,0,0.9)] flex items-center justify-center">
+                     <div className="w-1.5 h-1.5 rounded-full bg-[#111111]"></div>
+                   </div>
+
+                   {/* Tombol KANAN (RIGHT) */}
+                   <button 
+                     onClick={() => handleDpad('RIGHT')} 
+                     className={`absolute top-[35%] right-0 w-[34%] h-[30%] border-[1.5px] border-[#1a1a1a] rounded-r-md z-20 flex items-center justify-center transition-all cursor-pointer shadow-[inset_-1px_0_1px_rgba(255,255,255,0.2)] ${
+                       pressedDpad === 'RIGHT' ? 'bg-[#1a1a1a] scale-95 brightness-75' : 'bg-[#2b2b2b] hover:bg-[#383838]'
+                     }`}
+                   >
+                     <div className="w-0 h-0 border-y-[4px] border-y-transparent border-l-[6px] border-l-white/40"></div>
+                   </button>
+
+                   {/* Tombol BAWAH (DOWN) */}
+                   <button 
+                     onClick={() => handleDpad('DOWN')} 
+                     className={`absolute bottom-0 left-[35%] w-[30%] h-[34%] border-[1.5px] border-[#1a1a1a] rounded-b-md z-20 flex items-center justify-center transition-all cursor-pointer shadow-[inset_0_-1px_1px_rgba(255,255,255,0.2)] ${
+                       pressedDpad === 'DOWN' ? 'bg-[#1a1a1a] scale-95 brightness-75' : 'bg-[#2b2b2b] hover:bg-[#383838]'
+                     }`}
+                   >
+                     <div className="w-0 h-0 border-x-[4px] border-x-transparent border-t-[6px] border-t-white/40"></div>
+                   </button>
+
                </div>
           </div>
-          <div className="absolute top-6 right-1 flex gap-5 transform -rotate-12">
-               <div className="flex flex-col items-center gap-1 mt-6">
-                   <button onClick={handleButtonB} className="w-12 h-12 rounded-full bg-[#d33c3c] border-[2.5px] border-black active:translate-y-1 transition-all text-white font-bold text-sm pixel-font flex justify-center items-center" style={{ boxShadow: `3px 3px 0 ${INK}` }}>B</button>
+
+          <div className="absolute top-2 right-2 flex gap-4 transform -rotate-12">
+               <div className="flex flex-col items-center gap-0.5 mt-4">
+                   <button onClick={handleButtonB} className={`w-11 h-11 rounded-full ${activeColor.btnBg} border-[2.5px] border-black active:translate-y-1 transition-all font-bold text-xs pixel-font flex justify-center items-center cursor-pointer`} style={{ boxShadow: `3px 4px 0 ${INK}` }}>B</button>
+                   <span className={`text-[7px] font-bold ${activeColor.text} uppercase tracking-wider font-sans opacity-95`}>JOIN</span>
                </div>
-               <div className="flex flex-col items-center gap-1">
-                   <button onClick={handleButtonA} className="w-12 h-12 rounded-full bg-[#d33c3c] border-[2.5px] border-black active:translate-y-1 transition-all text-white font-bold text-sm pixel-font flex justify-center items-center" style={{ boxShadow: `3px 3px 0 ${INK}` }}>A</button>
-               </div>
-          </div>
-          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex gap-4">
-               <div className="flex flex-col items-center">
-                   <button onClick={handleStart} className="w-16 h-4 bg-[#999] rounded-full transform rotate-[-25deg] border-2 border-black active:scale-95"></button>
-                   <span className={`text-[9px] font-bold ${activeColor.text} mt-1 uppercase tracking-wider font-sans opacity-70 transform rotate-[-27deg] translate-x-2`}>Select</span>
-               </div>
-               <div className="flex flex-col items-center">
-                   <button onClick={handleStart} className="w-16 h-4 bg-[#999] rounded-full transform rotate-[-25deg] border-2 border-black active:scale-95"></button>
-                   <span className={`text-[9px] font-bold ${activeColor.text} mt-1 uppercase tracking-wider font-sans opacity-70 transform rotate-[-27deg] translate-x-2`}>Start</span>
+               <div className="flex flex-col items-center gap-0.5">
+                   <button onClick={handleButtonA} className={`w-11 h-11 rounded-full ${activeColor.btnBg} border-[2.5px] border-black active:translate-y-1 transition-all font-bold text-xs pixel-font flex justify-center items-center cursor-pointer`} style={{ boxShadow: `3px 4px 0 ${INK}` }}>A</button>
+                   <span className={`text-[7px] font-bold ${activeColor.text} uppercase tracking-wider font-sans opacity-95`}>HOST</span>
                </div>
           </div>
-          <div className="absolute bottom-6 right-6 flex gap-1 transform -rotate-12 opacity-30 pointer-events-none">
-               {[1,2,3,4,5].map(i => <div key={i} className="w-1 h-8 bg-black/20 rounded-full inset-shadow" />)}
+      </div>
+
+      <div className="mt-auto pt-2 border-t-2 border-black/10 flex items-center justify-between relative z-10">
+          <div className="flex gap-4">
+              <div className="flex flex-col items-center transform -rotate-25">
+                  <button onClick={handleStart} className="w-12 h-3.5 bg-[#555] rounded-full border-2 border-black active:scale-95 cursor-pointer shadow-[0_2px_0_#222]"></button>
+                  <span className={`text-[5px] font-black font-sans uppercase mt-1 tracking-tighter opacity-80 ${activeColor.text}`}>SELECT</span>
+              </div>
+              <div className="flex flex-col items-center transform -rotate-25">
+                  <button onClick={handleStart} className="w-12 h-3.5 bg-[#555] rounded-full border-2 border-black active:scale-95 cursor-pointer shadow-[0_2px_0_#222]"></button>
+                  <span className={`text-[5px] font-black font-sans uppercase mt-1 tracking-tighter opacity-80 ${activeColor.text}`}>START</span>
+              </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+              <div className="flex flex-col items-center">
+                  <button 
+                    onClick={onToggleColor} 
+                    className="w-5 h-5 rounded-full bg-gray-600 border-2 border-black active:scale-95 cursor-pointer shadow-[0_2px_0_#222]"
+                    title="Change Case Color"
+                  ></button>
+                  <span className={`text-[5.5px] font-black font-sans uppercase mt-0.5 tracking-tighter opacity-80 ${activeColor.text}`}>CASE</span>
+              </div>
+
+              <div className="flex flex-col gap-1 w-12 p-1 rounded bg-black/5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]">
+                  {[1, 2, 3, 4].map(i => <div key={i} className="h-1 bg-black/70 rounded-full w-full shadow-[0_1px_1px_rgba(255,255,255,0.15)]" />)}
+              </div>
           </div>
       </div>
     </div>
   );
 };
 
-export default function WebStoryEditor() {
-  const [activeTab, setActiveTab] = useState<'message' | 'music' | 'gallery' | 'design'>('message');
+export default function GameboyEditor() {
+  const [activeTab, setActiveTab] = useState<'message' | 'music' | 'gallery'>('message');
   const [generatedLink, setGeneratedLink] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [songs, setSongs] = useState(SONGS_LIBRARY); 
   const [isUploading, setIsUploading] = useState(false);
-  const [copied, setCopied] = useState(false); // fungsi tambahan: feedback copy link
+  const [copied, setCopied] = useState(false); 
   const [storyData, setStoryData] = useState({
      title: "HAPPY BIRTHDAY",
      subtitle: "PRESS START BUTTON",
@@ -503,61 +558,56 @@ export default function WebStoryEditor() {
      music: "default-happy",
      musicCover: null as string | null,
      gallery: [
-       "https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=400"
-     ],
-     color: 'white'
+       { url: "https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=400", caption: "Sweet memory #1" }
+     ] as Array<{ url: string; caption: string }>,
+     color: 'grey'
   });
 
-  // --- STATE BARU UNTUK UPLOAD MUSIK & COVER SEKALIGUS ---
   const [tempAudioFile, setTempAudioFile] = useState<File | null>(null);
   const [tempCoverFile, setTempCoverFile] = useState<File | null>(null);
   const [tempSongTitle, setTempSongTitle] = useState("");
 
   const handleChange = (field: string, value: any) => setStoryData(prev => ({ ...prev, [field]: value }));
 
-  // --- FUNGSI BARU: HANDLE UPLOAD SEKALIGUS ---
+  const handleToggleColor = () => {
+    const currentIndex = GAMEBOY_COLORS.findIndex(c => c.id === storyData.color);
+    const nextIndex = (currentIndex + 1) % GAMEBOY_COLORS.length;
+    handleChange('color', GAMEBOY_COLORS[nextIndex].id);
+  };
+
   const handleCombinedUpload = async () => {
     if (!tempAudioFile) {
       alert("Mohon pilih file lagu terlebih dahulu.");
       return;
     }
 
-    // Validasi Ukuran
     if (tempAudioFile.size > 10 * 1024 * 1024) return alert("Ukuran lagu max 10MB");
     if (tempCoverFile && tempCoverFile.size > 5 * 1024 * 1024) return alert("Ukuran cover max 5MB");
 
     setIsUploading(true);
 
     try {
-      // 1. Upload Audio
       const audioUrl = await uploadToCloudinary(tempAudioFile, "music");
-      
-      // 2. Upload Cover (jika ada, jika tidak pakai default)
-      let coverUrl = storyData.musicCover || "/cat.jpg"; // Default fallback
+      let coverUrl = storyData.musicCover || "/cat.jpg";
       if (tempCoverFile) {
         coverUrl = await uploadToCloudinary(tempCoverFile, "covers");
       }
 
-      // 3. Buat Object Lagu Baru
       const newSong: Song = {
         id: crypto.randomUUID(),
-        title: tempSongTitle || tempAudioFile.name.replace(/\.[^/.]+$/, "").substring(0, 20), // Pakai nama file jika judul kosong
+        title: tempSongTitle || tempAudioFile.name.replace(/\.[^/.]+$/, "").substring(0, 20),
         artist: "Custom Upload",
         src: audioUrl,
         cover: coverUrl
       };
 
-      // 4. Update State
-      setSongs(prev => [newSong, ...prev]); // Masukkan ke list
-      
-      // 5. Langsung Pilih Lagu & Cover Tersebut
+      setSongs(prev => [newSong, ...prev]);
       setStoryData(prev => ({
         ...prev,
         music: newSong.id,
         musicCover: coverUrl 
       }));
 
-      // 6. Reset Form
       setTempAudioFile(null);
       setTempCoverFile(null);
       setTempSongTitle("");
@@ -570,21 +620,10 @@ export default function WebStoryEditor() {
     }
   };
 
-
-  const uploadToStorage = async (file: File, folder: string): Promise<string> => {
-      if (!storage) throw new Error("Storage not initialized");
-      const storageRef = ref(storage, `uploads/${folder}/${Date.now()}_${file.name}`);
-      await uploadBytes(storageRef, file);
-      return await getDownloadURL(storageRef);
-  };
-  
   const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    // ---------------------------------------------
-    // LOGIKA BARU: CEK LIMIT MAX 3 FOTO
-    // ---------------------------------------------
     if (storyData.gallery.length >= 3) {
         alert("Maksimal hanya boleh upload 3 foto di galeri!");
-        e.target.value = ""; // Reset input agar user bisa pilih file lagi nanti jika sudah menghapus
+        e.target.value = "";
         return;
     }
 
@@ -606,10 +645,9 @@ export default function WebStoryEditor() {
     setIsUploading(true);
     try {
       const url = await uploadToCloudinary(file, "gallery");
-
       setStoryData(prev => ({
         ...prev,
-        gallery: [...prev.gallery, url]
+        gallery: [...prev.gallery, { url, caption: "" }]
       }));
     } catch (err) {
       console.error(err);
@@ -620,14 +658,19 @@ export default function WebStoryEditor() {
     }
   };
 
-  
+  const handleCaptionChange = (index: number, caption: string) => {
+    setStoryData(prev => {
+      const updatedGallery = [...prev.gallery];
+      updatedGallery[index] = { ...updatedGallery[index], caption };
+      return { ...prev, gallery: updatedGallery };
+    });
+  };
+
   const handleRemovePhoto = (index: number) => setStoryData(prev => ({...prev, gallery: prev.gallery.filter((_, i) => i !== index)}));
 
-  // --- FIREBASE SAVE ---
   const handlePublish = async () => {
     setIsSaving(true);
     
-    // Auth Check
     if (!auth) {
         try {
             await signInAnonymously(auth);
@@ -644,8 +687,9 @@ export default function WebStoryEditor() {
             sender: storyData.sender || "",
             music: storyData.music || "",
             musicCover: storyData.musicCover || null,
-            gallery: storyData.gallery,
-            color: storyData.color || "white",
+            gallery: storyData.gallery.map(item => item.url), // Kompatibilitas database
+            galleryCaptions: storyData.gallery.map(item => item.caption),
+            color: storyData.color || "grey",
             customSongs: songs
                 .filter(s => s.artist === "Custom Upload")
                 .map(s => ({
@@ -659,19 +703,15 @@ export default function WebStoryEditor() {
             creatorId: auth?.currentUser?.uid || "anon"
         };
         
-        // Simpan ke collection khusus 'gameboy-stories'
         const docRef = await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'gameboy-stories'), payload);
         
-        // --- SIMPAN OTOMATIS KE DASHBOARD AKUN ---
         await saveUserCard({
             title: storyData.title || "Retro Gameboy Story",
-            template: "gameboy", // Sesuai identifier template gameboy
-            bg: storyData.color === 'purple' ? '#a855f7' : storyData.color === 'teal' ? '#2dd4bf' : storyData.color === 'yellow' ? '#facc15' : storyData.color === 'pink' ? '#fb7185' : '#ffffff',
+            template: "gameboy",
+            bg: storyData.color === 'purple' ? '#6b3fa0' : storyData.color === 'red' ? '#b8232c' : storyData.color === 'green' ? '#3b824a' : storyData.color === 'yellow' ? '#e0b73b' : storyData.color === 'black' ? '#262626' : storyData.color === 'blue' ? '#28589c' : storyData.color === 'orange' ? '#d47a28' : storyData.color === 'pink' ? '#ec7fa9' : '#d1d1d1',
             status: "saved",
         });
-        // ----------------------------------------
 
-        // Generate Link dengan ID Firestore asli
         const link = `${window.location.origin}/gameboy-app/${docRef.id}`;
         setGeneratedLink(link);
     } catch (error) {
@@ -682,7 +722,6 @@ export default function WebStoryEditor() {
     }
   };
 
-  // fungsi tambahan (tidak mengubah yang lama)
   const handleCopyLink = () => {
     navigator.clipboard.writeText(generatedLink);
     setCopied(true);
@@ -691,7 +730,6 @@ export default function WebStoryEditor() {
 
   const TAB_COLORS: Record<string, string> = {
     message: CORAL,
-    design: LILAC,
     music: YELLOW,
     gallery: MINT,
   };
@@ -711,51 +749,48 @@ export default function WebStoryEditor() {
           .dozo-display { font-family: 'Boldonse', 'Archivo Black', sans-serif; }
           .animate-spin-slow { animation: spin 3s linear infinite; }
           @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-          @keyframes dozo-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-          .dozo-marquee { animation: dozo-marquee 22s linear infinite; }
-          @keyframes dozo-float { 0%,100% { transform: translateY(0) rotate(-4deg);} 50% { transform: translateY(-12px) rotate(4deg);} }
-          .dozo-float { animation: dozo-float 6s ease-in-out infinite; }
-          /* Custom Scrollbar */
+          @keyframes crtScanline {
+            0% { top: 0%; }
+            100% { top: 100%; }
+          }
           ::-webkit-scrollbar { width: 8px; }
           ::-webkit-scrollbar-track { background: transparent; }
           ::-webkit-scrollbar-thumb { background: #111111; border-radius: 99px; }
       `}} />
 
-       {/* --- LEFT PANEL: EDITOR (SCROLLABLE INDEPENDENTLY) --- */}
-       <div className="w-full md:w-1/3 h-full overflow-y-auto z-20 relative" style={{ background: CREAM, borderRight: `3px solid ${INK}` }}>
-
-          <div className="p-6 md:p-8 max-w-lg mx-auto min-h-full flex flex-col">
-              {/* REPLACED Link with <a> */}
+       {/* --- LEFT PANEL: RETRO WEB EDITOR --- */}
+       <div className="w-full md:w-1/3 h-full overflow-y-auto z-25 relative flex flex-col" style={{ background: RETRO_NAVY, color: RETRO_PAPER, borderRight: `3px solid ${RETRO_INK}` }}>
+          <div className="p-6 md:p-8 max-w-lg mx-auto w-full flex-1 flex flex-col pb-28">
+              
               <a
                 href="/"
-                className="inline-flex items-center gap-2 self-start text-[10px] font-black uppercase tracking-[0.2em] mb-8 px-4 py-2 rounded-full transition-all group hover:-translate-y-0.5"
-                style={{ background: CREAM, border: `2.5px solid ${INK}`, boxShadow: `4px 4px 0 ${INK}` }}
+                className="inline-flex items-center gap-2 self-start text-[10px] font-black uppercase tracking-[0.2em] mb-6 px-4 py-2 rounded-lg transition-all group hover:-translate-y-0.5"
+                style={{ background: RETRO_PAPER, color: RETRO_INK, border: `2.5px solid ${RETRO_INK}`, boxShadow: `3px 3px 0 ${RETRO_INK}` }}
               >
-                 <ArrowLeft size={12} className="group-hover:-translate-x-1 transition-transform" /> Back to Dashboard
+                 <ArrowLeft size={12} className="group-hover:-translate-x-1 transition-transform" /> BACK TO DASHBOARD
               </a>
               
               <div className="flex items-center gap-3 mb-2">
-                 <div className="p-2.5 rounded-2xl" style={{ background: YELLOW, border: `2.5px solid ${INK}`, boxShadow: `3px 3px 0 ${INK}` }}>
-                    <Gamepad2 size={20} />
+                 <div className="p-2.5 rounded-xl" style={{ background: RETRO_ORANGE, border: `2.5px solid ${RETRO_INK}`, boxShadow: `3px 3px 0 ${RETRO_INK}` }}>
+                    <Gamepad2 size={20} color="#111" />
                  </div>
-                 <h1 className="dozo-display text-xl font-black leading-tight uppercase">Cartridge Editor</h1>
+                 <h1 className="text-xl font-black leading-tight uppercase font-pixel tracking-wide" style={{ color: RETRO_PAPER }}>GAMEBOY CONFIG</h1>
               </div>
-              <p className="mb-8 text-xs font-bold pl-14 opacity-60">Craft your digital retro story. ✿</p>
+              <p className="mb-6 text-xs font-bold pl-14 opacity-70 font-mono">RETRO VIBES • CUSTOM CARTRIDGE STUDIO</p>
 
-              {/* TABS (SEGMENTED CONTROL STYLE) */}
               <div
-                className="flex gap-1 p-1.5 rounded-2xl mb-8 sticky top-9 z-20"
-                style={{ background: CREAM, border: `2.5px solid ${INK}`, boxShadow: `5px 5px 0 ${INK}` }}
+                className="flex gap-1.5 p-1.5 rounded-xl mb-6 sticky top-4 z-30"
+                style={{ background: RETRO_PAPER, border: `2.5px solid ${RETRO_INK}`, boxShadow: `4px 4px 0 ${RETRO_INK}` }}
               >
-                 {['message', 'design', 'music', 'gallery'].map((tab) => (
+                 {['message', 'music', 'gallery'].map((tab) => (
                     <button 
                         key={tab} 
                         onClick={() => setActiveTab(tab as any)} 
-                        className="flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all duration-200"
+                        className="flex-1 py-2.5 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all duration-200 cursor-pointer font-pixel"
                         style={
                           activeTab === tab
-                            ? { background: TAB_COLORS[tab], border: `2px solid ${INK}`, boxShadow: `2px 2px 0 ${INK}` }
-                            : { border: "2px solid transparent", opacity: 0.5 }
+                            ? { background: RETRO_ORANGE, color: RETRO_INK, border: `2px solid ${RETRO_INK}`, boxShadow: `2px 2px 0 ${RETRO_INK}` }
+                            : { background: 'transparent', color: RETRO_INK, border: "2px solid transparent", opacity: 0.6 }
                         }
                     >
                         {tab}
@@ -763,105 +798,106 @@ export default function WebStoryEditor() {
                  ))}
               </div>
 
-              {/* FORM CONTENT */}
-              <div className="space-y-6 flex-1">
+              <div className="space-y-5 flex-1">
                  {activeTab === 'message' && (
-                     <div className="space-y-5 animate-in slide-in-from-left-2 duration-300">
+                     <div className="space-y-4 animate-in slide-in-from-left-2 duration-300">
                         <div className="group">
-                            <label className={labelClass}>Title (Max 15 chars)</label>
-                            <input type="text" value={storyData.title} onChange={(e) => handleChange('title', e.target.value)} className={inputClass} style={inputStyle} placeholder="e.g. HAPPY BIRTHDAY" maxLength={20} />
+                            <label className="block text-[10px] font-black uppercase tracking-[0.18em] mb-2 ml-1 font-pixel" style={{ color: RETRO_PAPER }}>TITLE (MAX 20 CHARS)</label>
+                            <input 
+                              type="text" 
+                              value={storyData.title} 
+                              onChange={(e) => handleChange('title', e.target.value)} 
+                              className="w-full rounded-xl px-4 py-3 text-sm outline-none font-bold transition-all placeholder:font-medium placeholder:text-black/30 focus:-translate-y-0.5"
+                              style={{ background: RETRO_PAPER, border: `2.5px solid ${RETRO_INK}`, color: RETRO_INK, boxShadow: `3px 3px 0 ${RETRO_INK}` }} 
+                              placeholder="e.g. HAPPY BIRTHDAY" 
+                              maxLength={20} 
+                            />
                         </div>
                         <div className="group">
-                            <label className={labelClass}>Subtitle</label>
-                            <input type="text" value={storyData.subtitle} onChange={(e) => handleChange('subtitle', e.target.value)} className={inputClass} style={inputStyle} placeholder="e.g. PRESS START" maxLength={25} />
+                            <label className="block text-[10px] font-black uppercase tracking-[0.18em] mb-2 ml-1 font-pixel" style={{ color: RETRO_PAPER }}>SUBTITLE</label>
+                            <input 
+                              type="text" 
+                              value={storyData.subtitle} 
+                              onChange={(e) => handleChange('subtitle', e.target.value)} 
+                              className="w-full rounded-xl px-4 py-3 text-sm outline-none font-bold transition-all placeholder:font-medium placeholder:text-black/30 focus:-translate-y-0.5"
+                              style={{ background: RETRO_PAPER, border: `2.5px solid ${RETRO_INK}`, color: RETRO_INK, boxShadow: `3px 3px 0 ${RETRO_INK}` }} 
+                              placeholder="e.g. PRESS START" 
+                              maxLength={25} 
+                            />
                         </div>
                         <div className="group">
-                            <label className={labelClass}>Message Body</label>
-                            <textarea rows={6} value={storyData.message} onChange={(e) => handleChange('message', e.target.value)} className={`${inputClass} resize-none leading-relaxed`} style={inputStyle} placeholder="Write your heartfelt message here..." />
+                            <label className="block text-[10px] font-black uppercase tracking-[0.18em] mb-2 ml-1 font-pixel" style={{ color: RETRO_PAPER }}>MESSAGE BODY</label>
+                            <textarea 
+                              rows={5} 
+                              value={storyData.message} 
+                              onChange={(e) => handleChange('message', e.target.value)} 
+                              className="w-full rounded-xl px-4 py-3 text-sm outline-none font-bold transition-all placeholder:font-medium placeholder:text-black/30 focus:-translate-y-0.5 resize-none leading-relaxed" 
+                              style={{ background: RETRO_PAPER, border: `2.5px solid ${RETRO_INK}`, color: RETRO_INK, boxShadow: `3px 3px 0 ${RETRO_INK}` }} 
+                              placeholder="Write your heartfelt message here..." 
+                            />
                         </div>
                         <div className="group">
-                            <label className={labelClass}>Sender Name</label>
-                            <input type="text" value={storyData.sender} onChange={(e) => handleChange('sender', e.target.value)} className={inputClass} style={inputStyle} placeholder="e.g. Your Bestie" />
+                            <label className="block text-[10px] font-black uppercase tracking-[0.18em] mb-2 ml-1 font-pixel" style={{ color: RETRO_PAPER }}>SENDER NAME</label>
+                            <input 
+                              type="text" 
+                              value={storyData.sender} 
+                              onChange={(e) => handleChange('sender', e.target.value)} 
+                              className="w-full rounded-xl px-4 py-3 text-sm outline-none font-bold transition-all placeholder:font-medium placeholder:text-black/30 focus:-translate-y-0.5"
+                              style={{ background: RETRO_PAPER, border: `2.5px solid ${RETRO_INK}`, color: RETRO_INK, boxShadow: `3px 3px 0 ${RETRO_INK}` }} 
+                              placeholder="e.g. Your Bestie" 
+                            />
                         </div>
                      </div>
                  )}
-                 {activeTab === 'design' && (
-                     <div className="space-y-6 animate-in slide-in-from-left-2 duration-300">
-                        <div>
-                            <label className={labelClass}>Select Console Color</label>
-                            <div className="grid grid-cols-2 gap-3">
-                            {GAMEBOY_COLORS.map((color) => (
-                                <div
-                                  key={color.id}
-                                  onClick={() => handleChange('color', color.id)}
-                                  className="cursor-pointer rounded-2xl p-3 flex items-center gap-3 transition-all hover:-translate-y-0.5 active:translate-y-0"
-                                  style={{
-                                    background: storyData.color === color.id ? LILAC : CREAM,
-                                    border: `2.5px solid ${INK}`,
-                                    boxShadow: storyData.color === color.id ? `5px 5px 0 ${INK}` : `3px 3px 0 ${INK}`,
-                                  }}
-                                >
-                                    <div className={`w-8 h-8 rounded-full border-2 border-black ${color.bg}`}></div>
-                                    <span className="text-[11px] font-black uppercase tracking-wide">{color.label}</span>
-                                </div>
-                            ))}
-                            </div>
-                        </div>
-                     </div>
-                 )}
+
                  {activeTab === 'music' && (
-                    <div className="space-y-6 animate-in slide-in-from-left-2 duration-300">
-                        
-                        {/* INPUT UPLOAD BARU */}
-                        <div className="p-5 rounded-3xl space-y-4 relative overflow-hidden" style={{ background: CREAM, border: `3px solid ${INK}`, boxShadow: `8px 8px 0 ${INK}` }}>
-                            <div className="absolute -top-3 -right-3 p-6 opacity-10"><Music size={70} /></div>
-                            <div className="flex items-center gap-2 mb-2 pb-3 relative z-10" style={{ borderBottom: `2px dashed ${INK}` }}>
-                                <div className="p-1.5 rounded-lg" style={{ background: YELLOW, border: `2px solid ${INK}` }}><Upload size={14} /></div>
-                                <span className="text-xs font-black uppercase tracking-wide">Upload Custom Track</span>
+                    <div className="space-y-5 animate-in slide-in-from-left-2 duration-300">
+                        <div className="p-5 rounded-2xl space-y-4 relative overflow-hidden" style={{ background: RETRO_PAPER, border: `3px solid ${RETRO_INK}`, color: RETRO_INK, boxShadow: `5px 5px 0 ${RETRO_INK}` }}>
+                            <div className="absolute -top-3 -right-3 p-6 opacity-10"><Music size={70} color="#111" /></div>
+                            <div className="flex items-center gap-2 mb-2 pb-3 relative z-10" style={{ borderBottom: `2px dashed ${RETRO_INK}` }}>
+                                <div className="p-1.5 rounded-lg" style={{ background: RETRO_YELLOW, border: `2px solid ${RETRO_INK}` }}><Upload size={14} color="#111" /></div>
+                                <span className="text-xs font-black uppercase tracking-wide font-pixel">UPLOAD CUSTOM TRACK</span>
                             </div>
 
-                            {/* Input Judul */}
                             <div className="relative z-10">
-                                <label className={labelClass}>Track Title (Optional)</label>
+                                <label className="block text-[10px] font-black uppercase tracking-[0.18em] mb-1 font-pixel">TRACK TITLE</label>
                                 <input 
                                     type="text" 
                                     value={tempSongTitle}
                                     onChange={(e) => setTempSongTitle(e.target.value)}
                                     placeholder="e.g. Our Favorite Song"
-                                    className={inputClass}
-                                    style={inputStyle}
+                                    className="w-full rounded-xl px-4 py-2.5 text-sm outline-none font-bold"
+                                    style={{ background: '#fff', border: `2px solid ${RETRO_INK}`, color: RETRO_INK }}
                                 />
                             </div>
 
                             <div className="flex gap-3 relative z-10">
-                                {/* Input File Audio */}
                                 <div className="flex-1">
-                                    <label className={labelClass}>Audio File</label>
+                                    <label className="block text-[10px] font-black uppercase tracking-[0.18em] mb-1 font-pixel">AUDIO FILE</label>
                                     <label
-                                      className="flex flex-col items-center justify-center gap-2 w-full h-28 rounded-2xl cursor-pointer transition-all hover:-translate-y-0.5"
-                                      style={{ background: tempAudioFile ? MINT : CREAM, border: `2.5px dashed ${INK}`, boxShadow: `4px 4px 0 ${INK}` }}
+                                      className="flex flex-col items-center justify-center gap-2 w-full h-24 rounded-xl cursor-pointer transition-all hover:-translate-y-0.5"
+                                      style={{ background: tempAudioFile ? RETRO_MINT : '#fff', border: `2px dashed ${RETRO_INK}` }}
                                     >
-                                        <Music size={24} />
-                                        <span className="text-[10px] text-center px-2 truncate w-full font-black uppercase">
-                                            {tempAudioFile ? tempAudioFile.name : "Select MP3"}
+                                        <Music size={20} color="#111" />
+                                        <span className="text-[9px] text-center px-2 truncate w-full font-black uppercase">
+                                            {tempAudioFile ? tempAudioFile.name : "SELECT MP3"}
                                         </span>
                                         <input type="file" accept="audio/*" className="hidden" onChange={(e) => setTempAudioFile(e.target.files?.[0] || null)} />
                                     </label>
                                 </div>
 
-                                {/* Input File Cover */}
                                 <div className="w-28">
-                                    <label className={labelClass}>Cover Art</label>
+                                    <label className="block text-[10px] font-black uppercase tracking-[0.18em] mb-1 font-pixel">COVER ART</label>
                                     <label
-                                      className="flex flex-col items-center justify-center gap-2 w-full h-28 rounded-2xl cursor-pointer transition-all overflow-hidden relative hover:-translate-y-0.5"
-                                      style={{ background: tempCoverFile ? MINT : CREAM, border: `2.5px dashed ${INK}`, boxShadow: `4px 4px 0 ${INK}` }}
+                                      className="flex flex-col items-center justify-center gap-2 w-full h-24 rounded-xl cursor-pointer transition-all overflow-hidden relative hover:-translate-y-0.5"
+                                      style={{ background: tempCoverFile ? RETRO_MINT : '#fff', border: `2px dashed ${RETRO_INK}` }}
                                     >
                                         {tempCoverFile ? (
                                             <img src={URL.createObjectURL(tempCoverFile)} className="absolute inset-0 w-full h-full object-cover" alt="preview" />
                                         ) : (
                                             <>
-                                                <ImageIcon size={24} />
-                                                <span className="text-[9px] font-black uppercase">Image</span>
+                                                <ImageIcon size={20} color="#111" />
+                                                <span className="text-[9px] font-black uppercase">IMAGE</span>
                                             </>
                                         )}
                                         <input type="file" accept="image/*" className="hidden" onChange={(e) => setTempCoverFile(e.target.files?.[0] || null)} />
@@ -869,92 +905,101 @@ export default function WebStoryEditor() {
                                 </div>
                             </div>
 
-                            {/* Tombol Eksekusi */}
                             <button 
                                 onClick={handleCombinedUpload} 
                                 disabled={isUploading || !tempAudioFile}
-                                className="w-full py-3 rounded-full text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 relative z-10 disabled:opacity-40 disabled:cursor-not-allowed enabled:hover:-translate-y-0.5 enabled:active:translate-y-0"
-                                style={{ background: INK, color: CREAM, border: `2.5px solid ${INK}`, boxShadow: `5px 5px 0 ${CORAL}` }}
+                                className="w-full py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 relative z-10 disabled:opacity-40 cursor-pointer font-pixel"
+                                style={{ background: RETRO_INK, color: RETRO_PAPER, border: `2px solid ${RETRO_INK}`, boxShadow: `3px 3px 0 ${RETRO_ORANGE}` }}
                             >
                                 {isUploading ? <Loader2 className="animate-spin" size={14}/> : <Plus size={14}/>}
-                                {isUploading ? "Uploading..." : "Add to Library"}
+                                {isUploading ? "UPLOADING..." : "ADD TO LIBRARY"}
                             </button>
                         </div>
 
-                        {/* LIST LAGU */}
                         <div>
-                            <label className={labelClass}>Your Library</label>
-                            <div className="space-y-3">
+                            <label className="block text-[10px] font-black uppercase tracking-[0.18em] mb-2 ml-1 font-pixel" style={{ color: RETRO_PAPER }}>YOUR LIBRARY</label>
+                            <div className="space-y-2.5">
                                 {songs.map((song) => (
                                     <div 
                                         key={song.id} 
                                         onClick={() => handleChange('music', song.id)} 
-                                        className="p-3 rounded-2xl cursor-pointer flex items-center justify-between transition-all hover:-translate-y-0.5"
+                                        className="p-3 rounded-xl cursor-pointer flex items-center justify-between transition-all hover:-translate-y-0.5"
                                         style={{
-                                          background: storyData.music === song.id ? YELLOW : CREAM,
-                                          border: `2.5px solid ${INK}`,
-                                          boxShadow: storyData.music === song.id ? `5px 5px 0 ${INK}` : `3px 3px 0 ${INK}`,
+                                          background: storyData.music === song.id ? RETRO_YELLOW : RETRO_PAPER,
+                                          border: `2.5px solid ${RETRO_INK}`,
+                                          color: RETRO_INK,
+                                          boxShadow: storyData.music === song.id ? `3px 3px 0 ${RETRO_INK}` : `2px 2px 0 ${RETRO_INK}`,
                                         }}
                                     >
                                         <div className="flex items-center gap-3 overflow-hidden">
-                                            <div className="w-10 h-10 rounded-xl flex-shrink-0 overflow-hidden" style={{ border: `2px solid ${INK}`, background: CREAM }}>
+                                            <div className="w-9 h-9 rounded-lg flex-shrink-0 overflow-hidden" style={{ border: `2px solid ${RETRO_INK}`, background: '#fff' }}>
                                                 <img src={song.cover} className="w-full h-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')} alt="cover" />
                                             </div>
                                             <div className="flex flex-col overflow-hidden">
                                                 <span className="text-xs font-black truncate uppercase">{song.title}</span>
-                                                <span className="text-[10px] truncate font-bold opacity-60">{song.artist}</span>
+                                                <span className="text-[9px] truncate font-bold opacity-60">{song.artist}</span>
                                             </div>
                                         </div>
                                         {storyData.music === song.id && (
-                                            <div className="w-7 h-7 rounded-full flex items-center justify-center animate-in zoom-in duration-200" style={{ background: INK, color: CREAM, border: `2px solid ${INK}` }}>
-                                                <Check size={12} strokeWidth={3} />
+                                            <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: RETRO_INK, color: RETRO_PAPER, border: `2px solid ${RETRO_INK}` }}>
+                                                <Check size={10} strokeWidth={3} />
                                             </div>
                                         )}
                                     </div>
                                 ))}
                             </div>
                         </div>
-
                     </div>
                  )}
 
                  {activeTab === 'gallery' && (
-                     <div className="space-y-6 animate-in slide-in-from-left-2 duration-300">
+                     <div className="space-y-5 animate-in slide-in-from-left-2 duration-300">
                          <label
-                           className={`flex flex-col items-center justify-center gap-3 w-full p-8 rounded-3xl cursor-pointer transition-all group ${storyData.gallery.length >= 3 ? 'opacity-50 cursor-not-allowed' : 'hover:-translate-y-1'}`}
-                           style={{ background: storyData.gallery.length >= 3 ? "#F3D6D1" : MINT, border: `3px dashed ${INK}`, boxShadow: `6px 6px 0 ${INK}` }}
+                           className={`flex flex-col items-center justify-center gap-3 w-full p-6 rounded-2xl cursor-pointer transition-all group ${storyData.gallery.length >= 3 ? 'opacity-50 cursor-not-allowed' : 'hover:-translate-y-1'}`}
+                           style={{ background: storyData.gallery.length >= 3 ? "#f8d7da" : RETRO_PAPER, border: `3px dashed ${RETRO_INK}`, color: RETRO_INK, boxShadow: `4px 4px 0 ${RETRO_INK}` }}
                          >
-                            <div className="p-3 rounded-full" style={{ background: CREAM, border: `2.5px solid ${INK}`, boxShadow: `3px 3px 0 ${INK}` }}>
-                                <Upload size={24} />
+                            <div className="p-2.5 rounded-full" style={{ background: RETRO_YELLOW, border: `2px solid ${RETRO_INK}` }}>
+                                <Upload size={20} color="#111" />
                             </div>
                             <div className="text-center">
-                                <span className="text-sm font-black uppercase block tracking-wide">
-                                    {storyData.gallery.length >= 3 ? "Gallery Full (3/3)" : "Click to Upload Photo"}
+                                <span className="text-xs font-black uppercase block tracking-wide font-pixel">
+                                    {storyData.gallery.length >= 3 ? "GALLERY FULL (3/3)" : "CLICK TO UPLOAD PHOTO"}
                                 </span>
-                                <span className="text-[10px] font-bold opacity-70">
-                                    {storyData.gallery.length >= 3 ? "Delete a photo to add more" : "JPG/PNG • Max 20MB • Limit 3"}
+                                <span className="text-[9px] font-bold opacity-70">
+                                    {storyData.gallery.length >= 3 ? "Delete a photo to add more" : "JPG/PNG • MAX 20MB"}
                                 </span>
                             </div>
                             <input type="file" accept="image/png, image/jpeg" className="hidden" onChange={handleGalleryUpload} disabled={storyData.gallery.length >= 3} />
                          </label>
                         
                         <div>
-                            <label className={labelClass}>Gallery Preview ({storyData.gallery.length}/3)</label>
+                            <label className="block text-[10px] font-black uppercase tracking-[0.18em] mb-2 ml-1 font-pixel" style={{ color: RETRO_PAPER }}>GALLERY PREVIEW ({storyData.gallery.length}/3)</label>
                             {storyData.gallery.length === 0 ? (
-                              <div className="rounded-2xl p-6 text-center" style={{ background: CREAM, border: `2.5px dashed ${INK}` }}>
-                                <div className="text-2xl mb-1">📷</div>
-                                <p className="text-[11px] font-black uppercase tracking-wide">No photos yet</p>
-                                <p className="text-[10px] font-bold opacity-60">Upload up to 3 cute moments</p>
+                              <div className="rounded-xl p-5 text-center" style={{ background: RETRO_PAPER, border: `2.5px dashed ${RETRO_INK}`, color: RETRO_INK }}>
+                                <div className="text-xl mb-1">📷</div>
+                                <p className="text-[10px] font-black uppercase tracking-wide">No photos yet</p>
                               </div>
                             ) : (
-                            <div className="grid grid-cols-2 gap-4">
-                            {storyData.gallery.map((img, idx) => (
-                                <div key={idx} className="relative group aspect-square rounded-2xl overflow-hidden" style={{ border: `2.5px solid ${INK}`, boxShadow: `5px 5px 0 ${INK}`, background: CREAM }}>
-                                    <img src={img} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                                    <div className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full text-[9px] font-black" style={{ background: YELLOW, border: `2px solid ${INK}` }}>#{String(idx + 1).padStart(2, "0")}</div>
-                                    <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                        <button onClick={() => handleRemovePhoto(idx)} className="p-2 rounded-full transition-transform hover:scale-110" style={{ background: CORAL, border: `2.5px solid ${INK}`, boxShadow: `3px 3px 0 ${INK}` }}><Trash2 size={16} /></button>
+                            <div className="space-y-3">
+                            {storyData.gallery.map((item, idx) => (
+                                <div key={idx} className="p-3 rounded-xl flex gap-3 items-center" style={{ border: `2.5px solid ${RETRO_INK}`, boxShadow: `3px 3px 0 ${RETRO_INK}`, background: RETRO_PAPER }}>
+                                    <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0" style={{ border: `2px solid ${RETRO_INK}` }}>
+                                        <img src={item.url} className="w-full h-full object-cover" />
+                                        <div className="absolute top-0.5 left-0.5 px-1 rounded text-[7px] font-black font-pixel bg-[#f6c445] text-black border border-black">#{String(idx + 1).padStart(2, "0")}</div>
                                     </div>
+                                    <div className="flex-1 flex flex-col gap-1">
+                                        <label className="text-[8px] font-black uppercase font-pixel">CAPTION PHOTO #{idx + 1}</label>
+                                        <input 
+                                            type="text" 
+                                            value={item.caption} 
+                                            onChange={(e) => handleCaptionChange(idx, e.target.value)}
+                                            placeholder="Write caption here..." 
+                                            className="w-full rounded-lg px-2.5 py-1 text-xs font-bold outline-none"
+                                            style={{ background: '#fff', border: `2px solid ${RETRO_INK}`, color: RETRO_INK }}
+                                            maxLength={50}
+                                        />
+                                    </div>
+                                    <button onClick={() => handleRemovePhoto(idx)} className="p-2 rounded-lg cursor-pointer self-center" style={{ background: RETRO_ORANGE, border: `2px solid ${RETRO_INK}`, color: '#fff' }}><Trash2 size={14} /></button>
                                 </div>
                             ))}
                             </div>
@@ -963,32 +1008,33 @@ export default function WebStoryEditor() {
                      </div>
                  )}
               </div>
+          </div>
 
-              {/* ACTION FOOTER */}
-              <div className="mt-8 pt-6 sticky bottom-0 z-20 pb-3" style={{ background: CREAM, borderTop: `3px solid ${INK}` }}>
+          <div className="sticky bottom-0 left-0 right-0 p-5 z-40" style={{ background: RETRO_NAVY, borderTop: `3px solid ${RETRO_INK}`, boxShadow: `0 -4px 20px rgba(0,0,0,0.3)` }}>
+              <div className="max-w-lg mx-auto">
                   {!generatedLink ? (
                       <button
                         onClick={handlePublish}
                         disabled={isSaving}
-                        className="w-full py-4 rounded-full font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed enabled:hover:-translate-y-1 enabled:active:translate-y-0"
-                        style={{ background: INK, color: CREAM, border: `3px solid ${INK}`, boxShadow: `6px 6px 0 ${CORAL}` }}
+                        className="w-full py-3.5 rounded-full font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer font-pixel"
+                        style={{ background: RETRO_YELLOW, color: RETRO_INK, border: `2.5px solid ${RETRO_INK}`, boxShadow: `3px 3px 0 ${RETRO_INK}` }}
                       >
-                        {isSaving ? <><Loader2 className="animate-spin" size={16}/> Saving...</> : "Publish & Generate Link"} 
-                        {!isSaving && <Sparkles size={16} style={{ color: YELLOW }} />}
+                        {isSaving ? <><Loader2 className="animate-spin" size={14}/> SAVING...</> : "PUBLISH & GENERATE LINK"} 
+                        {!isSaving && <Sparkles size={14} color="#111" />}
                       </button>
                   ) : (
-                      <div className="rounded-3xl p-5 animate-in slide-in-from-bottom duration-300 relative" style={{ background: MINT, border: `3px solid ${INK}`, boxShadow: `6px 6px 0 ${INK}` }}>
-                         <div className="absolute -top-3 -right-2 px-3 py-1 rounded-full text-[9px] font-black uppercase rotate-6" style={{ background: YELLOW, border: `2.5px solid ${INK}` }}>Yay! ✿</div>
-                         <div className="flex items-center gap-2 font-black text-sm mb-3 uppercase tracking-wide"><Check size={18} /> Story Published!</div>
-                         <div className="flex gap-2 mb-3">
-                            <input readOnly value={generatedLink} className="flex-1 rounded-full px-3 py-2 text-xs font-bold select-all" style={{ background: CREAM, border: `2.5px solid ${INK}` }} />
-                            <button onClick={handleCopyLink} className="p-2.5 rounded-full transition-transform hover:-translate-y-0.5" style={{ background: copied ? YELLOW : CREAM, border: `2.5px solid ${INK}`, boxShadow: `3px 3px 0 ${INK}` }}>
-                              {copied ? <Check size={16} /> : <LinkIcon size={16} />}
+                      <div className="rounded-xl p-4 animate-in slide-in-from-bottom duration-300 relative" style={{ background: RETRO_PAPER, border: `2.5px solid ${RETRO_INK}`, color: RETRO_INK, boxShadow: `3px 3px 0 ${RETRO_INK}` }}>
+                         <div className="absolute -top-3 -right-2 px-2.5 py-0.5 rounded text-[8px] font-black uppercase rotate-6 font-pixel" style={{ background: RETRO_ORANGE, color: '#fff', border: `2px solid ${RETRO_INK}` }}>YAY! ✿</div>
+                         <div className="flex items-center gap-2 font-black text-xs mb-2 uppercase tracking-wide font-pixel"><Check size={14} /> STORY PUBLISHED!</div>
+                         <div className="flex gap-2 mb-2.5">
+                            <input readOnly value={generatedLink} className="flex-1 rounded-lg px-3 py-1.5 text-xs font-bold select-all" style={{ background: '#fff', border: `2px solid ${RETRO_INK}`, color: RETRO_INK }} />
+                            <button onClick={handleCopyLink} className="p-2 rounded-lg cursor-pointer" style={{ background: RETRO_YELLOW, border: `2px solid ${RETRO_INK}` }}>
+                              {copied ? <Check size={14} color="#111" /> : <LinkIcon size={14} color="#111" />}
                             </button>
                          </div>
                          <div className="flex gap-2">
-                             <a href={generatedLink} target="_blank" className="flex-1 py-2 text-center text-xs font-black uppercase rounded-full transition-transform hover:-translate-y-0.5" style={{ background: INK, color: CREAM, border: `2.5px solid ${INK}` }}>View Story</a>
-                             <button onClick={() => setGeneratedLink("")} className="flex-1 py-2 text-center text-xs font-black uppercase rounded-full transition-transform hover:-translate-y-0.5" style={{ background: CREAM, border: `2.5px solid ${INK}`, boxShadow: `3px 3px 0 ${INK}` }}>New Story</button>
+                             <a href={generatedLink} target="_blank" className="flex-1 py-2 text-center text-xs font-black uppercase rounded-lg transition-transform hover:-translate-y-0.5 font-pixel" style={{ background: RETRO_INK, color: RETRO_PAPER, border: `2px solid ${RETRO_INK}` }}>VIEW STORY</a>
+                             <button onClick={() => setGeneratedLink("")} className="flex-1 py-2 text-center text-xs font-black uppercase rounded-lg transition-transform hover:-translate-y-0.5 cursor-pointer font-pixel" style={{ background: RETRO_PAPER, color: RETRO_INK, border: `2px solid ${RETRO_INK}` }}>NEW STORY</button>
                          </div>
                       </div>
                   )}
@@ -996,17 +1042,17 @@ export default function WebStoryEditor() {
           </div>
        </div>
 
-       {/* --- RIGHT PANEL: PREVIEW (SCROLLABLE INDEPENDENTLY) --- */}
-       <div className="w-full md:w-2/3 h-full overflow-y-auto flex items-center justify-center p-8 relative" style={{ background: SKY }}>
-           <div className="absolute top-[-8%] right-[-6%] w-96 h-96 rounded-full fixed dozo-float" style={{ background: LILAC, border: `3px solid ${INK}` }} />
-           <div className="absolute bottom-[-12%] left-[-8%] w-80 h-80 rounded-full fixed" style={{ background: MINT, border: `3px solid ${INK}` }} />
-           <div className="absolute top-24 left-14 text-4xl fixed dozo-float select-none">✿</div>
-           <div className="absolute bottom-24 right-20 text-4xl fixed dozo-float select-none">★</div>
+       {/* --- RIGHT PANEL: RETRO WEB PREVIEW --- */}
+       <div className="w-full md:w-2/3 h-full overflow-hidden flex items-center justify-center p-8 relative" style={{ background: RETRO_NAVY }}>
+           
+           <div className="absolute inset-0 opacity-15 pointer-events-none w-full h-full" style={{ backgroundImage: "linear-gradient(#4da6ff 1px, transparent 1px), linear-gradient(90deg, #4da6ff 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
+           
+           <div className="absolute top-12 right-20 text-2xl animate-pulse select-none">✦</div>
+           <div className="absolute bottom-16 left-16 text-2xl animate-pulse select-none">★</div>
 
-           <div className="relative z-10 flex flex-col items-center my-auto min-h-[700px] justify-center -mt-30">
-               <span className="mb-6 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em]" style={{ background: YELLOW, border: `2.5px solid ${INK}`, boxShadow: `4px 4px 0 ${INK}` }}>Interactive Preview</span>
-               <GameboyPreview data={storyData} songs={songs} />
-               <p className="mt-8 text-[10px] font-black tracking-[0.18em] uppercase text-center max-w-xs px-4 py-2 rounded-full" style={{ background: CREAM, border: `2.5px solid ${INK}`, boxShadow: `4px 4px 0 ${INK}` }}>D-Pad: Navigate • A: Select • B: Back</p>
+           <div className="relative z-10 flex flex-col items-center my-auto min-h-[700px] justify-center -mt-36">
+               <GameboyPreview data={storyData} songs={songs} onToggleColor={handleToggleColor} />
+               <p className="mt-8 text-[10px] font-black tracking-[0.18em] uppercase text-center max-w-xs px-4 py-2 rounded-xl font-pixel" style={{ background: RETRO_PAPER, color: RETRO_INK, border: `2.5px solid ${RETRO_INK}`, boxShadow: `4px 4px 0 ${RETRO_INK}` }}>D-PAD: NAVIGATE • A: SELECT • B: BACK</p>
            </div>
        </div>
     </div>

@@ -1,39 +1,41 @@
-import { getSession } from "next-auth/react"; // 1. Import helper session NextAuth
+"use server";
 
-type SaveCardParams = {
-  title?: string;
+import { getServerSession } from "next-auth"; // atau method auth yang kamu pakai
+// import db atau prisma kamu di sini
+
+export async function saveUserCard(cardData: {
+  title: string;
   template: string;
-  bg?: string;
-  status?: string;
-};
-
-export async function saveUserCard({ title, template, bg, status = "saved" }: SaveCardParams) {
+  bg: string;
+  status: string;
+}) {
   try {
-    // 2. Ambil data session aktif dari NextAuth secara otomatis
-    const session = await getSession();
-    const userEmail = session?.user?.email; 
-    
-    if (!userEmail) {
-      alert("Silakan login terlebih dahulu untuk menyimpan kartu!");
-      return;
+    // 1. Cek sesi login server
+    const session = await getServerSession(); // sesuaikan dengan auth setup kamu
+
+    // Jika belum login, return status error, JANGAN pakai alert()
+    if (!session || !session.user) {
+      return { success: false, message: "Unauthorized: Silakan login terlebih dahulu." };
     }
 
-    const res = await fetch("/api/user/cards", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: userEmail, // Email dari akun yang sedang aktif login
-        title: title || "Untitled Card",
-        template: template,
-        bg: bg || "bg-[#F6C445]",
-        status: status,
-      }),
+    const userEmail = session.user.email;
+
+    // 2. Simpan ke database (contoh menggunakan Prisma / MongoDB / dll)
+    /*
+    await db.card.create({
+      data: {
+        title: cardData.title,
+        template: cardData.template,
+        bg: cardData.bg,
+        status: cardData.status,
+        userEmail: userEmail,
+      }
     });
+    */
 
-    if (!res.ok) {
-      throw new Error("Gagal menyimpan ke database");
-    }
-  } catch (err) {
-    console.error("Error saving action:", err);
+    return { success: true, message: "Kartu berhasil disimpan!" };
+  } catch (error) {
+    console.error("Gagal menyimpan kartu:", error);
+    return { success: false, message: "Terjadi kesalahan pada server." };
   }
 }

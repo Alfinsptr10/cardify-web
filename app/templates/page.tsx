@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { SessionProvider, useSession, signOut } from "next-auth/react"; // ⬅️ Tambahkan import ini
+import { SessionProvider, useSession, signOut } from "next-auth/react";
 import { motion, type Variants } from "framer-motion";
 import { 
   ArrowLeft, Search, Smartphone, Image as ImageIcon, ArrowRight, Sparkles, Filter,
@@ -40,8 +40,21 @@ export default function TemplatesPage() {
 }
 
 function TemplatesContent() {
-  const { data: session } = useSession(); // ⬅️ Ambil session NextAuth
+  const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState<'all' | 'web-story' | 'card-image'>('all');
+  
+  // State untuk nilai ketikan langsung dan nilai yang sudah "selesai diketik" (debounced)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  // Efek Debounce: Menunggu user selesai mengetik selama 400ms
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 400); // 400ms jeda setelah user berhenti mengetik
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   // --- STATE UNTUK HEADER & AUTH ---
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -51,7 +64,6 @@ function TemplatesContent() {
 
   // Efek: Auth Check & Scroll Listener
   useEffect(() => {
-    // 1. Cek Login via NextAuth
     if (session?.user) {
       setUserData({
         name: session.user.name || "Pengguna",
@@ -59,7 +71,6 @@ function TemplatesContent() {
         image: session.user.image || null,
       });
     } else if (typeof window !== "undefined") {
-      // 2. Cek Login Manual via localStorage
       const isManualLogin = localStorage.getItem("isLoggedIn");
       if (isManualLogin === "true") {
         setUserData({
@@ -70,7 +81,6 @@ function TemplatesContent() {
       }
     }
 
-    // Event Listeners
     const handleClickOutside = (event: MouseEvent) => {
       if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
         setShowProfileMenu(false);
@@ -84,7 +94,6 @@ function TemplatesContent() {
     document.addEventListener("mousedown", handleClickOutside);
     window.addEventListener("scroll", handleScroll);
 
-    // Filter Logic dari URL
     const searchParams = new URLSearchParams(window.location.search);
     const filter = searchParams.get('filter');
     if (filter === 'web-story') setActiveTab('web-story');
@@ -181,9 +190,12 @@ function TemplatesContent() {
    }
   ];
 
-  const filteredTemplates = activeTab === 'all' 
-    ? templates 
-    : templates.filter(t => t.category === activeTab);
+  // Filter template berdasarkan kategori tab DAN hanya mencari berdasarkan judul saja setelah user selesai mengetik (debouncedSearch)
+  const filteredTemplates = templates.filter((template) => {
+    const matchesTab = activeTab === 'all' || template.category === activeTab;
+    const matchesSearch = template.title.toLowerCase().includes(debouncedSearch.toLowerCase());
+    return matchesTab && matchesSearch;
+  });
 
   // --- INJECT SEO: JSON-LD ITEM LIST SCHEMA ---
   const jsonLd = {
@@ -296,7 +308,7 @@ function TemplatesContent() {
             <Link href="/contact" className="hover:text-[#1C1917] transition-colors">Contact</Link>
           </div>
 
-          {/* Auth Actions (Menyesuaikan status login) */}
+          {/* Auth Actions */}
           <div className="flex items-center gap-4">
             {userData ? (
               <div className="relative" ref={profileMenuRef}>
@@ -318,7 +330,6 @@ function TemplatesContent() {
                   <ChevronDown size={14} className={`text-stone-400 transition-transform duration-300 ${showProfileMenu ? 'rotate-180' : ''}`} />
                 </button>
 
-                {/* Dropdown Menu */}
                 {showProfileMenu && (
                   <div className="absolute top-full right-0 mt-3 w-72 bg-white rounded-2xl border-2 border-[#1C1917] shadow-[6px_6px_0_0_#1C1917] p-2 overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right">
                     <div className="p-4 bg-[#FDFBF3] rounded-xl mb-2 border-2 border-stone-100">
@@ -335,7 +346,7 @@ function TemplatesContent() {
                         Preferences
                       </button>
                       <div className="h-px bg-stone-100 my-1 mx-2"></div>
-                      <button onClick={initiateLogout} className="flex items-center gap-3 w-full p-2.5 text-sm text-red-600 hover:bg-[#F3B8CC]/25 rounded-xl transition-all font-medium group cursor-pointer">
+                      <button onClick={handleLogout} className="flex items-center gap-3 w-full p-2.5 text-sm text-red-600 hover:bg-[#F3B8CC]/25 rounded-xl transition-all font-medium group cursor-pointer">
                         <div className="w-8 h-8 rounded-lg bg-[#F3B8CC] border-2 border-[#1C1917] flex items-center justify-center text-red-600 group-hover:shadow-[2px_2px_0_0_#1C1917] transition-all"><LogOut size={16} /></div>
                         Sign Out
                       </button>
@@ -382,89 +393,112 @@ function TemplatesContent() {
          </motion.div>
       </header>
 
-      {/* --- FILTERS --- */}
+      {/* --- FILTERS & SEARCH BAR --- */}
       <div className="max-w-7xl mx-auto px-6 mb-12 -mt-7 relative z-20">
-         <div className="flex justify-center">
-            <div className="bg-white p-1.5 rounded-full border-2 border-[#1C1917] shadow-[4px_4px_0_0_#1C1917] inline-flex items-center gap-1">
+         <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+            
+            {/* Tab Filter Kategori */}
+            <div className="bg-white p-1.5 rounded-full border-2 border-[#1C1917] shadow-[4px_4px_0_0_#1C1917] inline-flex items-center gap-1 md:translate-x-28">
                <button 
                   onClick={() => setActiveTab('all')}
-                  className={`px-6 py-3 rounded-full text-sm font-bold uppercase tracking-wide transition-all ${activeTab === 'all' ? 'bg-[#1C1917] text-[#F6C445] shadow-md' : 'text-stone-500 hover:bg-stone-50'}`}
+                  className={`px-10 py-3 rounded-full text-sm font-bold uppercase tracking-wide transition-all ${activeTab === 'all' ? 'bg-[#1C1917] text-[#F6C445] shadow-md' : 'text-stone-500 hover:bg-stone-50'}`}
                >
                   All Templates
                </button>
                <button 
                   onClick={() => setActiveTab('web-story')}
-                  className={`px-6 py-3 rounded-full text-sm font-bold uppercase tracking-wide transition-all flex items-center gap-2 ${activeTab === 'web-story' ? 'bg-[#F3B8CC] text-[#1C1917] shadow-md' : 'text-stone-500 hover:bg-stone-50'}`}
+                  className={`px-10 py-3 rounded-full text-sm font-bold uppercase tracking-wide transition-all flex items-center gap-2 ${activeTab === 'web-story' ? 'bg-[#F3B8CC] text-[#1C1917] shadow-md' : 'text-stone-500 hover:bg-stone-50'}`}
                >
                   <Smartphone size={16} /> Web Story
                </button>
                <button 
                   onClick={() => setActiveTab('card-image')}
-                  className={`px-6 py-3 rounded-full text-sm font-bold uppercase tracking-wide transition-all flex items-center gap-2 ${activeTab === 'card-image' ? 'bg-[#F6C445] text-[#1C1917] shadow-md' : 'text-stone-500 hover:bg-stone-50'}`}
+                  className={`px-10 py-3 rounded-full text-sm font-bold uppercase tracking-wide transition-all flex items-center gap-2 ${activeTab === 'card-image' ? 'bg-[#F6C445] text-[#1C1917] shadow-md' : 'text-stone-500 hover:bg-stone-50'}`}
                >
                   <ImageIcon size={16} /> Card Image
                </button>
             </div>
+
+            {/* Kolom Search Bar dengan Debounce */}
+            <div className="relative w-full md:w-60 md:translate-x-[185px]">
+               <span className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-stone-400">
+                  <Search size={18} />
+               </span>
+               <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search templates..."
+                  className="w-full bg-white pl-11 pr-4 py-3 rounded-full text-sm font-medium border-2 border-[#1C1917] shadow-[4px_4px_0_0_#1C1917] focus:outline-none focus:translate-x-0.5 focus:translate-y-0.5 focus:shadow-[2px_2px_0_0_#1C1917] transition-all placeholder:text-stone-400"
+               />
+            </div>
+
          </div>
       </div>
 
       {/* --- GRID --- */}
       <main className="max-w-7xl mx-auto px-6 pb-24">
-         <motion.div
-            key={activeTab}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-         >
-            {filteredTemplates.map((template) => (
-  <motion.div key={template.id} variants={staggerItem} className="relative block h-full pt-3 pr-3">
-      
-      {/* Stiker murni di pojok kanan atas, ikut teranimasi bersama card */}
-      <FavoriteSticker cardId={template.id} />
+         {filteredTemplates.length === 0 ? (
+            <div className="text-center py-16 bg-white rounded-[2rem] border-2 border-stone-200">
+               <p className="text-stone-500 font-bold text-lg">Tidak ada template yang cocok dengan pencarianmu.</p>
+               <p className="text-stone-400 text-sm mt-1">Coba kata kunci atau kategori lain.</p>
+            </div>
+         ) : (
+            <motion.div
+               key={activeTab + debouncedSearch}
+               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+               initial="hidden"
+               whileInView="show"
+               viewport={{ once: true, margin: "-100px" }}
+               variants={staggerContainer}
+            >
+               {filteredTemplates.map((template) => (
+                  <motion.div key={template.id} variants={staggerItem} className="relative block h-full pt-3 pr-3">
+                      
+                      <FavoriteSticker cardId={template.id} />
 
-      <Link href={template.href} className="block h-full group">
-          <div className="bg-white rounded-[1.75rem] border-2 border-[#1C1917] overflow-hidden hover:-translate-y-1.5 hover:shadow-[6px_6px_0_0_#1C1917] transition-all duration-300 h-full flex flex-col">
-             <div className="relative aspect-[4/3] bg-stone-100 overflow-hidden border-b-2 border-[#1C1917]">
-                <Image 
-                   src={template.image} 
-                   alt={template.title} 
-                   fill
-                   className="object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
-                   <span className="bg-[#F6C445] text-[#1C1917] px-6 py-3 rounded-full font-bold text-xs transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl flex items-center gap-2 border-2 border-[#1C1917]">
-                      Use Template <ArrowRight size={14} />
-                   </span>
-                </div>
-             </div>
+                      <Link href={template.href} className="block h-full group">
+                          <div className="bg-white rounded-[1.75rem] border-2 border-[#1C1917] overflow-hidden hover:-translate-y-1.5 hover:shadow-[6px_6px_0_0_#1C1917] transition-all duration-300 h-full flex flex-col">
+                             <div className="relative aspect-[4/3] bg-stone-100 overflow-hidden border-b-2 border-[#1C1917]">
+                                <Image 
+                                   src={template.image} 
+                                   alt={template.title} 
+                                   fill
+                                   className="object-cover group-hover:scale-105 transition-transform duration-700"
+                                />
+                                <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                                   <span className="bg-[#F6C445] text-[#1C1917] px-6 py-3 rounded-full font-bold text-xs transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl flex items-center gap-2 border-2 border-[#1C1917]">
+                                      Use Template <ArrowRight size={14} />
+                                   </span>
+                                </div>
+                             </div>
 
-             <div className="p-6 flex flex-col flex-grow">
-                <div className="flex items-center justify-between mb-2">
-                   <h3 className="text-xl font-black text-stone-800 font-boldonse transition-colors">{template.title}</h3>
-                   <div className={`p-1.5 rounded-full border-2 border-[#1C1917] ${template.category === 'web-story' ? 'bg-[#F3B8CC] text-[#1C1917]' : 'bg-[#F6C445] text-[#1C1917]'}`}>
-                     {template.category === 'web-story' ? <Smartphone size={14} /> : <ImageIcon size={14} />}
-                   </div>
-                </div>
-                <p className="text-stone-500 text-sm leading-relaxed mb-4 flex-grow font-light">
-                   {template.description}
-                </p>
-                
-                <div className="flex items-center gap-2 pt-4 border-t-2 border-stone-100">
-                   <div className="flex -space-x-2">
-                      {[1,2,3].map(i => (
-                         <div key={i} className="w-6 h-6 rounded-full bg-stone-200 border-2 border-white"></div>
-                      ))}
-                   </div>
-                   <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wide ml-2">2k+ Users</span>
-                </div>
-             </div>
-          </div>
-       </Link>
-  </motion.div>
-))}
-         </motion.div>
+                             <div className="p-6 flex flex-col flex-grow">
+                                <div className="flex items-center justify-between mb-2">
+                                   <h3 className="text-xl font-black text-stone-800 font-boldonse transition-colors">{template.title}</h3>
+                                   <div className={`p-1.5 rounded-full border-2 border-[#1C1917] ${template.category === 'web-story' ? 'bg-[#F3B8CC] text-[#1C1917]' : 'bg-[#F6C445] text-[#1C1917]'}`}>
+                                     {template.category === 'web-story' ? <Smartphone size={14} /> : <ImageIcon size={14} />}
+                                   </div>
+                                </div>
+                                <p className="text-stone-500 text-sm leading-relaxed mb-4 flex-grow font-light">
+                                   {template.description}
+                                </p>
+                                
+                                <div className="flex items-center gap-2 pt-4 border-t-2 border-stone-100">
+                                   <div className="flex -space-x-2">
+                                      {[1,2,3].map(i => (
+                                         <div key={i} className="w-6 h-6 rounded-full bg-stone-200 border-2 border-white"></div>
+                                      ))}
+                                   </div>
+                                   <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wide ml-2">2k+ Users</span>
+                                </div>
+                             </div>
+                          </div>
+                       </Link>
+                  </motion.div>
+               ))}
+            </motion.div>
+         )}
       </main>
 
       {/* --- FOOTER --- */}

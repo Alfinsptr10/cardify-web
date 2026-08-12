@@ -6,7 +6,7 @@ import Countdown from "@/components/photobooth/Countdown";
 import PhotoGrid from "@/components/photobooth/PhotoGrid";
 import type { PhotoboothLayout } from "@/lib/photobooth/layouts";
 import { photoboothLayouts } from "@/lib/photobooth/layouts";
-import { Camera } from "lucide-react";
+import { Camera, ArrowLeft, Sparkles, RefreshCw, CheckCircle2 } from "lucide-react";
 
 function getLayoutById(id: string | null): PhotoboothLayout | undefined {
   if (!id) return undefined;
@@ -154,28 +154,28 @@ export default function CameraClient() {
   };
 
   const handleFinishSession = () => {
-  if (!layout) return;
+    if (!layout) return;
 
-  sessionStorage.setItem(
-    "photobooth-photos",
-    JSON.stringify(capturedPhotos)
-  );
+    sessionStorage.setItem(
+      "photobooth-photos",
+      JSON.stringify(capturedPhotos)
+    );
 
-  router.push(
-    `/photobooth/editor?layout=${layout.id}&frame=${frameId}`
-  );
-};
+    router.push(
+      `/photobooth/editor?layout=${layout.id}&frame=${frameId}`
+    );
+  };
 
   if (!layout) {
     return (
-      <div className="min-h-screen bg-[#FAFAF9] text-[#1C1917] py-24 px-6">
-        <div className="mx-auto max-w-3xl rounded-4xl border border-stone-200 bg-white p-10 text-center shadow-sm">
-          <p className="text-lg font-semibold">Layout tidak ditemukan.</p>
-          <p className="mt-2 text-sm text-stone-500">Kembali ke halaman Photobooth dan pilih layout terlebih dahulu.</p>
+      <div className="min-h-screen bg-[#FDFBF3] text-[#1C1917] py-24 px-6 font-sans">
+        <div className="mx-auto max-w-3xl rounded-[2rem] border-2 border-[#1C1917] bg-white p-10 text-center shadow-[6px_6px_0_0_#1C1917]">
+          <p className="text-xl font-bold font-boldonse">Layout tidak ditemukan.</p>
+          <p className="mt-2 text-sm text-stone-500 font-medium">Kembali ke halaman Photobooth dan pilih layout terlebih dahulu.</p>
           <button
             type="button"
             onClick={() => router.push("/photobooth")}
-            className="mt-8 inline-flex rounded-full bg-stone-900 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:bg-black"
+            className="mt-8 inline-flex rounded-full bg-[#1C1917] px-8 py-3.5 text-sm font-bold text-[#F6C445] border-2 border-[#1C1917] shadow-[3px_3px_0_0_#F6C445] hover:-translate-y-0.5 transition-all cursor-pointer"
           >
             Kembali ke Photobooth
           </button>
@@ -185,135 +185,180 @@ export default function CameraClient() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAF9] text-[#1C1917]">
-      <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.1),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(148,163,184,0.1),transparent_35%)]" />
+    <div className="min-h-screen bg-[#FDFBF3] text-[#1C1917] font-sans selection:bg-[#F6C445] selection:text-[#1C1917]">
+      
+      {/* INJECT FONTS */}
+      <style dangerouslySetInnerHTML={{ __html: `
+          @import url('https://fonts.googleapis.com/css2?family=Boldonse&family=DM+Sans:opsz,wght@9..40,400;500;700;800&display=swap');
+          .font-sans { font-family: 'DM Sans', sans-serif; }
+          .font-boldonse { font-family: 'Boldonse', 'Archivo Black', sans-serif; }
+      `}} />
+
+      {/* HEADER KUSTOM */}
+      <header className="relative flex h-20 items-center justify-between border-b-2 border-[#1C1917] bg-white px-8 z-20">
+        <button
+          onClick={() => router.push("/photobooth")}
+          className="flex items-center gap-2 rounded-full border-2 border-[#1C1917] bg-[#FDFBF3] px-5 py-2.5 text-xs font-bold uppercase tracking-wider shadow-[2px_2px_0_0_#1C1917] hover:-translate-y-0.5 hover:shadow-[3px_3px_0_0_#1C1917] transition-all cursor-pointer"
+        >
+          <ArrowLeft size={16} strokeWidth={2.5} />
+          Back to Layouts
+        </button>
+
+        <div className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#F6C445] border border-[#1C1917]"></span>
+          <h1 className="text-sm font-bold uppercase tracking-[0.25em] text-[#1C1917] font-boldonse">
+            Photobooth Studio
+          </h1>
+        </div>
+
+        <div className="text-xs font-bold bg-[#BFE0F5] border-2 border-[#1C1917] px-4 py-2 rounded-full shadow-[2px_2px_0_0_#1C1917]">
+          {isRetakeMode ? "Mode: Retake" : `Shot ${nextSlot} of ${layout.photos}`}
+        </div>
+      </header>
+
+      <div className="relative flex min-h-[calc(100vh-5rem)] flex-col items-center justify-center overflow-hidden px-6 py-10">
+        <div className="absolute inset-0 opacity-[0.1] bg-[radial-gradient(#1C1917_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
+        
         <div className="relative z-10 flex w-full max-w-6xl flex-col gap-8">
-          <div className="rounded-4xl border border-stone-200 bg-white/80 p-6 shadow-sm backdrop-blur-xl">
-            <p className="text-sm uppercase tracking-[0.2em] text-stone-500">Photobooth Camera</p>
-            <h1 className="mt-3 text-3xl font-semibold text-stone-900">{layout.name}</h1>
-            <p className="mt-2 text-sm text-stone-500">
-              {isRetakeMode
-                ? "Select a slot to retake and capture again before you finish."
-                : `Use the shutter button to begin a ${layout.photos}-shot session with countdown.`}
-            </p>
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-              <div className="rounded-3xl bg-stone-100 px-4 py-3 text-sm text-stone-600 shadow-sm">
-                {isRetakeMode ? `Retake mode — slot ${selectedRetakeIndex + 1}` : `Photo ${nextSlot} / ${layout.photos}`}
+          
+          {/* Header Info Banner */}
+          <div className="rounded-[2rem] border-2 border-[#1C1917] bg-white p-6 shadow-[6px_6px_0_0_#1C1917] flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <Sparkles size={16} className="text-[#D9A400]" />
+                <span className="text-xs font-bold uppercase tracking-[0.2em] text-stone-500">Active Template</span>
               </div>
-              <div className="rounded-3xl bg-stone-100 px-4 py-3 text-sm text-stone-600 shadow-sm">
-                {isRetakeMode ? `${formatTimer(retakeTimer)} remaining` : "Ready to capture"}
-              </div>
+              <h2 className="text-2xl font-black text-[#1C1917] font-boldonse">{layout.name}</h2>
             </div>
+            <p className="text-sm text-stone-600 font-medium max-w-md text-center md:text-right">
+              {isRetakeMode
+                ? "Pilih slot foto di sebelah kanan jika ingin mengulang tangkapan."
+                : `Tekan tombol shutter di bawah untuk memulai hitung mundur ${layout.photos} kali.`}
+            </p>
           </div>
 
-          <div className="grid gap-8 xl:grid-cols-[0.95fr_0.85fr] max-w-6xl mx-auto">
-            <div
-  className="mx-auto overflow-hidden"
-  style={{
-    width: 340,
-  }}
->
-              <div className="relative h-[560px] overflow-hidden">
+          {/* Grid Konten Kamera & Panel Kontrol */}
+          <div className="grid gap-8 xl:grid-cols-[1fr_1fr] max-w-6xl mx-auto w-full items-start">
+            
+            {/* Sisi Kiri: Tampilan Kamera */}
+            <div className="mx-auto w-full max-w-md flex flex-col items-center">
+              <div className="relative w-full aspect-[3/4] max-h-[520px] rounded-[2rem] border-2 border-[#1C1917] bg-[#1C1917] overflow-hidden shadow-[8px_8px_0_0_#1C1917]">
                 <video
-  ref={videoRef}
-  className="absolute inset-0 h-full w-full object-cover rounded-none"
-  muted
-  playsInline
-/>
+                  ref={videoRef}
+                  className="absolute inset-0 h-full w-full object-cover scale-x-[-1]"
+                  muted
+                  playsInline
+                />
+                
+                {/* Panduan Frame / Guideline di dalam video */}
                 <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+                  <div className="h-[70%] w-[65%] border-2 border-white/40 rounded-2xl border-dashed" />
+                </div>
 
-  <div className="h-[62%] w-[38%] border-[3px] border-white" />
-
-</div>
+                {/* Tombol Shutter Mengambang di Bawah Video */}
                 {!isCapturing && (
-                  <div className="absolute inset-0 z-20 flex items-center justify-center bg-transparent">
+                  <div className="absolute bottom-6 inset-x-0 z-20 flex items-center justify-center">
                     <button
                       type="button"
                       onClick={handleStartCapture}
                       disabled={!isCameraReady || (isRetakeMode && (retakeRemaining <= 0 || retakeTimer <= 0))}
-                      className="rounded-full bg-white p-6 shadow-2xl transition hover:scale-110 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="flex items-center gap-3 rounded-full bg-[#F6C445] px-8 py-4 font-bold text-[#1C1917] border-2 border-[#1C1917] shadow-[4px_4px_0_0_#1C1917] transition-all hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#1C1917] active:translate-x-0.5 active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
                     >
-                      <Camera size={42} className="text-black" />
+                      <Camera size={22} strokeWidth={2.5} />
+                      <span>{isRetakeMode ? "Retake Photo" : `Capture Shot ${nextSlot}`}</span>
                     </button>
                   </div>
                 )}
-                <div className="absolute inset-0 bg-transparent" />
+
+                {/* Overlay Hitung Mundur */}
                 {isCapturing && (
-                  <div className="absolute inset-0 z-30 flex items-center justify-center">
+                  <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/40 backdrop-blur-xs">
                     <Countdown value={countdown} />
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="space-y-6 rounded-4xl border border-stone-200 bg-white p-6 shadow-sm">
-              <div className="rounded-3xl bg-stone-50 p-5 text-sm text-stone-600">
+            {/* Sisi Kanan: Panel Kontrol & Progress Slot */}
+            <div className="space-y-6 rounded-[2rem] border-2 border-[#1C1917] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#1C1917]">
+              
+              {/* Status Info Box */}
+              <div className="rounded-2xl border-2 border-stone-200 bg-[#FDFBF3] p-4 text-sm text-stone-700 font-medium">
                 {isRetakeMode
-                  ? "After all photos are captured, choose a slot and retake if needed. You can use up to 5 retakes within 2 minutes."
-                  : "Press the shutter button to trigger a 5-second countdown and capture the next slot."}
+                  ? "Sesi pengambilan foto selesai! Anda dapat memilih slot foto tertentu untuk di-retake (maksimal 5 kali dalam waktu 2 menit)."
+                  : "Siapkan pose terbaikmu! Setiap sesi foto dilengkapi hitung mundur 5 detik."}
               </div>
 
-              <div className="rounded-3xl border border-stone-100 bg-stone-50 p-5">
-                <p className="text-sm font-semibold text-stone-900">Capture Progress</p>
-                <div className="mt-4 h-2 overflow-hidden rounded-full bg-stone-200">
+              {/* Progress Bar */}
+              <div className="rounded-2xl border-2 border-stone-200 bg-white p-5">
+                <div className="flex justify-between items-center mb-2">
+                  <p className="text-sm font-bold text-[#1C1917] font-boldonse">Progress Sesi</p>
+                  <span className="text-xs font-bold text-stone-500 uppercase tracking-wider">
+                    {capturedPhotos.length} / {layout.photos} Terisi
+                  </span>
+                </div>
+                <div className="h-3 overflow-hidden rounded-full border-2 border-[#1C1917] bg-stone-100">
                   <div
-                    className="h-full rounded-full bg-amber-400 transition-all duration-300"
+                    className="h-full bg-[#F6C445] transition-all duration-300"
                     style={{ width: `${(capturedPhotos.length / layout.photos) * 100}%` }}
                   />
                 </div>
-                <p className="mt-3 text-xs text-stone-500">
-                  {capturedPhotos.length} / {layout.photos} captured
-                </p>
+                
                 {isRetakeMode && (
-                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                    <span className="rounded-3xl bg-white px-3 py-2 text-sm text-stone-600">
-                      Retakes left: {retakeRemaining}
-                    </span>
-                    <span className="rounded-3xl bg-white px-3 py-2 text-sm text-stone-600">
-                      Timer: {formatTimer(retakeTimer)}
-                    </span>
+                  <div className="mt-4 grid grid-cols-2 gap-3 pt-3 border-t border-stone-100 text-xs font-bold">
+                    <div className="rounded-xl bg-[#FFFDF5] border border-stone-200 px-3 py-2 text-stone-700 flex items-center gap-2">
+                      <RefreshCw size={14} className="text-amber-600" />
+                      <span>Retake tersisa: {retakeRemaining}</span>
+                    </div>
+                    <div className="rounded-xl bg-[#FFFDF5] border border-stone-200 px-3 py-2 text-stone-700 flex items-center justify-between">
+                      <span>Waktu:</span>
+                      <span className="font-mono">{formatTimer(retakeTimer)}</span>
+                    </div>
                   </div>
                 )}
               </div>
 
-              <div className="rounded-3xl border border-stone-100 bg-stone-50 p-5">
-                <p className="text-sm font-semibold text-stone-900">Photo Slots</p>
-                <div className="mt-4">
-                  <PhotoGrid
-                    photos={capturedPhotos}
-                    totalPhotos={layout.photos}
-                    selectedIndex={isRetakeMode ? selectedRetakeIndex : undefined}
-                    isRetakeMode={isRetakeMode}
-                    onSelect={(index) => {
-                      if (isRetakeMode) setSelectedRetakeIndex(index);
-                    }}
-                  />
-                </div>
+              {/* Grid Slot Foto yang Sudah Diambil */}
+              <div className="rounded-2xl border-2 border-stone-200 bg-white p-5">
+                <p className="text-sm font-bold text-[#1C1917] font-boldonse mb-3">Photo Slots</p>
+                <PhotoGrid
+                  photos={capturedPhotos}
+                  totalPhotos={layout.photos}
+                  selectedIndex={isRetakeMode ? selectedRetakeIndex : undefined}
+                  isRetakeMode={isRetakeMode}
+                  onSelect={(index) => {
+                    if (isRetakeMode) setSelectedRetakeIndex(index);
+                  }}
+                />
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
+              {/* Tombol Navigasi Bawah */}
+              <div className="grid gap-3 sm:grid-cols-2 pt-2">
                 <button
                   type="button"
                   onClick={handleStartCapture}
                   disabled={!isCameraReady || isCapturing || (isRetakeMode && (retakeRemaining <= 0 || retakeTimer <= 0))}
-                  className="rounded-full bg-stone-900 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-2xl bg-white px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-[#1C1917] border-2 border-[#1C1917] shadow-[3px_3px_0_0_#1C1917] hover:bg-stone-50 active:translate-x-0.5 active:translate-y-0.5 transition-all disabled:opacity-50 cursor-pointer"
                 >
-                  {isRetakeMode ? "Retake selected photo" : "Start capture"}
+                  {isRetakeMode ? "Retake Selected" : "Take Photo"}
                 </button>
 
                 {hasFilledAllSlots && (
                   <button
                     type="button"
                     onClick={handleFinishSession}
-                    className="rounded-full border border-stone-200 bg-white px-6 py-3 text-sm font-semibold text-stone-900 shadow-sm hover:bg-stone-100"
+                    className="flex items-center justify-center gap-2 rounded-2xl bg-[#1C1917] px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-[#F6C445] border-2 border-[#1C1917] shadow-[3px_3px_0_0_#F6C445] hover:-translate-y-0.5 transition-all cursor-pointer"
                   >
-                    Finish and edit
+                    <CheckCircle2 size={16} />
+                    <span>Finish & Edit</span>
                   </button>
                 )}
               </div>
+
             </div>
+
           </div>
+
         </div>
       </div>
     </div>

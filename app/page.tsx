@@ -84,6 +84,7 @@ export default function Home() {
 function HomeContent() {
   // State
   const [decorations, setDecorations] = useState<any[]>([]);
+  const [showAboutDropdown, setShowAboutDropdown] = useState(false);
   const { data: session, status } = useSession();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);

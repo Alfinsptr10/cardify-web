@@ -42,7 +42,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://cardify-web-kappa.vercel.app"), // Ganti dengan domain asli nanti
   title: {
-    default: "Cardify — Digital Greeting Card & Photobooth Maker", // Menargetkan keyword utama dalam bahasa Inggris
+    default: "Cardify - Digital Greeting Card & Photobooth Maker", // Menargetkan keyword utama dalam bahasa Inggris
     template: "%s | Cardify", // Halaman lain otomatis jadi "Nama Halaman | Cardify"
   },
   description:
@@ -71,7 +71,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US", // Ganti ke id_ID jika target utamanya hanya Indonesia
     url: "/",
-    title: "Cardify — Aesthetic Digital Greeting Card & Photobooth Maker",
+    title: "Cardify - Aesthetic Digital Greeting Card & Photobooth Maker",
     description:
       "Create beautiful digital greeting cards and aesthetic photobooth strips instantly. Buat memori tak terlupakan bersama Cardify.",
     siteName: "Cardify",
@@ -86,7 +86,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Cardify — Digital Greeting Card & Photobooth Maker",
+    title: "Cardify - Digital Greeting Card & Photobooth Maker",
     description: "Create beautiful digital greeting cards and aesthetic photobooth strips instantly.",
     images: ["/og-image.jpg"], 
   },

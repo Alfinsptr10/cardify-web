@@ -68,7 +68,7 @@ export default function FrameSelection() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* ================= LEFT SIDEBAR ================= */}
-        <aside className="flex h-full w-[380px] flex-col border-r-[2.5px] border-black bg-[#F6C445]">
+        <aside className="flex h-full w-[380px] flex-col border-r-[2.5px] border-black bg-[#84D4A4]">
           {/* CATEGORY */}
           <div className="border-b-[2.5px] border-dashed border-black/25 px-6 pt-5 pb-5">
             <p className="mb-3 flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em]">
@@ -97,10 +97,6 @@ export default function FrameSelection() {
           {/* SELECTED FRAME */}
           <div className="px-6 py-5">
             <div className="relative rounded-2xl border-[2.5px] border-black bg-[#D6D2F5] px-4 py-3 shadow-[5px_5px_0_0_#000]">
-              <span className="absolute -top-3 -right-2 -rotate-6 rounded-full border-[2px] border-black bg-[#F6C445] px-2 py-0.5 text-[9px] font-black uppercase tracking-wider">
-                Selected ✿
-              </span>
-
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black/60">
                 Your pick
               </p>
@@ -163,7 +159,7 @@ export default function FrameSelection() {
           </div>
 
           {/* BUTTON */}
-          <div className="border-t-[2.5px] border-black bg-[#F6C445] p-5">
+          <div className="border-t-[2.5px] border-black bg-[#84D4A4] p-5">
             <button
               onClick={() =>
                 router.push(
@@ -178,13 +174,10 @@ export default function FrameSelection() {
         </aside>
 
         {/* ================= RIGHT ================= */}
-        <main className="relative flex flex-1 items-center justify-center overflow-hidden bg-[#CDE6F7]">
+        <main className="relative flex flex-1 items-center justify-center overflow-hidden bg-[#84D4A4]">
           {/* decorative blobs */}
           <div className="pointer-events-none absolute -top-10 -left-10 h-48 w-48 rounded-full border-[2.5px] border-black bg-[#BFE7DA]/70" />
           <div className="pointer-events-none absolute -bottom-16 right-10 h-56 w-56 rounded-full border-[2.5px] border-black bg-[#D6D2F5]/70" />
-          <span className="pointer-events-none absolute top-8 right-10 rotate-6 rounded-full border-[2.5px] border-black bg-[#F6C445] px-3 py-1 text-[11px] font-black uppercase tracking-widest shadow-[4px_4px_0_0_#000]">
-            Preview ✿
-          </span>
 
           <div className="relative z-10 rounded-3xl">
             <Image

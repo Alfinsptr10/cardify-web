@@ -55,18 +55,25 @@ if (firebaseConfig && firebaseConfig.apiKey) {
   }
 }
 
+// --- TOKENS ---
+const INK = "#111111";
+
 // --- CONFIG & CONSTANTS ---
 const SONGS_LIBRARY = [
   { title: "Happy Birthday", artist: "Traditional", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", cover: "/cat.jpg" },
 ];
 
 const GAMEBOY_COLORS = [
-  { id: 'white', label: 'Classic White', bg: 'bg-white', border: 'border-gray-200', text: 'text-gray-400' },
-  { id: 'grey', label: 'Retro Grey', bg: 'bg-gray-300', border: 'border-gray-400', text: 'text-gray-600' },
-  { id: 'purple', label: 'Atomic Purple', bg: 'bg-purple-500', border: 'border-purple-700', text: 'text-purple-200' },
-  { id: 'teal', label: 'Teal', bg: 'bg-teal-400', border: 'border-teal-600', text: 'text-teal-800' },
-  { id: 'yellow', label: 'Dandelion', bg: 'bg-yellow-400', border: 'border-yellow-600', text: 'text-yellow-800' },
-  { id: 'pink', label: 'Berry', bg: 'bg-rose-400', border: 'border-rose-500', text: 'text-rose-200' },
+  { id: 'grey', label: 'Classic Gray', bg: 'bg-[#d1d1d1]', text: 'text-gray-700', btnBg: 'bg-[#9c1c3c]', dpadBg: 'bg-[#444]', isClear: false },
+  { id: 'orange', label: 'Retro Orange', bg: 'bg-[#d47a28]', text: 'text-amber-950', btnBg: 'bg-[#b8232c]', dpadBg: 'bg-[#287d3c]', isClear: false },
+  { id: 'pink', label: 'Kawaii Pink', bg: 'bg-[#ec7fa9]', text: 'text-pink-950', btnBg: 'bg-white text-pink-600', dpadBg: 'bg-white text-pink-600', isKawaii: true, isClear: false },
+  { id: 'clear', label: 'Clear / Atom', bg: 'bg-[#d1d1d1]/80 backdrop-blur-sm', text: 'text-gray-800', btnBg: 'bg-[#9c1c3c]', dpadBg: 'bg-[#333]', isClear: true },
+  { id: 'red', label: 'Loud Red', bg: 'bg-[#b8232c]', text: 'text-rose-100', btnBg: 'bg-[#222222]', dpadBg: 'bg-[#333]', isClear: false },
+  { id: 'green', label: 'Loud Green', bg: 'bg-[#3b824a]', text: 'text-emerald-100', btnBg: 'bg-[#1b4324]', dpadBg: 'bg-[#1b4324]', isClear: false },
+  { id: 'yellow', label: 'Loud Yellow', bg: 'bg-[#e0b73b]', text: 'text-yellow-950', btnBg: 'bg-[#5c4a16]', dpadBg: 'bg-[#5c4a16]', isClear: false },
+  { id: 'black', label: 'Loud Black', bg: 'bg-[#262626]', text: 'text-gray-300', btnBg: 'bg-[#141414]', dpadBg: 'bg-[#141414]', isClear: false },
+  { id: 'purple', label: 'Grape', bg: 'bg-[#6b3fa0]', text: 'text-purple-100', btnBg: 'bg-[#3b1d59]', dpadBg: 'bg-[#3b1d59]', isClear: false },
+  { id: 'blue', label: 'Racing Blue', bg: 'bg-[#28589c]', text: 'text-blue-100', btnBg: 'bg-[#16345e]', dpadBg: 'bg-[#16345e]', isClear: false },
 ];
 
 // --- INTERACTIVE GAMEBOY COMPONENT (VIEWER) ---
@@ -78,11 +85,10 @@ const GameboyViewer = ({ data }: { data: any }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-    // --- SNAKE GAME STATE ---
+  // --- SNAKE GAME STATE ---
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [snakeScore, setSnakeScore] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
-  // Menggunakan Ref untuk game state agar tidak perlu re-render setiap frame
   const snakeRef = useRef([{x: 5, y: 5}]);
   const foodRef = useRef({x: 10, y: 10});
   const directionRef = useRef("RIGHT");
@@ -91,14 +97,14 @@ const GameboyViewer = ({ data }: { data: any }) => {
   // Merge default songs with custom uploaded songs from data
   const songs = [...(data.customSongs || []), ...SONGS_LIBRARY];
 
-  const currentSong = songs.find(s => s.title === data.music) || songs[0];
+  const currentSong = songs.find(s => s.title === data.music || s.id === data.music) || songs[0];
   const displayCover = data.musicCover || currentSong.cover;
   const activeColor = GAMEBOY_COLORS.find(c => c.id === data.color) || GAMEBOY_COLORS[0];
 
   useEffect(() => {
     if (audioRef.current) {
         if (isPlaying) {
-            audioRef.current.play().catch(e => console.log("Audio play failed (user interaction needed)", e));
+            audioRef.current.play().catch(e => console.log("Audio play failed", e));
         } else {
             audioRef.current.pause();
         }
@@ -112,7 +118,44 @@ const GameboyViewer = ({ data }: { data: any }) => {
     if (data.gallery.length > 0) setPhotoIndex(prev => (prev - 1 + data.gallery.length) % data.gallery.length);
   };
 
-// --- GAME LOGIC ---
+  const [pressedDpad, setPressedDpad] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      let dir = null;
+      if (e.key === "ArrowUp") { dir = "UP"; }
+      else if (e.key === "ArrowDown") { dir = "DOWN"; }
+      else if (e.key === "ArrowLeft") { dir = "LEFT"; }
+      else if (e.key === "ArrowRight") { dir = "RIGHT"; }
+
+      if (dir) {
+        e.preventDefault();
+        setPressedDpad(dir);
+        handleDpad(dir);
+      } else if (e.key === "a" || e.key === "Enter") {
+        e.preventDefault();
+        handleButtonA();
+      } else if (e.key === "b" || e.key === "Escape" || e.key === "Backspace") {
+        e.preventDefault();
+        handleButtonB();
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+        setPressedDpad(null);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [screenView, activePopup, isGameOver, selectedMenuIndex]);
+
+  // --- GAME LOGIC ---
   const startGame = () => {
     setSnakeScore(0);
     setIsGameOver(false);
@@ -121,53 +164,47 @@ const GameboyViewer = ({ data }: { data: any }) => {
     placeFood();
     
     if (gameIntervalRef.current) clearInterval(gameIntervalRef.current);
-    gameIntervalRef.current = setInterval(gameLoop, 150); // Kecepatan game
+    gameIntervalRef.current = setInterval(gameLoop, 150);
   };
 
-const placeFood = () => {
-  if (!canvasRef.current) return;
+  const placeFood = () => {
+    if (!canvasRef.current) return;
+    const gridSize = 10;
+    const cols = canvasRef.current.width / gridSize;
+    const rows = canvasRef.current.height / gridSize;
 
-  const gridSize = 10;
-  const cols = canvasRef.current.width / gridSize;
-  const rows = canvasRef.current.height / gridSize;
+    let newFood: { x: any; y: any; };
+    do {
+      newFood = {
+        x: Math.floor(Math.random() * cols),
+        y: Math.floor(Math.random() * rows),
+      };
+    } while (snakeRef.current.some(p => p.x === newFood.x && p.y === newFood.y));
 
-  let newFood: { x: any; y: any; };
-  do {
-    newFood = {
-      x: Math.floor(Math.random() * cols),
-      y: Math.floor(Math.random() * rows),
-    };
-  } while (snakeRef.current.some(p => p.x === newFood.x && p.y === newFood.y));
-
-  foodRef.current = newFood;
-};
-
+    foodRef.current = newFood;
+  };
 
   const gameLoop = () => {
     if (!canvasRef.current) return;
     const ctx = canvasRef.current.getContext('2d');
     if (!ctx) return;
 
-    // Game Constants
-    const gridSize = 10; // Ukuran kotak
+    const gridSize = 10;
     const cols = canvasRef.current.width / gridSize;
     const rows = canvasRef.current.height / gridSize;
 
-    // Logic: Move Head
     let head = { ...snakeRef.current[0] };
     if (directionRef.current === "UP") head.y -= 1;
     if (directionRef.current === "DOWN") head.y += 1;
     if (directionRef.current === "LEFT") head.x -= 1;
     if (directionRef.current === "RIGHT") head.x += 1;
 
-    // Logic: Collision (Wall or Self)
     if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows || snakeRef.current.some(s => s.x === head.x && s.y === head.y)) {
         setIsGameOver(true);
         if (gameIntervalRef.current) clearInterval(gameIntervalRef.current);
         return;
     }
 
-    // Logic: Eat Food
     let newSnake = [head, ...snakeRef.current];
     if (head.x === foodRef.current.x && head.y === foodRef.current.y) {
         setSnakeScore(s => s + 10);
@@ -177,16 +214,13 @@ const placeFood = () => {
     }
     snakeRef.current = newSnake;
 
-    // Render
-    ctx.fillStyle = "#0f380f"; // Background color (Dark Green LCD)
+    ctx.fillStyle = "#0f380f";
     ctx.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
 
-    // Draw Food
-    ctx.fillStyle = "#8bac0f"; // Food color (Light Green)
+    ctx.fillStyle = "#8bac0f";
     ctx.fillRect(foodRef.current.x * gridSize, foodRef.current.y * gridSize, gridSize - 1, gridSize - 1);
 
-    // Draw Snake
-    ctx.fillStyle = "#9bbc0f"; // Snake color (Lighter Green)
+    ctx.fillStyle = "#9bbc0f";
     newSnake.forEach(part => {
         ctx.fillRect(part.x * gridSize, part.y * gridSize, gridSize - 1, gridSize - 1);
     });
@@ -203,7 +237,7 @@ const placeFood = () => {
   const handleButtonB = () => {
     if (activePopup !== 'none') {
         setActivePopup('none');
-        if (gameIntervalRef.current) clearInterval(gameIntervalRef.current); // Stop game if exit
+        if (gameIntervalRef.current) clearInterval(gameIntervalRef.current);
     } else if (screenView === 'menu') {
         setScreenView('intro');
     }
@@ -211,22 +245,19 @@ const placeFood = () => {
 
   const handleButtonA = () => {
      if (screenView === 'intro') {
-         // Intro only Start works
          return; 
      } else if (screenView === 'menu' && activePopup === 'none') {
-         // Select menu
          if (selectedMenuIndex === 0) setActivePopup('message');
          else if (selectedMenuIndex === 1) setActivePopup('music');
          else if (selectedMenuIndex === 2) setActivePopup('gallery');
          else if (selectedMenuIndex === 3) {
              setActivePopup('game');
-             // Perlu delay sedikit agar canvas di-render dulu oleh React
              setTimeout(startGame, 100); 
          }
      } else if (activePopup === 'music') {
          setIsPlaying(!isPlaying);
      } else if (activePopup === 'game' && isGameOver) {
-         startGame(); // Restart game
+         startGame();
      }
   };
 
@@ -241,7 +272,6 @@ const placeFood = () => {
           if (dir === 'LEFT') prevPhoto();
           if (dir === 'RIGHT') nextPhoto();
       }
-       // Game Controls
       if (activePopup === 'game' && !isGameOver) {
           if (dir === "UP" && directionRef.current !== "DOWN") directionRef.current = "UP";
           if (dir === "DOWN" && directionRef.current !== "UP") directionRef.current = "DOWN";
@@ -251,241 +281,258 @@ const placeFood = () => {
   };
 
   return (
-    <div className={`relative ${activeColor.bg} rounded-[2.5rem] w-[340px] h-[600px] p-5 flex flex-col shadow-[12px_12px_0_0_#000] border-[3px] border-black select-none transition-colors duration-300`}>
-
-      {/* Header */}
-      <div className="flex justify-between items-center mb-3 px-1">
-        <div className="flex flex-col items-center">
-             <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_5px_red]"></div>
-             <span className={`text-[6px] font-bold ${activeColor.text} mt-0.5 dozo-body`}>BATTERY</span>
+    <div
+      className={`relative ${activeColor.bg} rounded-[2rem] w-[390px] h-[590px] p-6 flex flex-col justify-between border-[3px] select-none transition-colors duration-300 overflow-hidden`}
+      style={{ 
+        borderColor: INK, 
+        backgroundImage: activeColor.id === 'blue' 
+          ? "linear-gradient(90deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%)" 
+          : "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.12) 0%, rgba(0,0,0,0.06) 100%)",
+        backgroundSize: activeColor.id === 'blue' ? "80px 100%" : "auto"
+      }}
+    >
+      {/* Background ilustrasi PCB khusus untuk mode Clear */}
+      {activeColor.isClear && (
+        <div className="absolute inset-0 opacity-30 pointer-events-none flex items-center justify-center overflow-hidden">
+           <div className="w-full h-full bg-[#1b4324] border-4 border-[#28589c] relative">
+              <div className="absolute top-10 left-6 w-16 h-12 bg-[#333] border border-yellow-500 rounded"></div>
+              <div className="absolute top-32 right-8 w-20 h-16 bg-[#222] border border-gray-400 rounded-full flex items-center justify-center">
+                 <div className="w-8 h-8 rounded-full border border-gray-500"></div>
+              </div>
+              <div className="absolute inset-0 bg-[radial-gradient(#28589c_1px,transparent_1px)] [background-size:16px_16px] opacity-40"></div>
+           </div>
         </div>
-        <div className={`dozo-display text-[10px] uppercase ${activeColor.text} opacity-80`}>CARDIFY </div>
+      )}
+
+      {/* Background pola kucing untuk Kawaii Pink */}
+      {activeColor.isKawaii && (
+        <div className="absolute inset-0 opacity-15 pointer-events-none flex items-center justify-center overflow-hidden font-bold text-white text-9xl select-none">
+           🐱 🐾 💖
+        </div>
+      )}
+
+      {/* Garis Dekorasi Atas */}
+      <div className="flex flex-col gap-1 w-24 mb-2 relative z-10">
+        <div className="h-[2px] bg-black/40 w-full rounded-full"></div>
+        <div className="h-[2px] bg-black/40 w-3/4 rounded-full"></div>
+      </div>
+
+      <div className="flex justify-between items-center mb-2 px-2 relative z-10">
+        <div className="flex items-center gap-1.5">
+          <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse shadow-[0_0_5px_red]"></div>
+          <span className={`text-[6px] font-bold ${activeColor.text} font-sans tracking-widest uppercase`}>LIVE</span>
+        </div>
+        <div className={`font-serif font-black text-[11px] ${activeColor.text} italic opacity-70 tracking-widest`}>CARDIFY</div>
       </div>
       
-      {/* Screen Container */}
-      <div className="bg-[#788a82] p-2.5 rounded-xl border-[2.5px] border-black relative mb-4 shadow-[4px_4px_0_0_#000]">
-         <div className="flex justify-between items-center px-1 mb-0.5">
-             <div className="flex gap-0.5">
-                <div className="w-1 h-1 rounded-full bg-red-500/80"></div>
-                <div className="w-1 h-1 rounded-full bg-red-500/80"></div>
-             </div>
-             <span className="text-[6px] text-gray-700 font-bold font-sans opacity-60">DOT MATRIX WITH STEREO SOUND</span>
-         </div>
-
-         {/* LCD SCREEN */}
-         <div className="bg-[#0f380f] w-full h-[200px] border-4 border-[#0f380f] relative overflow-hidden flex flex-col items-center justify-center font-pixel shadow-inner">
+      {/* Layar Konsol */}
+      <div className="bg-[#38423d] p-3.5 rounded-3xl relative mb-4 shadow-[inset_0_4px_8px_rgba(0,0,0,0.7)] z-10">
+         <div className="bg-[#9bbc0f] w-full h-[185px] relative overflow-hidden flex flex-col items-center justify-center font-pixel shadow-inner">
             
-            {/* 1. INTRO SCREEN */}
+            {/* Efek Garis Horizontal Scanline Tetap */}
+            <div className="absolute inset-0 pointer-events-none z-30 opacity-15 bg-[linear-gradient(to_bottom,rgba(0,0,0,0)_50%,rgba(0,0,0,0.3)_50%)] bg-[length:100%_3px]" />
+            
+            {/* Efek Garis Putih Scanline Transparan Berjalan Lembut */}
+            <div 
+              className="absolute inset-x-0 h-[2px] bg-black/15 pointer-events-none z-30 shadow-[0_0_4px_rgba(0,0,0,0.2)]"
+              style={{
+                animation: "crtScanline 6s linear infinite",
+              }}
+            />
+
             {screenView === 'intro' && (
-                <div className="text-center w-full animate-in fade-in duration-300">
-                    <div className="text-[#9bbc0f] text-[16px] leading-tight mb-4 drop-shadow-md uppercase pixel-font px-2 break-words">
-                        {data.title || "HAPPY BIRTHDAY"}
+                <div className="text-center w-full animate-in fade-in duration-300 z-10">
+                    <div className="text-[#0f380f] text-[15px] leading-tight mb-3 drop-shadow-sm uppercase pixel-font px-2 break-words">
+                        {data.title || "CARDIFY"}
                     </div>
-                    <div className="text-[#8bac0f] text-[8px] mb-6 animate-pulse uppercase pixel-font">
-                        {data.subtitle || "PRESS START"}
+                    <div className="text-[#306230] text-[7px] mb-5 animate-pulse uppercase pixel-font">
+                        {data.subtitle || "PRESS START TO PLAY"}
                     </div>
-                    <div className="flex justify-center gap-3 text-[#306230]">
-                        <Heart size={16} fill="currentColor" />
-                        <Cake size={16} />
-                        <Heart size={16} fill="currentColor" />
+                    <div className="flex justify-center gap-3 text-[#0f380f]">
+                        <Heart size={14} fill="currentColor" />
+                        <Cake size={14} />
+                        <Heart size={14} fill="currentColor" />
                     </div>
                 </div>
             )}
-
-            {/* 2. MENU SCREEN */}
             {screenView === 'menu' && activePopup === 'none' && (
-                <div className="w-full h-full p-2 animate-in slide-in-from-bottom duration-200">
-                    <div className="text-[#9bbc0f] text-[10px] mb-2 text-center border-b border-[#306230] pb-1 pixel-font">MAIN MENU</div>
-                    <div className="grid grid-cols-1 gap-1.5">
-                        <div className={`text-[8px] p-1.5 text-left flex items-center gap-2 transition-colors pixel-font ${selectedMenuIndex === 0 ? 'bg-[#8bac0f] text-[#0f380f]' : 'bg-[#306230] text-[#9bbc0f]'}`}>
-                            {selectedMenuIndex === 0 && <span className="animate-pulse">▶</span>} <MessageSquare size={10} /> 1. MESSAGE
+                <div className="w-full h-full p-2 animate-in slide-in-from-bottom duration-200 z-10">
+                    <div className="text-[#0f380f] text-[9px] mb-2 text-center border-b border-[#306230] pb-1 pixel-font">MAIN MENU</div>
+                    <div className="grid grid-cols-1 gap-1">
+                        <div className={`text-[7.5px] p-1.5 text-left flex items-center gap-2 transition-colors pixel-font ${selectedMenuIndex === 0 ? 'bg-[#306230] text-[#9bbc0f]' : 'bg-[#8bac0f] text-[#0f380f]'}`}>
+                            {selectedMenuIndex === 0 && <span className="animate-pulse">▶</span>} <MessageSquare size={9} /> 1. MESSAGE
                         </div>
-                        <div className={`text-[8px] p-1.5 text-left flex items-center gap-2 transition-colors pixel-font ${selectedMenuIndex === 1 ? 'bg-[#8bac0f] text-[#0f380f]' : 'bg-[#306230] text-[#9bbc0f]'}`}>
-                            {selectedMenuIndex === 1 && <span className="animate-pulse">▶</span>} <Music size={10} /> 2. MUSIC
+                        <div className={`text-[7.5px] p-1.5 text-left flex items-center gap-2 transition-colors pixel-font ${selectedMenuIndex === 1 ? 'bg-[#306230] text-[#9bbc0f]' : 'bg-[#8bac0f] text-[#0f380f]'}`}>
+                            {selectedMenuIndex === 1 && <span className="animate-pulse">▶</span>} <Music size={9} /> 2. MUSIC
                         </div>
-                        <div className={`text-[8px] p-1.5 text-left flex items-center gap-2 transition-colors pixel-font ${selectedMenuIndex === 2 ? 'bg-[#8bac0f] text-[#0f380f]' : 'bg-[#306230] text-[#9bbc0f]'}`}>
-                            {selectedMenuIndex === 2 && <span className="animate-pulse">▶</span>} <ImageIcon size={10} /> 3. GALLERY
+                        <div className={`text-[7.5px] p-1.5 text-left flex items-center gap-2 transition-colors pixel-font ${selectedMenuIndex === 2 ? 'bg-[#306230] text-[#9bbc0f]' : 'bg-[#8bac0f] text-[#0f380f]'}`}>
+                            {selectedMenuIndex === 2 && <span className="animate-pulse">▶</span>} <ImageIcon size={9} /> 3. GALLERY
                         </div>
-                                                <div className={`text-[8px] p-1.5 text-left flex items-center gap-2 transition-colors pixel-font ${selectedMenuIndex === 3 ? 'bg-[#8bac0f] text-[#0f380f]' : 'bg-[#306230] text-[#9bbc0f]'}`}>
-                            {selectedMenuIndex === 3 && <span className="animate-pulse">▶</span>} <Gamepad2 size={10} /> 4. GAMES
+                        <div className={`text-[7.5px] p-1.5 text-left flex items-center gap-2 transition-colors pixel-font ${selectedMenuIndex === 3 ? 'bg-[#306230] text-[#9bbc0f]' : 'bg-[#8bac0f] text-[#0f380f]'}`}>
+                            {selectedMenuIndex === 3 && <span className="animate-pulse">▶</span>} <Gamepad2 size={9} /> 4. GAMES
                         </div>
                     </div>
                 </div>
             )}
-
-            {/* 3. MESSAGE POPUP */}
             {activePopup === 'message' && (
-                <div className="absolute inset-0 bg-[#f0f0f0] z-20 flex flex-col p-1 animate-in zoom-in duration-200">
+                <div className="absolute inset-0 bg-[#f0f0f0] z-40 flex flex-col p-1">
                     <div className="bg-white border-2 border-black p-2 h-full overflow-y-auto">
-                        <div className="text-center border-b-2 border-black border-dashed pb-1 mb-2 font-bold text-[10px] pixel-font">💌 MESSAGE</div>
-                        <p className="text-[10px] leading-4 text-gray-800 whitespace-pre-wrap pixel-font">{data.message}</p>
-                        <p className="text-[8px] text-gray-500 mt-4 text-right pixel-font">- {data.sender}</p>
+                        <div className="text-center border-b-2 border-black border-dashed pb-1 mb-2 font-bold text-[9px] pixel-font">💌 MESSAGE</div>
+                        <p className="text-[9px] leading-4 text-gray-800 whitespace-pre-wrap pixel-font">{data.message}</p>
+                        <p className="text-[7.5px] text-gray-500 mt-3 text-right pixel-font">- {data.sender}</p>
                     </div>
-                    <button onClick={() => setActivePopup('none')} className="absolute top-0 right-0 bg-red-500 text-white w-5 h-5 flex items-center justify-center text-[8px] border border-black">X</button>
+                    <button onClick={() => setActivePopup('none')} className="absolute top-0 right-0 bg-red-500 text-white w-4 h-4 flex items-center justify-center text-[7px] border border-black cursor-pointer">X</button>
                 </div>
             )}
-
-            {/* 4. MUSIC POPUP */}
-{activePopup === 'music' && (
-  <div className="absolute inset-0 bg-[#1a1a1a] z-20 flex flex-col items-center justify-between p-2 text-white">
-    
-    {/* HEADER */}
-    <div className="text-[#f0b230] text-[8px] pixel-font mt-1">
-      --- MUSIC PLAYER ---
-    </div>
-
-    {/* CENTER CONTENT */}
-    <div className="flex flex-col items-center justify-center flex-1 gap-2">
-      
-      {/* COVER */}
-      <div className="w-16 h-16 bg-gray-700 border border-gray-500 flex items-center justify-center overflow-hidden relative group">
-        {displayCover ? (
-          <img
-            src={displayCover}
-            className={`w-full h-full object-cover ${isPlaying ? 'opacity-90' : 'opacity-100'}`}
-            alt="art"
-          />
-        ) : (
-          isPlaying
-            ? <div className="animate-spin-slow"><Disc size={24} className="text-[#f0b230]" /></div>
-            : <Music size={24} className="text-gray-400" />
-        )}
-
-        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-          {isPlaying
-            ? <Pause className="text-white drop-shadow-md animate-pulse" size={32} />
-            : <Play className="text-white drop-shadow-md" size={32} />
-          }
-        </div>
-      </div>
-
-      {/* SONG TITLE */}
-      <div className="text-[#8fdb7f] text-[8px] text-center pixel-font max-w-[120px] truncate">
-        {currentSong.title}
-      </div>
-
-      {/* ARTIST */}
-      <div className="text-gray-400 text-[6px] text-center pixel-font">
-        {currentSong.artist}
-      </div>
-    </div>
-
-    {/* FOOTER */}
-    <div className="text-[6px] text-gray-600 pixel-font mb-1">
-      A: Play/Pause • B: Back
-    </div>
-
-    <audio ref={audioRef} src={currentSong.src} loop />
-  </div>
-)}
-
-            {/* 5. GALLERY POPUP */}
+            {activePopup === 'music' && (
+              <div className="absolute inset-0 bg-[#1a1a1a] z-40 flex flex-col items-center justify-between p-2 text-white">
+                <div className="text-[#f0b230] text-[7.5px] pixel-font mt-1">--- MUSIC PLAYER ---</div>
+                <div className="flex flex-col items-center justify-center flex-1 gap-1.5">
+                  <div className="w-14 h-14 bg-gray-700 border border-gray-500 flex items-center justify-center overflow-hidden relative">
+                    {displayCover ? (
+                      <img src={displayCover} className={`w-full h-full object-cover ${isPlaying ? 'opacity-90' : 'opacity-100'}`} alt="art" />
+                    ) : (
+                      isPlaying ? <div className="animate-spin-slow"><Disc size={20} className="text-[#f0b230]" /></div> : <Music size={20} className="text-gray-400" />
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                      {isPlaying ? <Pause className="text-white drop-shadow-md animate-pulse" size={24} /> : <Play className="text-white drop-shadow-md" size={24} />}
+                    </div>
+                  </div>
+                  <div className="text-[#8fdb7f] text-[7.5px] text-center pixel-font max-w-[120px] truncate">{currentSong.title}</div>
+                  <div className="text-gray-400 text-[6px] text-center pixel-font">{currentSong.artist}</div>
+                </div>
+                <div className="text-[6px] text-gray-600 pixel-font mb-1">A: Play/Pause • B: Back</div>
+                <audio ref={audioRef} src={currentSong.src} loop />
+              </div>
+            )}
             {activePopup === 'gallery' && (
-                <div className="absolute inset-0 bg-white z-20 flex flex-col items-center justify-center p-2 animate-in zoom-in duration-200">
-                     {data.gallery.length > 0 ? (
-                         <>
-                            <div className="w-full h-[140px] bg-gray-100 mb-2 border border-black relative">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={data.gallery[photoIndex]} className="w-full h-full object-cover" alt="Gallery" />
-                                <button onClick={prevPhoto} className="absolute left-1 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white p-1 rounded-full"><ChevronLeft size={12}/></button>
-                                <button onClick={nextPhoto} className="absolute right-1 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white p-1 rounded-full"><ChevronRight size={12}/></button>
-                            </div>
-                            <div className="text-[8px] font-bold pixel-font">PHOTO {photoIndex + 1}/{data.gallery.length}</div>
-                         </>
-                     ) : (
-                         <div className="text-[8px] text-gray-500 pixel-font">NO PHOTOS ADDED</div>
-                     )}
-                     <button onClick={() => setActivePopup('none')} className="mt-1 text-[8px] text-red-500 hover:underline pixel-font">CLOSE</button>
+                <div className="absolute inset-0 bg-white z-40 flex flex-col items-center justify-center p-2">
+                      {data.gallery && data.gallery.length > 0 ? (
+                          <>
+                             <div className="w-full h-[120px] bg-gray-100 mb-1.5 border border-black relative">
+                                 {/* eslint-disable-next-line @next/next/no-img-element */}
+                                 <img src={data.gallery[photoIndex]} className="w-full h-full object-cover" alt="Gallery" />
+                                 {data.gallery.length > 1 && (
+                                     <>
+                                         <button onClick={prevPhoto} className="absolute left-1 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white p-1 rounded-full cursor-pointer"><ChevronLeft size={10}/></button>
+                                         <button onClick={nextPhoto} className="absolute right-1 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white p-1 rounded-full cursor-pointer"><ChevronRight size={10}/></button>
+                                     </>
+                                 )}
+                             </div>
+                             <div className="w-full bg-[#f4f4f4] border border-black p-1.5 text-center min-h-[30px] flex items-center justify-center">
+                                 <span className="text-[7.5px] text-gray-800 pixel-font break-words">
+                                     {data.galleryCaptions?.[photoIndex] || `Memory #${photoIndex + 1}`}
+                                 </span>
+                             </div>
+                          </>
+                      ) : <div className="text-[7.5px] text-gray-500 pixel-font">NO PHOTOS ADDED</div>}
                 </div>
             )}
-                {/* 6. GAME POPUP (NEW) */}
             {activePopup === 'game' && (
-                <div className="absolute inset-0 bg-[#0f380f] z-20 flex flex-col items-center justify-center p-1">
-                    <div className="text-[#9bbc0f] text-[10px] mb-2 font-pixel">SNAKE GAME</div>
-                    <canvas ref={canvasRef} width={200} height={150} className="border-2 border-[#306230] bg-[#8bac0f]"></canvas>
-                    <div className="flex justify-between w-full px-4 mt-2 text-[8px] font-pixel text-[#9bbc0f]">
+                <div className="absolute inset-0 bg-[#9bbc0f] z-40 flex flex-col items-center justify-center p-1">
+                    <div className="text-[#0f380f] text-[9px] mb-1 font-pixel">SNAKE GAME</div>
+                    <canvas ref={canvasRef} width={180} height={120} className="border-2 border-[#306230] bg-[#8bac0f]"></canvas>
+                    <div className="flex justify-between w-full px-3 mt-1 text-[7.5px] font-pixel text-[#0f380f]">
                        <span>SCORE: {snakeScore}</span>
                        <span className="text-[#306230]">{isGameOver ? "GAME OVER" : "PLAYING"}</span>
                     </div>
-                    {isGameOver && <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-white font-pixel text-[10px] animate-pulse">PRESS A TO RESTART</div>}
+                    {isGameOver && <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-white font-pixel text-[8.5px] animate-pulse">PRESS A TO RESTART</div>}
                 </div>
             )}
          </div>
       </div>
 
-      {/* CONTROLS (UPSIZED BUTTONS) */}
-      <div className="relative h-[220px]">
-          {/* D-PAD */}
-          <div className="absolute top-4 left-4 w-[110px] h-[110px]">
-               <div className="relative w-full h-full" style={{ filter: "drop-shadow(2px 4px 3px rgba(0,0,0,0.45))" }}>
-                   {/* Vertical arm */}
-                   <div
-                     className="absolute top-0 left-1/3 w-1/3 h-full rounded-[3px]"
-                     style={{
-                       background: "linear-gradient(155deg, #4a4a4a 0%, #2c2c2c 45%, #1a1a1a 100%)",
-                       boxShadow: "inset 0 1px 1px rgba(255,255,255,0.25), inset 0 -3px 4px rgba(0,0,0,0.55)",
-                     }}
-                   />
-                   {/* Horizontal arm */}
-                   <div
-                     className="absolute top-1/3 left-0 w-full h-1/3 rounded-[3px]"
-                     style={{
-                       background: "linear-gradient(155deg, #4a4a4a 0%, #2c2c2c 45%, #1a1a1a 100%)",
-                       boxShadow: "inset 0 1px 1px rgba(255,255,255,0.25), inset 0 -3px 4px rgba(0,0,0,0.55)",
-                     }}
-                   />
-                   {/* Center pivot dome */}
-                   <div
-                     className="absolute top-1/3 left-1/3 w-1/3 h-1/3 rounded-full"
-                     style={{
-                       background: "radial-gradient(circle at 35% 30%, #565656 0%, #232323 65%, #141414 100%)",
-                       boxShadow: "inset 0 1px 2px rgba(255,255,255,0.3), inset 0 -2px 3px rgba(0,0,0,0.6)",
-                     }}
-                   />
+      {/* Bagian Tengah: Teks Logo & Kontrol */}
+      <div className={`text-center font-serif italic font-bold text-xs tracking-widest opacity-80 mb-2 relative z-10 ${activeColor.text}`}>2 B I T</div>
 
-                   {/* Panah dekoratif tiap arah — murni visual, pointer-events-none */}
-                   <ArrowUp size={11} strokeWidth={3} className="absolute top-[8%] left-1/2 -translate-x-1/2 text-white/40 pointer-events-none" />
-                   <ArrowDown size={11} strokeWidth={3} className="absolute bottom-[8%] left-1/2 -translate-x-1/2 text-white/40 pointer-events-none" />
-                   <IconArrowLeft size={11} strokeWidth={3} className="absolute left-[8%] top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
-                   <IconArrowRight size={11} strokeWidth={3} className="absolute right-[8%] top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+      {/* Kontrol Utama: D-Pad & Tombol A/B */}
+      <div className="relative h-[160px] z-10">
+          <div className="absolute top-1 left-2 w-[110px] h-[110px]">
+               <div className="relative w-full h-full" style={{ filter: "drop-shadow(2px 4px 3px rgba(0,0,0,0.4))" }}>
+                   
+                   <div className="absolute inset-[34%] bg-[#3b3838] shadow-inner z-0"></div>
 
-                   {/* Highlight tipis di tepi atas tiap arm biar kesan plastik mengkilap */}
-                   <div className="absolute top-0 left-1/3 w-1/3 h-[3px] bg-white/20 rounded-full pointer-events-none" />
-                   <div className="absolute top-1/3 left-0 w-[3px] h-1/3 bg-white/20 rounded-full pointer-events-none" />
+                   {/* Tombol ATAS (UP) */}
+                   <button 
+                     onClick={() => handleDpad('UP')} 
+                     className={`absolute top-0 left-[35%] w-[30%] h-[34%] border-[1.5px] border-[#1a1a1a] rounded-t-md z-20 flex items-center justify-center transition-all cursor-pointer shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] ${
+                       pressedDpad === 'UP' ? 'bg-[#1a1a1a] scale-95 brightness-75' : 'bg-[#2b2b2b] hover:bg-[#383838]'
+                     }`}
+                   >
+                     <div className="w-0 h-0 border-x-[4px] border-x-transparent border-b-[6px] border-b-white/40"></div>
+                   </button>
 
-                   {/* 4 tombol klik — geometri & onClick sama persis, cuma tambah efek tekan 3D */}
-                   <button onClick={() => handleDpad('UP')} className="absolute top-0 left-1/3 w-1/3 h-1/3 z-10 active:bg-black/30 active:scale-95 transition-transform rounded-t-sm" />
-                   <button onClick={() => handleDpad('DOWN')} className="absolute bottom-0 left-1/3 w-1/3 h-1/3 z-10 active:bg-black/30 active:scale-95 transition-transform rounded-b-sm" />
-                   <button onClick={() => handleDpad('LEFT')} className="absolute top-1/3 left-0 w-1/3 h-1/3 z-10 active:bg-black/30 active:scale-95 transition-transform rounded-l-sm" />
-                   <button onClick={() => handleDpad('RIGHT')} className="absolute top-1/3 right-0 w-1/3 h-1/3 z-10 active:bg-black/30 active:scale-95 transition-transform rounded-r-sm" />
+                   {/* Tombol KIRI (LEFT) */}
+                   <button 
+                     onClick={() => handleDpad('LEFT')} 
+                     className={`absolute top-[35%] left-0 w-[34%] h-[30%] border-[1.5px] border-[#1a1a1a] rounded-l-md z-20 flex items-center justify-center transition-all cursor-pointer shadow-[inset_1px_0_1px_rgba(255,255,255,0.2)] ${
+                       pressedDpad === 'LEFT' ? 'bg-[#1a1a1a] scale-95 brightness-75' : 'bg-[#2b2b2b] hover:bg-[#383838]'
+                     }`}
+                   >
+                     <div className="w-0 h-0 border-y-[4px] border-y-transparent border-r-[6px] border-r-white/40"></div>
+                   </button>
+
+                   <div className="absolute top-[35%] left-[35%] w-[30%] h-[30%] bg-[#1a1a1a] border-[1.5px] border-[#111111] z-10 shadow-[inset_0_2px_4px_rgba(0,0,0,0.9)] flex items-center justify-center">
+                     <div className="w-1.5 h-1.5 rounded-full bg-[#111111]"></div>
+                   </div>
+
+                   {/* Tombol KANAN (RIGHT) */}
+                   <button 
+                     onClick={() => handleDpad('RIGHT')} 
+                     className={`absolute top-[35%] right-0 w-[34%] h-[30%] border-[1.5px] border-[#1a1a1a] rounded-r-md z-20 flex items-center justify-center transition-all cursor-pointer shadow-[inset_-1px_0_1px_rgba(255,255,255,0.2)] ${
+                       pressedDpad === 'RIGHT' ? 'bg-[#1a1a1a] scale-95 brightness-75' : 'bg-[#2b2b2b] hover:bg-[#383838]'
+                     }`}
+                   >
+                     <div className="w-0 h-0 border-y-[4px] border-y-transparent border-l-[6px] border-l-white/40"></div>
+                   </button>
+
+                   {/* Tombol BAWAH (DOWN) */}
+                   <button 
+                     onClick={() => handleDpad('DOWN')} 
+                     className={`absolute bottom-0 left-[35%] w-[30%] h-[34%] border-[1.5px] border-[#1a1a1a] rounded-b-md z-20 flex items-center justify-center transition-all cursor-pointer shadow-[inset_0_-1px_1px_rgba(255,255,255,0.2)] ${
+                       pressedDpad === 'DOWN' ? 'bg-[#1a1a1a] scale-95 brightness-75' : 'bg-[#2b2b2b] hover:bg-[#383838]'
+                     }`}
+                   >
+                     <div className="w-0 h-0 border-x-[4px] border-x-transparent border-t-[6px] border-t-white/40"></div>
+                   </button>
+
                </div>
           </div>
 
-          {/* A B Buttons */}
-          <div className="absolute top-6 right-1 flex gap-5 transform -rotate-12">
-               <div className="flex flex-col items-center gap-1 mt-6">
-                   <button onClick={handleButtonB} className="w-12 h-12 rounded-full bg-[#FF8A72] border-[2.5px] border-black active:translate-y-1 transition-all shadow-[4px_4px_0_0_#000] active:shadow-[1px_1px_0_0_#000] text-black font-black text-sm dozo-body flex justify-center items-center">B</button>
+          <div className="absolute top-2 right-2 flex gap-4 transform -rotate-12">
+               <div className="flex flex-col items-center gap-0.5 mt-4">
+                   <button onClick={handleButtonB} className={`w-11 h-11 rounded-full ${activeColor.btnBg} border-[2.5px] border-black active:translate-y-1 transition-all font-bold text-xs pixel-font flex justify-center items-center cursor-pointer`} style={{ boxShadow: `3px 4px 0 ${INK}` }}>B</button>
+                   <span className={`text-[7px] font-bold ${activeColor.text} uppercase tracking-wider font-sans opacity-95`}>JOIN</span>
                </div>
-               <div className="flex flex-col items-center gap-1">
-                   <button onClick={handleButtonA} className="w-12 h-12 rounded-full bg-[#FF8A72] border-[2.5px] border-black active:translate-y-1 transition-all shadow-[4px_4px_0_0_#000] active:shadow-[1px_1px_0_0_#000] text-black font-black text-sm dozo-body flex justify-center items-center">A</button>
+               <div className="flex flex-col items-center gap-0.5">
+                   <button onClick={handleButtonA} className={`w-11 h-11 rounded-full ${activeColor.btnBg} border-[2.5px] border-black active:translate-y-1 transition-all font-bold text-xs pixel-font flex justify-center items-center cursor-pointer`} style={{ boxShadow: `3px 4px 0 ${INK}` }}>A</button>
+                   <span className={`text-[7px] font-bold ${activeColor.text} uppercase tracking-wider font-sans opacity-95`}>HOST</span>
                </div>
+          </div>
+      </div>
+
+      {/* Bagian Bawah: Select & Start Miring, Case, & Speaker */}
+      <div className="mt-auto pt-2 border-t-2 border-black/10 flex items-center justify-between relative z-10">
+          <div className="flex gap-4">
+              <div className="flex flex-col items-center transform -rotate-25">
+                  <button onClick={handleStart} className="w-12 h-3.5 bg-[#555] rounded-full border-2 border-black active:scale-95 cursor-pointer shadow-[0_2px_0_#222]"></button>
+                  <span className={`text-[5px] font-black font-sans uppercase mt-1 tracking-tighter opacity-80 ${activeColor.text}`}>SELECT</span>
+              </div>
+              <div className="flex flex-col items-center transform -rotate-25">
+                  <button onClick={handleStart} className="w-12 h-3.5 bg-[#555] rounded-full border-2 border-black active:scale-95 cursor-pointer shadow-[0_2px_0_#222]"></button>
+                  <span className={`text-[5px] font-black font-sans uppercase mt-1 tracking-tighter opacity-80 ${activeColor.text}`}>START</span>
+              </div>
           </div>
 
-          {/* Start Select */}
-          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex gap-4">
-               <div className="flex flex-col items-center">
-                   <button onClick={handleStart} className="w-16 h-4 bg-[#FFFDF5] rounded-full transform rotate-[-25deg] border-[2.5px] border-black active:scale-95 shadow-[2px_2px_0_0_#000]"></button>
-                   <span className={`text-[9px] font-bold ${activeColor.text} mt-1 uppercase tracking-wider dozo-body opacity-70 transform rotate-[-27deg] translate-x-2`}>Select</span>
-               </div>
-               <div className="flex flex-col items-center">
-                   <button onClick={handleStart} className="w-16 h-4 bg-[#FFFDF5] rounded-full transform rotate-[-25deg] border-[2.5px] border-black active:scale-95 shadow-[2px_2px_0_0_#000]"></button>
-                   <span className={`text-[9px] font-bold ${activeColor.text} mt-1 uppercase tracking-wider dozo-body opacity-70 transform rotate-[-27deg] translate-x-2`}>Start</span>
-               </div>
-          </div>
-          
-          {/* Speaker */}
-          <div className="absolute bottom-6 right-6 flex gap-1 transform -rotate-12 opacity-30 pointer-events-none">
-               {[1,2,3,4,5].map(i => <div key={i} className="w-1 h-8 bg-black/20 rounded-full inset-shadow" />)}
+          <div className="flex items-center gap-3">
+              <div className="flex flex-col items-center">
+                  <div className="w-5 h-5 rounded-full bg-gray-600 border-2 border-black cursor-default"></div>
+                  <span className={`text-[5.5px] font-black font-sans uppercase mt-0.5 tracking-tighter opacity-80 ${activeColor.text}`}>CASE</span>
+              </div>
+
+              <div className="flex flex-col gap-1 w-12 p-1 rounded bg-black/5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]">
+                  {[1, 2, 3, 4].map(i => <div key={i} className="h-1 bg-black/70 rounded-full w-full shadow-[0_1px_1px_rgba(255,255,255,0.15)]" />)}
+              </div>
           </div>
       </div>
     </div>
@@ -499,7 +546,6 @@ export default function WebStoryViewerPage() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-     // Parse ID manually for compatibility
      const path = window.location.pathname;
      const segments = path.split('/');
      const id = segments[segments.length - 1]; 
@@ -514,7 +560,6 @@ export default function WebStoryViewerPage() {
        const fetchData = async () => {
            try {
              await signInAnonymously(auth);
-             // READ FROM 'gameboy-stories'
              const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'gameboy-stories', id);
              const docSnap = await getDoc(docRef);
 
@@ -546,22 +591,24 @@ export default function WebStoryViewerPage() {
         .dozo-body { font-family: 'DM Sans', sans-serif; }
         .animate-spin-slow { animation: spin 3s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes dozo-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-        .dozo-marquee { animation: dozo-marquee 18s linear infinite; }
+        @keyframes crtScanline {
+          0% { top: 0%; }
+          100% { top: 100%; }
+        }
+        html, body {
+          overflow: hidden !important;
+          height: 100vh !important;
+          margin: 0;
+          padding: 0;
+        }
     `}} />
   );
 
-  const Ticker = () => (
-    <div className="fixed top-0 left-0 right-0 z-40 bg-[#F6C445] border-b-[2.5px] border-black overflow-hidden">
-    </div>
-  );
-
   if (loading) return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#BFE7DA] p-4">
+      <div className="h-screen w-screen flex flex-col items-center justify-center bg-[#16142a] p-4 overflow-hidden">
          {styleTag}
-         <Ticker />
-         <div className="bg-[#FFFDF5] border-[2.5px] border-black rounded-3xl px-8 py-7 shadow-[6px_6px_0_0_#000] flex flex-col items-center gap-3">
-            <div className="w-14 h-14 rounded-full bg-[#F6C445] border-[2.5px] border-black flex items-center justify-center shadow-[3px_3px_0_0_#000]">
+         <div className="bg-[#f7f0d8] border-[2.5px] border-black rounded-3xl px-8 py-7 shadow-[6px_6px_0_0_#111] flex flex-col items-center gap-3">
+            <div className="w-14 h-14 rounded-full bg-[#ff6b2b] border-[2.5px] border-black flex items-center justify-center shadow-[3px_3px_0_0_#111]">
               <Loader2 className="animate-spin text-black" size={24} />
             </div>
             <p className="dozo-body text-[11px] font-black uppercase tracking-[0.2em] text-black">Loading story…</p>
@@ -570,19 +617,18 @@ export default function WebStoryViewerPage() {
   );
 
   if (error || !data) return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#BFE7DA] p-4 text-center">
+      <div className="h-screen w-screen flex flex-col items-center justify-center bg-[#16142a] p-4 text-center overflow-hidden">
          {styleTag}
-         <Ticker />
-         <div className="relative bg-[#FFFDF5] border-[2.5px] border-black rounded-[2rem] px-8 py-10 max-w-sm shadow-[10px_10px_0_0_#000]">
-            <div className="absolute -top-4 -right-4 rotate-12 bg-[#FF8A72] border-[2.5px] border-black rounded-full px-3 py-1 shadow-[3px_3px_0_0_#000]">
+         <div className="relative bg-[#f7f0d8] border-[2.5px] border-black rounded-[2rem] px-8 py-10 max-w-sm shadow-[10px_10px_0_0_#111]">
+            <div className="absolute -top-4 -right-4 rotate-12 bg-[#ff6b2b] border-[2.5px] border-black rounded-full px-3 py-1 shadow-[3px_3px_0_0_#111]">
               <span className="dozo-body text-[10px] font-black uppercase tracking-widest text-black">oops!</span>
             </div>
-            <div className="mx-auto mb-5 w-16 h-16 rounded-2xl bg-[#C9C4F0] border-[2.5px] border-black flex items-center justify-center shadow-[4px_4px_0_0_#000]">
+            <div className="mx-auto mb-5 w-16 h-16 rounded-2xl bg-[#f6c445] border-[2.5px] border-black flex items-center justify-center shadow-[4px_4px_0_0_#111]">
               <Gamepad2 size={28} className="text-black" />
             </div>
             <h1 className="dozo-display text-xl uppercase text-black mb-3 leading-tight">Story Not Found</h1>
             <p className="dozo-body text-sm text-black/60 mb-7">Cerita tidak ditemukan atau link salah.</p>
-            <a href="/" className="inline-block px-7 py-3 bg-black text-white rounded-full text-[11px] dozo-body font-black uppercase tracking-[0.2em] border-[2.5px] border-black shadow-[5px_5px_0_0_#F6C445] hover:translate-y-0.5 hover:shadow-[3px_3px_0_0_#F6C445] transition-all">
+            <a href="/" className="inline-block px-7 py-3 bg-black text-white rounded-full text-[11px] dozo-body font-black uppercase tracking-[0.2em] border-[2.5px] border-black shadow-[5px_5px_0_0_#f6c445] hover:translate-y-0.5 hover:shadow-[3px_3px_0_0_#f6c445] transition-all">
                 Buat Sendiri
             </a>
          </div>
@@ -590,22 +636,15 @@ export default function WebStoryViewerPage() {
   );
 
   return (
-    <div className="min-h-screen w-full bg-[#BFE7DA] flex items-center justify-center p-4 pt-24 overflow-hidden relative">
-       {/* Inject Font */}
+    <div className="h-screen w-screen bg-[#16142a] flex items-center justify-center p-4 overflow-hidden relative">
        {styleTag}
-       <Ticker />
 
-        {/* Decorative Background */}
-        <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-[8%] left-[6%] w-40 h-40 rounded-full bg-[#F6C445]/60 border-[2.5px] border-black/10" />
-            <div className="absolute bottom-[10%] right-[8%] w-52 h-52 rounded-[3rem] rotate-12 bg-[#C9C4F0]/60 border-[2.5px] border-black/10" />
-            <div className="absolute top-[20%] right-[14%] dozo-display text-4xl text-black/10 select-none">✿</div>
-            <div className="absolute bottom-[22%] left-[16%] dozo-display text-3xl text-black/10 select-none">★</div>
-        </div>
+        {/* Retro Web Background Grid */}
+        <div className="absolute inset-0 opacity-15 pointer-events-none w-full h-full" style={{ backgroundImage: "linear-gradient(#4da6ff 1px, transparent 1px), linear-gradient(90deg, #4da6ff 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
+        <div className="absolute top-12 right-20 text-2xl animate-pulse select-none text-white">✦</div>
+        <div className="absolute bottom-16 left-16 text-2xl animate-pulse select-none text-white">★</div>
 
-        <div className="relative z-10 flex flex-col items-center">
-
-            {/* Viewer Component */}
+        <div className="relative z-10 flex flex-col items-center justify-center my-auto">
             <GameboyViewer data={data} />
         </div>
     </div>
