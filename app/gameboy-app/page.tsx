@@ -121,6 +121,8 @@ const GameboyPreview = ({ data, songs, onToggleColor }: { data: any, songs: any[
   const foodRef = useRef<{x: number, y: number}>({x: 10, y: 10});
   const directionRef = useRef<string>("RIGHT");
   const gameIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [pressedDpad, setPressedDpad] = useState<string | null>(null);
+  const [pressedButton, setPressedButton] = useState<'A' | 'B' | null>(null); // State baru untuk tombol A/B
 
   const currentSong = songs.find(s => s.id === data.music) || songs[0];
   const displayCover = data.musicCover || currentSong.cover;
@@ -140,11 +142,16 @@ const GameboyPreview = ({ data, songs, onToggleColor }: { data: any, songs: any[
     if (data.gallery.length > 0) setPhotoIndex(prev => (prev - 1 + data.gallery.length) % data.gallery.length);
   };
 
-  const [pressedDpad, setPressedDpad] = useState<string | null>(null);
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+        return;
+      }
+
+      const key = e.key.toLowerCase();
       let dir = null;
+
       if (e.key === "ArrowUp") { dir = "UP"; }
       else if (e.key === "ArrowDown") { dir = "DOWN"; }
       else if (e.key === "ArrowLeft") { dir = "LEFT"; }
@@ -154,18 +161,31 @@ const GameboyPreview = ({ data, songs, onToggleColor }: { data: any, songs: any[
         e.preventDefault();
         setPressedDpad(dir);
         handleDpad(dir);
-      } else if (e.key === "a" || e.key === "Enter") {
+      } else if (key === "a") {
         e.preventDefault();
+        setPressedButton('A'); // Menggunakan setPressedButton di sini
         handleButtonA();
-      } else if (e.key === "b" || e.key === "Escape" || e.key === "Backspace") {
+      } else if (key === "b") {
         e.preventDefault();
+        setPressedButton('B'); // Menggunakan setPressedButton di sini
         handleButtonB();
       }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+        return;
+      }
+
       if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
         setPressedDpad(null);
+      }
+      if (e.key.toLowerCase() === "a") {
+        setPressedButton(null); // Menggunakan setPressedButton di sini
+      }
+      if (e.key.toLowerCase() === "b") {
+        setPressedButton(null); // Menggunakan setPressedButton di sini
       }
     };
 
@@ -411,23 +431,24 @@ const GameboyPreview = ({ data, songs, onToggleColor }: { data: any, songs: any[
             {activePopup === 'gallery' && (
                 <div className="absolute inset-0 bg-white z-40 flex flex-col items-center justify-center p-2">
                       {data.gallery.length > 0 ? (
-                          <>
-                             <div className="w-full h-[120px] bg-gray-100 mb-1.5 border border-black relative">
-                                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                                 <img src={data.gallery[photoIndex].url} className="w-full h-full object-cover" alt="Gallery" />
-                                 {data.gallery.length > 1 && (
-                                   <>
-                                     <button onClick={prevPhoto} className="absolute left-1 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white p-1 rounded-full cursor-pointer"><ChevronLeft size={10}/></button>
-                                     <button onClick={nextPhoto} className="absolute right-1 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white p-1 rounded-full cursor-pointer"><ChevronRight size={10}/></button>
-                                   </>
-                                 )}
-                             </div>
-                             <div className="w-full bg-[#f4f4f4] border border-black p-1.5 text-center min-h-[30px] flex items-center justify-center">
-                                 <span className="text-[7.5px] text-gray-800 pixel-font break-words">
-                                     {data.gallery[photoIndex].caption || `Memory #${photoIndex + 1}`}
-                                 </span>
-                             </div>
-                          </>
+                          <div className="w-full h-full bg-gray-100 border border-black relative overflow-hidden flex items-center justify-center">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={data.gallery[photoIndex].url} className="w-full h-full object-cover" alt="Gallery" />
+                              
+                              {data.gallery.length > 1 && (
+                                <>
+                                  <button onClick={prevPhoto} className="absolute left-1 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white p-1 rounded-full cursor-pointer z-10"><ChevronLeft size={10}/></button>
+                                  <button onClick={nextPhoto} className="absolute right-1 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white p-1 rounded-full cursor-pointer z-10"><ChevronRight size={10}/></button>
+                                </>
+                              )}
+
+                              {/* Caption Menyatu di Bawah Foto (Overlay Transparan) */}
+                              <div className="absolute bottom-0 inset-x-0 bg-black/60 backdrop-blur-[2px] p-1.5 text-center">
+                                  <span className="text-[7.5px] text-white pixel-font break-words block">
+                                      {data.gallery[photoIndex].caption || `Memory #${photoIndex + 1}`}
+                                  </span>
+                              </div>
+                          </div>
                       ) : <div className="text-[7.5px] text-gray-500 pixel-font">NO PHOTOS ADDED</div>}
                 </div>
             )}
@@ -502,11 +523,27 @@ const GameboyPreview = ({ data, songs, onToggleColor }: { data: any, songs: any[
 
           <div className="absolute top-2 right-2 flex gap-4 transform -rotate-12">
                <div className="flex flex-col items-center gap-0.5 mt-4">
-                   <button onClick={handleButtonB} className={`w-11 h-11 rounded-full ${activeColor.btnBg} border-[2.5px] border-black active:translate-y-1 transition-all font-bold text-xs pixel-font flex justify-center items-center cursor-pointer`} style={{ boxShadow: `3px 4px 0 ${INK}` }}>B</button>
+                   <button 
+                     onClick={handleButtonB} 
+                     className={`w-11 h-11 rounded-full ${activeColor.btnBg} border-[2.5px] border-black transition-all font-bold text-xs pixel-font flex justify-center items-center cursor-pointer ${
+                       pressedButton === 'B' ? 'translate-y-1 shadow-none brightness-90' : 'active:translate-y-1'
+                     }`} 
+                     style={{ boxShadow: pressedButton === 'B' ? 'none' : `3px 4px 0 ${INK}` }}
+                   >
+                     B
+                   </button>
                    <span className={`text-[7px] font-bold ${activeColor.text} uppercase tracking-wider font-sans opacity-95`}>JOIN</span>
                </div>
                <div className="flex flex-col items-center gap-0.5">
-                   <button onClick={handleButtonA} className={`w-11 h-11 rounded-full ${activeColor.btnBg} border-[2.5px] border-black active:translate-y-1 transition-all font-bold text-xs pixel-font flex justify-center items-center cursor-pointer`} style={{ boxShadow: `3px 4px 0 ${INK}` }}>A</button>
+                   <button 
+                     onClick={handleButtonA} 
+                     className={`w-11 h-11 rounded-full ${activeColor.btnBg} border-[2.5px] border-black transition-all font-bold text-xs pixel-font flex justify-center items-center cursor-pointer ${
+                       pressedButton === 'A' ? 'translate-y-1 shadow-none brightness-90' : 'active:translate-y-1'
+                     }`} 
+                     style={{ boxShadow: pressedButton === 'A' ? 'none' : `3px 4px 0 ${INK}` }}
+                   >
+                     A
+                   </button>
                    <span className={`text-[7px] font-bold ${activeColor.text} uppercase tracking-wider font-sans opacity-95`}>HOST</span>
                </div>
           </div>
@@ -712,8 +749,8 @@ export default function GameboyEditor() {
             status: "saved",
         });
 
-        const link = `${window.location.origin}/gameboy-app/${docRef.id}`;
-        setGeneratedLink(link);
+        const link = `${window.location.protocol}//${window.location.host}/gameboy-app/${docRef.id}`;
+setGeneratedLink(link);
     } catch (error) {
         console.error("Save Error:", error);
         alert("Gagal menyimpan ke server. Data mungkin terlalu besar (>1MB). Kurangi ukuran file.");
