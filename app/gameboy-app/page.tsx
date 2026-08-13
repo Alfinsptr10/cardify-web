@@ -724,16 +724,18 @@ export default function GameboyEditor() {
             sender: storyData.sender || "",
             music: storyData.music || "",
             musicCover: storyData.musicCover || null,
-            gallery: storyData.gallery.map(item => item.url), // Kompatibilitas database
-            galleryCaptions: storyData.gallery.map(item => item.caption),
+            // Pastikan hanya mengambil string URL dan caption yang ringkas
+            gallery: (storyData.gallery || []).map((item: any) => typeof item === 'string' ? item : (item.url || "")),
+            galleryCaptions: (storyData.gallery || []).map((item: any) => typeof item === 'string' ? "" : (item.caption || "")),
             color: storyData.color || "grey",
+            // Saring customSongs agar tidak membawa data base64 yang besar
             customSongs: songs
-                .filter(s => s.artist === "Custom Upload")
+                .filter(s => s.artist === "Custom Upload" && s.src && !s.src.startsWith('data:'))
                 .map(s => ({
                     title: s.title || "Untitled",
                     artist: "Custom Upload",
-                    src: s.src || "",
-                    cover: s.cover || "/retro-gameboy.png"
+                    src: s.src,
+                    cover: s.cover || ""
                 })),
             createdAt: new Date().toISOString(),
             type: "gameboy-v1",
