@@ -753,9 +753,10 @@ export default function GameboyEditor() {
 
         const link = `${window.location.protocol}//${window.location.host}/gameboy-app/${docRef.id}`;
 setGeneratedLink(link);
-    } catch (error) {
+    } catch (error: any) {
         console.error("Save Error:", error);
-        alert("Gagal menyimpan ke server. Data mungkin terlalu besar (>1MB). Kurangi ukuran file.");
+        // Tampilkan pesan error asli dari Firebase agar jelas kendalanya di mana
+        alert("Gagal menyimpan ke server: " + (error.message || "Terjadi kesalahan."));
     } finally {
         setIsSaving(false);
     }
